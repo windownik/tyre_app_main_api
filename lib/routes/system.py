@@ -18,6 +18,8 @@ async def initialization(connect):
     await conn.create_user_table(db=connect)
     await conn.create_vehicle_table(db=connect)
     await conn.create_contractor_table(db=connect)
+    await conn.create_service_session_table(db=connect)
+    await conn.create_user_in_contractor_table(db=connect)
     print('Create all tables')
 
 
@@ -28,7 +30,7 @@ def generate_html_response():
             <title>Start page</title>
         </head>
         <body>
-            <h2>Documentation for Universal auth API</h2>
+            <h2>Documentation for Tyre App main API</h2>
             <p><a href="/docs">Documentation Swager</a></p>
             <p><a href="/redoc">Documentation from reDoc</a></p>
         </body>

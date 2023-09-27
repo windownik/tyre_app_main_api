@@ -1,7 +1,6 @@
 import datetime
 import os
 import time
-from hashlib import sha256
 
 from fastapi_asyncpg import configure_asyncpg
 from lib.app_init import app
@@ -25,23 +24,25 @@ data_b = configure_asyncpg(app, f'postgres://postgres:{password}@{host}:{port}/{
 
 
 async def create_user_table(db):
-    await db.execute(f'''CREATE TABLE IF NOT EXISTS user (
+    await db.execute(f'''CREATE TABLE IF NOT EXISTS users (
  user_id BIGINT PRIMARY KEY,
  name VARCHAR(100) DEFAULT '0',
  surname VARCHAR(100) DEFAULT '0',
  phone BIGINT UNIQUE,
- user_type VARCHAR(20) DEFAULT '0',
+ email VARCHAR(100) DEFAULT '0',
+ user_type VARCHAR(20) DEFAULT 'client',
  status VARCHAR(20) DEFAULT 'active',
  lat DOUBLE PRECISION DEFAULT 0,
  long DOUBLE PRECISION DEFAULT 0,
- last_active BIGINT,
+ last_active BIGINT DEFAULT 0,
  createdate BIGINT
  )''')
 
 
 async def create_vehicle_table(db):
     await db.execute(f'''CREATE TABLE IF NOT EXISTS vehicle (
- reg_num UUID PRIMARY KEY,
+ vehicle_id SERIAL PRIMARY KEY,
+ reg_num VARCHAR(100) DEFAULT 0,
  owner_id BIGINT DEFAULT 0,
  make VARCHAR(100) DEFAULT '0',
  model VARCHAR(100) DEFAULT '0',
@@ -53,14 +54,14 @@ async def create_vehicle_table(db):
  rear_aspect_ratio INT DEFAULT 0,
  rear_section_width INT DEFAULT 0,
  status VARCHAR(20) DEFAULT 'active',
- bolt_key BOOL DEFAULT 0,
+ bolt_key BOOL DEFAULT false,
  createdate BIGINT
  )''')
 
 
 async def create_contractor_table(db):
     await db.execute(f'''CREATE TABLE IF NOT EXISTS contractor (
- service_id SERIAL PRIMARY KEY,
+ contractor_id SERIAL PRIMARY KEY,
  owner_id BIGINT DEFAULT 0,
  co_name VARCHAR(100) DEFAULT '0',
  acc_num TEXT DEFAULT '0',
@@ -73,41 +74,60 @@ async def create_contractor_table(db):
  money BIGINT DEFAULT 0,
  currency VARCHAR(20) DEFAULT 'GBP',
  status VARCHAR(20) DEFAULT 'active',
- createdate BIGINT;
+ createdate BIGINT
  )''')
 
 
-async def create_token(db: Depends, user_id: int, token_type: str, device_id: str, device_name: str):
+async def create_user_in_contractor_table(db):
+    await db.execute(f'''CREATE TABLE IF NOT EXISTS user_in_contractor (
+ id SERIAL PRIMARY KEY,
+ contractor_id BIGINT DEFAULT 0,
+ user_id BIGINT DEFAULT 0,
+ status VARCHAR(20) DEFAULT 'active',
+ delete_date BIGINT DEFAULT 0,
+ createdate BIGINT DEFAULT 0
+ )''')
+
+
+async def create_service_session_table(db):
+    await db.execute(f'''CREATE TABLE IF NOT EXISTS service_session (
+ session_id SERIAL PRIMARY KEY,
+ client_id BIGINT DEFAULT 0,
+ worker_id BIGINT DEFAULT 0,
+ contractor_id BIGINT DEFAULT 0,
+ vehicle_id BIGINT DEFAULT 0,
+ wheel_fr INT DEFAULT 0,
+ wheel_fl INT DEFAULT 0,
+ wheel_rr INT DEFAULT 0,
+ wheel_rl INT DEFAULT 0,
+ description TEXT DEFAULT '0',
+ status VARCHAR(20) DEFAULT 'active',
+ createdate BIGINT DEFAULT 0
+ )''')
+
+
+# Создаем новый токен
+async def save_user(db: Depends, user_id: int, name: str, surname: str, phone: int):
     create_date = datetime.datetime.now()
-    if token_type == 'access':
-        death_date = create_date + datetime.timedelta(minutes=10)
-    else:
-        death_date = create_date + datetime.timedelta(days=30)
-    now = datetime.datetime.now()
-    token = sha256(f"{user_id}.{now}.{secret}".encode('utf-8')).hexdigest()
-    token = await db.fetch(f"INSERT INTO token (user_id, token, token_type, device_id, device_name, create_date, "
-                           f"death_date) VALUES ($1, $2, $3, $4, $5, $6, $7) "
-                           f"ON CONFLICT DO NOTHING RETURNING token;", user_id, token, token_type, device_id,
-                           device_name, create_date, death_date)
+    token = await db.fetch(f"INSERT INTO users (user_id, name, surname, phone, createdate) "
+                           f"VALUES ($1, $2, $3, $4, $5) "
+                           f"ON CONFLICT DO NOTHING RETURNING *;", user_id, name, surname, phone,
+                           int(time.mktime(create_date.timetuple())))
     return token
 
 
 # Создаем новый токен
-async def save_sms_code(db: Depends, phone: int, code: int, device_id: str):
+async def create_vehicle(db: Depends, reg_num: str, owner_id: int, make: str, model: str, year: int,
+                         front_rim_diameter: int, front_aspect_ratio: int, front_section_width: int,
+                         rear_rim_diameter: int, rear_aspect_ratio: int, rear_section_width: int, bolt_key: bool):
     create_date = datetime.datetime.now()
-    token = await db.fetch(f"INSERT INTO sms_code (phone, code, device_id, create_date) "
-                           f"VALUES ($1, $2, $3, $4) "
-                           f"ON CONFLICT DO NOTHING RETURNING id;", phone, code, device_id,
-                           create_date)
-    return token
-
-
-# Создаем новый токен
-async def create_user_id(db: Depends, phone: int,):
-    create_date = datetime.datetime.now()
-    token = await db.fetch(f"INSERT INTO auth (phone, create_date) "
-                           f"VALUES ($1, $2) "
-                           f"ON CONFLICT DO NOTHING RETURNING user_id;", phone, create_date)
+    token = await db.fetch(f"INSERT INTO vehicle (reg_num, owner_id, make, model, year, front_rim_diameter, "
+                           f"front_aspect_ratio, front_section_width, rear_rim_diameter, rear_aspect_ratio, "
+                           f"rear_section_width, bolt_key, createdate) "
+                           f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) "
+                           f"ON CONFLICT DO NOTHING RETURNING *;", reg_num, owner_id, make, model, year,
+                           front_rim_diameter, front_aspect_ratio, front_section_width, rear_rim_diameter,
+                           rear_aspect_ratio, rear_section_width, bolt_key, int(time.mktime(create_date.timetuple())))
     return token
 
 
@@ -144,13 +164,6 @@ async def update_user_active(db: Depends, user_id: int):
 async def read_data(db: Depends, table: str, id_name: str, id_data, order: str = '', name: str = '*'):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT {name} FROM {table} WHERE {id_name} = $1{order};", id_data)
-    return data
-
-
-async def check_sms_code(db: Depends, phone: int, sms_code: int, device_id: str, ):
-    """Получаем актуальные события"""
-    data = await db.fetch(f"SELECT create_date FROM sms_code "
-                          f"WHERE phone = $1 AND code = $2 AND device_id = $3;", phone, sms_code, device_id)
     return data
 
 
