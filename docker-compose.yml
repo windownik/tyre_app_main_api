@@ -6,8 +6,8 @@ services:
     environment:
       DATABASE_NAME: "tyre_app"
       IP_SERVER: "167.235.253.89"
-      PORT_AUTH_SERVER: "167.235.253.89"
-      ip_auth_port: 10099
+      IP_AUTH_SERVER: "167.235.253.89"
+      PORT_AUTH_SERVER: 10099
       PORT_SERVER: 10020
 
     volumes:

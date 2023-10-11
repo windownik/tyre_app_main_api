@@ -16,7 +16,7 @@ ip_port = os.environ.get("PORT_SERVER")
 ip_port = 80 if ip_port is None else ip_port
 ip_server = "127.0.0.1" if ip_server is None else ip_server
 
-ip_auth_server = os.environ.get("PORT_AUTH_SERVER")
+ip_auth_server = os.environ.get("IP_AUTH_SERVER")
 ip_auth_port = os.environ.get("PORT_AUTH_SERVER")
 
 auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
