@@ -16,6 +16,11 @@ ip_port = os.environ.get("PORT_SERVER")
 ip_port = 80 if ip_port is None else ip_port
 ip_server = "127.0.0.1" if ip_server is None else ip_server
 
+ip_auth_server = os.environ.get("PORT_AUTH_SERVER")
+ip_auth_port = os.environ.get("PORT_AUTH_SERVER")
+
+auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
+
 
 @app.post(path='/login', tags=['Auth'], responses=get_login_res)
 async def login_user(phone: int, sms_code: int, device_id: str, device_name: str, db=Depends(data_b.connection)):
@@ -27,7 +32,7 @@ async def login_user(phone: int, sms_code: int, device_id: str, device_name: str
         "device_id": device_id,
         "device_name": device_name,
     }
-    res = requests.post('http://127.0.0.1:10050/login', params=params)
+    res = requests.post(f'{auth_url}/login', params=params)
     status_code = res.status_code
     if status_code == 200:
         user_id = res.json()['user_id']
@@ -60,7 +65,7 @@ async def create_account_user(phone: int, sms_code: int, device_id: str, device_
         "device_id": device_id,
         "device_name": device_name,
     }
-    res = requests.post('http://127.0.0.1:10050/create_account', params=params)
+    res = requests.post(f'{auth_url}/create_account', params=params)
     status_code = res.status_code
     if status_code == 200:
         user_id = res.json()['user_id']
