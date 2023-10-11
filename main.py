@@ -17,7 +17,7 @@ def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
-        title="Welcome to Universal auth API",
+        title="Welcome to main service API",
         version="0.5",
         description="This is main API page",
         routes=app.routes,
