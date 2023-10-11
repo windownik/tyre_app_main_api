@@ -57,7 +57,7 @@ async def create_vehicle(access_token: str, reg_num: str, make: str, model: str,
 
 
 @app.get(path='/vehicle', tags=['Vehicle'], responses=get_login_res)
-async def create_vehicle(access_token: str, reg_num: str, vehicle_id: int, db=Depends(data_b.connection)):
+async def get_vehicle(access_token: str, reg_num: str, vehicle_id: int, db=Depends(data_b.connection)):
     """Create vehicle in service by information"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
