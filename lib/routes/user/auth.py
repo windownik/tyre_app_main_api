@@ -32,7 +32,7 @@ async def login_user(phone: int, sms_code: int, device_id: str, device_name: str
         "device_id": device_id,
         "device_name": device_name,
     }
-    res = requests.post(f'{auth_url}/login', params=params)
+    res = requests.post(f'{auth_url}/check_sms', params=params)
     status_code = res.status_code
     if status_code == 200:
         user_id = res.json()['user_id']
@@ -56,12 +56,11 @@ async def login_user(phone: int, sms_code: int, device_id: str, device_name: str
 
 
 @app.post(path='/create_account', tags=['Auth'], responses=post_create_account_res)
-async def create_account_user(phone: int, sms_code: int, device_id: str, device_name: str, name: str, surname: str,
+async def create_account_user(phone: int, device_id: str, device_name: str, name: str, surname: str,
                               db=Depends(data_b.connection)):
     """Create new account in service with phone number, device_id and device_name"""
     params = {
         "phone": phone,
-        "sms_code": sms_code,
         "device_id": device_id,
         "device_name": device_name,
     }
