@@ -34,6 +34,7 @@ async def create_user_table(db):
  status VARCHAR(20) DEFAULT 'active',
  lat DOUBLE PRECISION DEFAULT 0,
  long DOUBLE PRECISION DEFAULT 0,
+ push_token TEXT DEFAULT '0',
  last_active BIGINT DEFAULT 0,
  createdate BIGINT
  )''')
