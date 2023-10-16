@@ -109,10 +109,10 @@ async def create_service_session_table(db):
 # Создаем новый токен
 async def save_user(db: Depends, user_id: int, name: str, surname: str, phone: int):
     create_date = datetime.datetime.now()
-    token = await db.fetch(f"INSERT INTO users (user_id, name, surname, phone, createdate) "
-                           f"VALUES ($1, $2, $3, $4, $5) "
+    token = await db.fetch(f"INSERT INTO users (user_id, name, surname, phone, last_active, createdate) "
+                           f"VALUES ($1, $2, $3, $4, $5, $6) "
                            f"ON CONFLICT DO NOTHING RETURNING *;", user_id, name, surname, phone,
-                           int(time.mktime(create_date.timetuple())))
+                           int(time.mktime(create_date.timetuple())), int(time.mktime(create_date.timetuple())))
     return token
 
 
@@ -152,6 +152,20 @@ async def get_user_id_by_token(db: Depends, token_type: str, token: str):
                           f"AND death_date > $3;",
                           token_type, token, now)
     return data
+
+
+# Обновляем информацию
+async def update_inform(db: Depends, name: str, data, table: str, id_name: str, id_data):
+    now = datetime.datetime.now()
+    await db.fetch(f"UPDATE {table} SET {name}=$1 WHERE {id_name}=$2;",
+                   data,  id_data)
+
+
+# Обновляем информацию
+async def update_user(db: Depends, name: str, surname: str, email: str, user_id: int):
+    now = datetime.datetime.now()
+    await db.fetch(f"UPDATE users SET name=$1, surname=$2, email=$3, last_active=$4 WHERE user_id=$5;",
+                   name, surname, email, int(time.mktime(now.timetuple())), user_id)
 
 
 # Обновляем информацию

@@ -252,7 +252,7 @@ get_create_code_res = {
     },
 }
 
-check_phone_res = {
+delete_user_res = {
     200: {
         "description": "Success",
         "content": {
@@ -261,13 +261,13 @@ check_phone_res = {
                     "odd": {
                         "summary": "Success",
                         "value": {"ok": True,
-                                  'description': 'This phone is not in database', }
+                                  'description': 'User account is deleted', }
                     },
                 }
             }
         }
     },
-    400: {
+    401: {
         "description": "Success",
         "content": {
             "application/json": {
@@ -275,7 +275,7 @@ check_phone_res = {
                     "odd": {
                         "summary": "Success",
                         "value": {"ok": False,
-                                  'description': 'This phone is in database', }
+                                  'description': 'You have bad refresh token or device_id, please login', }
                     },
                 }
             }
