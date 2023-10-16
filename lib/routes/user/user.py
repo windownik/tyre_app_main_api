@@ -22,7 +22,32 @@ ip_auth_port = os.environ.get("PORT_AUTH_SERVER")
 auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 
-@app.put(path='/user', tags=['User'], responses=get_login_res)
+@app.get(path='/user', tags=['User'], responses=get_user_res)
+async def update_user(access_token: str, user_id: int = 0, db=Depends(data_b.connection)):
+    """Update user information"""
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    status_code = res.status_code
+    if status_code == 200:
+        if user_id == 0:
+            user_id = res.json()['user_id']
+    else:
+        return JSONResponse(content=res.json(),
+                            status_code=status_code)
+
+    user_data = await conn.read_data(db=db, table='users', id_name='user_id', id_data=user_id)
+    if not user_data:
+        return JSONResponse(content={"ok": False,
+                                     'description': "Error with login account",
+                                     },
+                            status_code=500)
+    user: User = User.parse_obj(user_data[0])
+    return JSONResponse(content={"ok": True,
+                                 'user': user.dict(),
+                                 },
+                        status_code=_status.HTTP_200_OK)
+
+
+@app.put(path='/user', tags=['User'], responses=get_user_res)
 async def update_user(access_token: str, name: str, surname: str, email: str, db=Depends(data_b.connection)):
     """Update user information"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})

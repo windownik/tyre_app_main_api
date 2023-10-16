@@ -125,7 +125,7 @@ post_create_account_res = {
     },
 }
 
-get_devices_res = {
+get_user_res = {
     200: {
         "description": "Success",
         "content": {
@@ -134,20 +134,19 @@ get_devices_res = {
                     "odd": {
                         "summary": "Success",
                         "value": {"ok": True,
-                                  'user_id': 12,
-                                  'devices': [
-                                      {
-                                          'name': 'IPhone 12',
-                                          'device_id': 'dkm1omo1m34o23m2',
-                                          'last_date': '2023-09-25 13:24:05.996'
-                                      },
-                                      {
-                                          'name': 'IPhone 15',
-                                          'device_id': 'a8fvds8ve8c8',
-                                          'last_date': '2023-09-24 11:23:02.1'
-                                      },
-
-                                  ]
+                                  'user': {
+                                      "user_id": 1,
+                                      "name": "Mikita",
+                                      "surname": "Mislivets",
+                                      "phone": 123,
+                                      "email": "0",
+                                      "user_type": "client",
+                                      "status": "active",
+                                      "lat": 0,
+                                      "long": 0,
+                                      "last_active": 1697447161,
+                                      "createdate": 1697019389
+                                  },
                                   }
                     },
                 }
