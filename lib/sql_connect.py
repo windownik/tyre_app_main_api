@@ -72,6 +72,8 @@ async def create_contractor_table(db):
  postcode BIGINT DEFAULT 0,
  lat DOUBLE PRECISION DEFAULT 0,
  long DOUBLE PRECISION DEFAULT 0,
+ get_push BOOL DEFAULT false,
+ get_email BOOL DEFAULT false,
  money BIGINT DEFAULT 0,
  currency VARCHAR(20) DEFAULT 'GBP',
  status VARCHAR(20) DEFAULT 'active',
@@ -163,10 +165,11 @@ async def update_inform(db: Depends, name: str, data, table: str, id_name: str, 
 
 
 # Обновляем информацию
-async def update_user(db: Depends, name: str, surname: str, email: str, user_id: int):
+async def update_user(db: Depends, name: str, surname: str, email: str, get_push: bool, get_email: bool, user_id: int):
     now = datetime.datetime.now()
-    await db.fetch(f"UPDATE users SET name=$1, surname=$2, email=$3, last_active=$4 WHERE user_id=$5;",
-                   name, surname, email, int(time.mktime(now.timetuple())), user_id)
+    await db.fetch(f"UPDATE users SET name=$1, surname=$2, email=$3, get_push=$4, get_email=$5, last_active=$6 "
+                   f"WHERE user_id=$7;",
+                   name, surname, email, get_push, get_email, int(time.mktime(now.timetuple())), user_id)
 
 
 # Обновляем информацию

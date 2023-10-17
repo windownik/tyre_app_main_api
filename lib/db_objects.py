@@ -11,6 +11,8 @@ class User(BaseModel):
     status: str
     lat: float
     long: float
+    get_push: bool
+    get_email: bool
     last_active: int
     createdate: int
 

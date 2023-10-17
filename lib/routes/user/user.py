@@ -48,7 +48,8 @@ async def update_user(access_token: str, user_id: int = 0, db=Depends(data_b.con
 
 
 @app.put(path='/user', tags=['User'], responses=get_user_res)
-async def update_user(access_token: str, name: str, surname: str, email: str, db=Depends(data_b.connection)):
+async def update_user(access_token: str, name: str, surname: str, email: str, get_push: bool, get_email: bool,
+                      db=Depends(data_b.connection)):
     """Update user information"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
@@ -64,7 +65,8 @@ async def update_user(access_token: str, name: str, surname: str, email: str, db
                                      'description': "Error with login account",
                                      },
                             status_code=500)
-    await conn.update_user(db=db, name=name, surname=surname, email=email, user_id=user_id)
+    await conn.update_user(db=db, name=name, surname=surname, email=email, user_id=user_id, get_email=get_email,
+                           get_push=get_push)
     user_data = await conn.read_data(db=db, table='users', id_name='user_id', id_data=user_id)
     user: User = User.parse_obj(user_data[0])
     return JSONResponse(content={"ok": True,
