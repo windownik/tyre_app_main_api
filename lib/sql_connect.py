@@ -34,6 +34,8 @@ async def create_user_table(db):
  status VARCHAR(20) DEFAULT 'active',
  lat DOUBLE PRECISION DEFAULT 0,
  long DOUBLE PRECISION DEFAULT 0,
+ get_push BOOL DEFAULT false,
+ get_email BOOL DEFAULT false,
  push_token TEXT DEFAULT '0',
  last_active BIGINT DEFAULT 0,
  createdate BIGINT
@@ -72,8 +74,6 @@ async def create_contractor_table(db):
  postcode BIGINT DEFAULT 0,
  lat DOUBLE PRECISION DEFAULT 0,
  long DOUBLE PRECISION DEFAULT 0,
- get_push BOOL DEFAULT false,
- get_email BOOL DEFAULT false,
  money BIGINT DEFAULT 0,
  currency VARCHAR(20) DEFAULT 'GBP',
  status VARCHAR(20) DEFAULT 'active',
