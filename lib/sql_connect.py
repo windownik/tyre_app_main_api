@@ -185,6 +185,13 @@ async def read_data(db: Depends, table: str, id_name: str, id_data, order: str =
     return data
 
 
+async def read_vehicles(db: Depends, user_id: int):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"SELECT * FROM vehicle WHERE owner_id = $1 AND status = 'active' ORDER BY vehicle_id;",
+                          user_id)
+    return data
+
+
 # Удаляем токены
 async def delete_old_tokens(db: Depends):
     now = datetime.datetime.now()
