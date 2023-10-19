@@ -59,7 +59,7 @@ async def create_vehicle(access_token: str, reg_num: str, make: str, model: str,
 
 @app.get(path='/vehicle', tags=['Vehicle'], responses=get_login_res)
 async def get_vehicle(access_token: str, reg_num: str, vehicle_id: int, db=Depends(data_b.connection)):
-    """Create vehicle in service by information"""
+    """Get vehicle in service by reg_num or vehicle_id"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
     if status_code == 200:
@@ -80,5 +80,32 @@ async def get_vehicle(access_token: str, reg_num: str, vehicle_id: int, db=Depen
     vehicle: Vehicle = Vehicle.parse_obj(vehicle_data[0])
     return JSONResponse(content={"ok": True,
                                  'vehicle': vehicle.dict()
+                                 },
+                        status_code=_status.HTTP_200_OK)
+
+
+@app.delete(path='/vehicle', tags=['Vehicle'], responses=get_login_res)
+async def delete_vehicle(access_token: str, vehicle_id: int, db=Depends(data_b.connection)):
+    """Delete vehicle in service by vehicle_id"""
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    status_code = res.status_code
+    if status_code == 200:
+        pass
+    else:
+        return JSONResponse(content=res.json(),
+                            status_code=status_code)
+
+    vehicle_data = await conn.read_data(db=db, table='vehicle', id_name='vehicle_id', id_data=vehicle_id)
+    if not vehicle_data:
+        return JSONResponse(content={"ok": False,
+                                     'description': "The vehicle with this reg_num or vehicle_id is not registered",
+                                     },
+                            status_code=_status.HTTP_400_BAD_REQUEST)
+
+    await conn.update_inform(db=db, table="vehicle", name='status', data='deleted', id_name='vehicle_id',
+                             id_data=vehicle_id)
+
+    return JSONResponse(content={"ok": True,
+                                 'description': "Vehicle was successful delete"
                                  },
                         status_code=_status.HTTP_200_OK)
