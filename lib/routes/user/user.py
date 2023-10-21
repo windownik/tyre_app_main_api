@@ -44,7 +44,8 @@ async def update_user(access_token: str, user_id: int = 0, db=Depends(data_b.con
     return JSONResponse(content={"ok": True,
                                  'user': user.dict(),
                                  },
-                        status_code=_status.HTTP_200_OK)
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
 
 
 @app.put(path='/user', tags=['User'], responses=get_user_res)
@@ -72,7 +73,8 @@ async def update_user(access_token: str, name: str, surname: str, email: str, ge
     return JSONResponse(content={"ok": True,
                                  'user': user.dict(),
                                  },
-                        status_code=_status.HTTP_200_OK)
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
 
 
 @app.put(path='/user_status', tags=['User'], responses=get_user_res)
@@ -101,7 +103,8 @@ async def update_user(access_token: str, db=Depends(data_b.connection)):
     return JSONResponse(content={"ok": True,
                                  'user': user.dict(),
                                  },
-                        status_code=_status.HTTP_200_OK)
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
 
 
 @app.delete(path='/user', tags=['User'], responses=delete_user_res)

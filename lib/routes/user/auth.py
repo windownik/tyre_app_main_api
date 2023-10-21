@@ -49,7 +49,8 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
                                  'user': user.dict(),
                                  "vehicles": vehicles
                                  },
-                        status_code=_status.HTTP_200_OK)
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
 
 
 @app.post(path='/create_account', tags=['Auth'], responses=post_create_account_res)
@@ -81,7 +82,8 @@ async def create_account_user(phone: int, device_id: str, device_name: str, name
                                  'access_token': res.json()['access_token'],
                                  'refresh_token': res.json()['refresh_token']
                                  },
-                        status_code=_status.HTTP_200_OK)
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
 
 
 @app.put(path='/push_token', tags=['Auth'], responses=get_login_res)

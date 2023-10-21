@@ -54,7 +54,8 @@ async def create_vehicle(access_token: str, reg_num: str, make: str, model: str,
     return JSONResponse(content={"ok": True,
                                  'vehicle': vehicle.dict()
                                  },
-                        status_code=_status.HTTP_200_OK)
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
 
 
 @app.get(path='/vehicle', tags=['Vehicle'], responses=get_login_res)
@@ -81,7 +82,8 @@ async def get_vehicle(access_token: str, reg_num: str, vehicle_id: int, db=Depen
     return JSONResponse(content={"ok": True,
                                  'vehicle': vehicle.dict()
                                  },
-                        status_code=_status.HTTP_200_OK)
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
 
 
 @app.delete(path='/vehicle', tags=['Vehicle'], responses=get_login_res)
