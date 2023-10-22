@@ -105,6 +105,8 @@ async def create_service_session_table(db):
  wheel_rl INT DEFAULT 0,
  description TEXT DEFAULT '0',
  status VARCHAR(20) DEFAULT 'active',
+ session_type VARCHAR(20) DEFAULT 'now',
+ session_date BIGINT DEFAULT 0,
  createdate BIGINT DEFAULT 0
  )''')
 

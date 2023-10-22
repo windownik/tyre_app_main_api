@@ -64,4 +64,6 @@ class ServiceSession(BaseModel):
     wheel_rl: int
     description: str
     status: str
+    session_type: str
+    session_date: int
     create_date: int
