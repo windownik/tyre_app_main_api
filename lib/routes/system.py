@@ -16,6 +16,8 @@ async def initialization(connect):
     # you can run your db initialization code here
     await connect.execute("SELECT 1")
     await conn.create_user_table(db=connect)
+    await conn.create_photo_table(db=connect)
+    await conn.create_review_table(db=connect)
     await conn.create_vehicle_table(db=connect)
     await conn.create_contractor_table(db=connect)
     await conn.create_service_session_table(db=connect)

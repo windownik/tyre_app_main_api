@@ -6,7 +6,6 @@ from fastapi_asyncpg import configure_asyncpg
 from lib.app_init import app
 from fastapi import Depends
 
-
 password = os.environ.get("DATABASE_PASS")
 host = os.environ.get("DATABASE_HOST")
 port = os.environ.get("DATABASE_PORT")
@@ -107,7 +106,33 @@ async def create_service_session_table(db):
  status VARCHAR(20) DEFAULT 'active',
  session_type VARCHAR(20) DEFAULT 'now',
  session_date BIGINT DEFAULT 0,
- createdate BIGINT DEFAULT 0
+ create_date BIGINT DEFAULT 0
+ )''')
+
+
+async def create_review_table(db):
+    await db.execute(f'''CREATE TABLE IF NOT EXISTS review (
+ session_id SERIAL PRIMARY KEY,
+ client_id BIGINT DEFAULT 0,
+ text BIGINT DEFAULT 0,
+ score INTEGER DEFAULT 5,
+ status VARCHAR(20) DEFAULT 'active',
+ delete_date BIGINT DEFAULT 0
+ create_date BIGINT DEFAULT 0
+ )''')
+
+
+async def create_photo_table(db):
+    await db.execute(f'''CREATE TABLE IF NOT EXISTS photo (
+ session_id SERIAL PRIMARY KEY,
+ photo_before_1 BIGINT DEFAULT 0,
+ photo_before_2 BIGINT DEFAULT 0,
+ photo_before_3 BIGINT DEFAULT 0,
+ photo_before_4 BIGINT DEFAULT 0,
+ photo_after_1 BIGINT DEFAULT 0,
+ photo_after_2 BIGINT DEFAULT 0,
+ photo_after_3 BIGINT DEFAULT 0,
+ photo_after_4 BIGINT DEFAULT 0
  )''')
 
 
@@ -121,10 +146,10 @@ async def save_user(db: Depends, user_id: int, name: str, surname: str, phone: i
     return token
 
 
-# Создаем новый токен
 async def create_vehicle(db: Depends, reg_num: str, owner_id: int, make: str, model: str, year: int,
                          front_rim_diameter: int, front_aspect_ratio: int, front_section_width: int,
                          rear_rim_diameter: int, rear_aspect_ratio: int, rear_section_width: int, bolt_key: bool):
+    """We are create a new vehicle"""
     create_date = datetime.datetime.now()
     token = await db.fetch(f"INSERT INTO vehicle (reg_num, owner_id, make, model, year, front_rim_diameter, "
                            f"front_aspect_ratio, front_section_width, rear_rim_diameter, rear_aspect_ratio, "
@@ -133,6 +158,19 @@ async def create_vehicle(db: Depends, reg_num: str, owner_id: int, make: str, mo
                            f"ON CONFLICT DO NOTHING RETURNING *;", reg_num, owner_id, make, model, year,
                            front_rim_diameter, front_aspect_ratio, front_section_width, rear_rim_diameter,
                            rear_aspect_ratio, rear_section_width, bolt_key, int(time.mktime(create_date.timetuple())))
+    return token
+
+
+async def create_service_session(db: Depends, client_id: int, vehicle_id: int, wheel_fr: int,
+                                 wheel_fl: int, wheel_rr: int, wheel_rl: int, session_type: str,
+                                 session_date: int):
+    """We are create a new service session"""
+    create_date = datetime.datetime.now()
+    token = await db.fetch(f"INSERT INTO service_session (client_id, vehicle_id, wheel_fr, wheel_fl, "
+                           f"wheel_rr, wheel_rl, session_type, session_date, create_date) "
+                           f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) "
+                           f"ON CONFLICT DO NOTHING RETURNING *;", client_id, vehicle_id, wheel_fr, wheel_fl,
+                           wheel_rr, wheel_rl, session_type, session_date, int(time.mktime(create_date.timetuple())))
     return token
 
 
@@ -161,9 +199,8 @@ async def get_user_id_by_token(db: Depends, token_type: str, token: str):
 
 # Обновляем информацию
 async def update_inform(db: Depends, name: str, data, table: str, id_name: str, id_data):
-    now = datetime.datetime.now()
     await db.fetch(f"UPDATE {table} SET {name}=$1 WHERE {id_name}=$2;",
-                   data,  id_data)
+                   data, id_data)
 
 
 # Обновляем информацию

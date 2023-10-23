@@ -1,3 +1,4 @@
+from fastapi import Depends
 from pydantic import BaseModel
 
 
@@ -67,3 +68,7 @@ class ServiceSession(BaseModel):
     session_type: str
     session_date: int
     create_date: int
+
+    async def to_json(self, db: Depends):
+        res = self.dict()
+        return res

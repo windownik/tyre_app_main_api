@@ -4,7 +4,7 @@ import requests
 import starlette.status as _status
 from fastapi import Depends
 from starlette.responses import JSONResponse
-from lib.db_objects import Vehicle
+from lib.db_objects import Vehicle, ServiceSession
 
 from lib import sql_connect as conn
 from lib.response_examples import *
@@ -23,12 +23,13 @@ auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 
 @app.post(path='/service_session', tags=['Service session'], responses=get_login_res)
-async def create_service_session(access_token: str, reg_num: str, make: str, model: str, year: int,
-                                 front_rim_diameter: int,
-                                 front_aspect_ratio: int, front_section_width: int, rear_rim_diameter: int,
-                                 rear_aspect_ratio: int, rear_section_width: int, bolt_key: bool,
+async def create_service_session(access_token: str, vehicle_id: int, session_type: str, session_date: int,
+                                 wheel_fr: int = 0, wheel_fl: int = 0, wheel_rr: int = 0, wheel_rl: int = 0,
                                  db=Depends(data_b.connection)):
-    """Create vehicle in service by information"""
+    """
+    Create service_session with information\n
+    service_session string can be: now, schedule
+    """
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
     if status_code == 200:
@@ -37,23 +38,22 @@ async def create_service_session(access_token: str, reg_num: str, make: str, mod
         return JSONResponse(content=res.json(),
                             status_code=status_code)
 
-    vehicle_data = await conn.read_data(db=db, table='vehicle', id_name='reg_num', id_data=reg_num)
-    if vehicle_data:
+    vehicle_data = await conn.read_data(db=db, table='vehicle', id_name='vehicle_id', id_data=vehicle_id)
+    if not vehicle_data:
         return JSONResponse(content={"ok": False,
-                                     'description': "The vehicle with this reg_num is registered",
+                                     'description': "The vehicle with this vehicle_id is not registered",
                                      },
                             status_code=_status.HTTP_400_BAD_REQUEST)
-
-    vehicle_data = await conn.create_vehicle(db=db, bolt_key=bolt_key, reg_num=reg_num, year=year, model=model,
-                                             front_aspect_ratio=front_aspect_ratio, make=make, owner_id=user_id,
-                                             front_rim_diameter=front_rim_diameter,
-                                             front_section_width=front_section_width,
-                                             rear_aspect_ratio=rear_aspect_ratio, rear_rim_diameter=rear_rim_diameter,
-                                             rear_section_width=rear_section_width
-                                             )
-    vehicle: Vehicle = Vehicle.parse_obj(vehicle_data[0])
+    if session_type not in ('now', 'schedule'):
+        return JSONResponse(content={"ok": False,
+                                     'description': "Wrong session_type"},
+                            status_code=_status.HTTP_400_BAD_REQUEST)
+    session_data = await conn.create_service_session(db=db, client_id=user_id, vehicle_id=vehicle_id,
+                                                     wheel_fr=wheel_fr, wheel_fl=wheel_fl, session_type=session_type,
+                                                     session_date=session_date, wheel_rl=wheel_rl, wheel_rr=wheel_rr)
+    service_session: ServiceSession = ServiceSession.parse_obj(session_data[0])
     return JSONResponse(content={"ok": True,
-                                 'vehicle': vehicle.dict()
+                                 'vehicle': await service_session.to_json(db=db)
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
