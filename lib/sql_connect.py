@@ -117,7 +117,7 @@ async def create_review_table(db):
  text BIGINT DEFAULT 0,
  score INTEGER DEFAULT 5,
  status VARCHAR(20) DEFAULT 'active',
- delete_date BIGINT DEFAULT 0
+ delete_date BIGINT DEFAULT 0,
  create_date BIGINT DEFAULT 0
  )''')
 
