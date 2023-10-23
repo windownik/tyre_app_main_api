@@ -112,7 +112,7 @@ async def create_service_session_table(db):
 
 async def create_review_table(db):
     await db.execute(f'''CREATE TABLE IF NOT EXISTS review (
- session_id SERIAL PRIMARY KEY,
+ session_id BIGINT PRIMARY KEY,
  client_id BIGINT DEFAULT 0,
  text BIGINT DEFAULT 0,
  score INTEGER DEFAULT 5,
@@ -124,7 +124,7 @@ async def create_review_table(db):
 
 async def create_photo_table(db):
     await db.execute(f'''CREATE TABLE IF NOT EXISTS photo (
- session_id SERIAL PRIMARY KEY,
+ session_id BIGINT PRIMARY KEY,
  photo_before_1 BIGINT DEFAULT 0,
  photo_before_2 BIGINT DEFAULT 0,
  photo_before_3 BIGINT DEFAULT 0,
