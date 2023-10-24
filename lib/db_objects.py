@@ -82,12 +82,8 @@ class ServiceSession(BaseModel):
     async def to_json(self, db: Depends):
         res = self.dict()
         review_data = await conn.read_review(db=db, session_id=self.session_id)
-        review_list = []
-        services_list = []
-        for one in review_data:
-            review = Review.parse_obj(one)
-            review_list.append(review)
+        if review_data:
+            review: Review = Review.parse_obj(review_data[0])
+            res['review'] = review.dict()
 
-        res['reviews'] = review_list
-        res['services_session_list'] = services_list
         return res

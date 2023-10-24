@@ -139,11 +139,11 @@ async def create_photo_table(db):
 # Создаем новый токен
 async def save_user(db: Depends, user_id: int, name: str, surname: str, phone: int):
     create_date = datetime.datetime.now()
-    token = await db.fetch(f"INSERT INTO users (user_id, name, surname, phone, last_active, createdate) "
-                           f"VALUES ($1, $2, $3, $4, $5, $6) "
-                           f"ON CONFLICT DO NOTHING RETURNING *;", user_id, name, surname, phone,
-                           int(time.mktime(create_date.timetuple())), int(time.mktime(create_date.timetuple())))
-    return token
+    data = await db.fetch(f"INSERT INTO users (user_id, name, surname, phone, last_active, createdate) "
+                          f"VALUES ($1, $2, $3, $4, $5, $6) "
+                          f"ON CONFLICT DO NOTHING RETURNING *;", user_id, name, surname, phone,
+                          int(time.mktime(create_date.timetuple())), int(time.mktime(create_date.timetuple())))
+    return data
 
 
 async def create_vehicle(db: Depends, reg_num: str, owner_id: int, make: str, model: str, year: int,
@@ -151,14 +151,14 @@ async def create_vehicle(db: Depends, reg_num: str, owner_id: int, make: str, mo
                          rear_rim_diameter: int, rear_aspect_ratio: int, rear_section_width: int, bolt_key: bool):
     """We are create a new vehicle"""
     create_date = datetime.datetime.now()
-    token = await db.fetch(f"INSERT INTO vehicle (reg_num, owner_id, make, model, year, front_rim_diameter, "
-                           f"front_aspect_ratio, front_section_width, rear_rim_diameter, rear_aspect_ratio, "
-                           f"rear_section_width, bolt_key, createdate) "
-                           f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) "
-                           f"ON CONFLICT DO NOTHING RETURNING *;", reg_num, owner_id, make, model, year,
-                           front_rim_diameter, front_aspect_ratio, front_section_width, rear_rim_diameter,
-                           rear_aspect_ratio, rear_section_width, bolt_key, int(time.mktime(create_date.timetuple())))
-    return token
+    data = await db.fetch(f"INSERT INTO vehicle (reg_num, owner_id, make, model, year, front_rim_diameter, "
+                          f"front_aspect_ratio, front_section_width, rear_rim_diameter, rear_aspect_ratio, "
+                          f"rear_section_width, bolt_key, createdate) "
+                          f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) "
+                          f"ON CONFLICT DO NOTHING RETURNING *;", reg_num, owner_id, make, model, year,
+                          front_rim_diameter, front_aspect_ratio, front_section_width, rear_rim_diameter,
+                          rear_aspect_ratio, rear_section_width, bolt_key, int(time.mktime(create_date.timetuple())))
+    return data
 
 
 async def create_service_session(db: Depends, client_id: int, vehicle_id: int, wheel_fr: int,
@@ -166,12 +166,22 @@ async def create_service_session(db: Depends, client_id: int, vehicle_id: int, w
                                  session_date: int):
     """We are create a new service session"""
     create_date = datetime.datetime.now()
-    token = await db.fetch(f"INSERT INTO service_session (client_id, vehicle_id, wheel_fr, wheel_fl, "
-                           f"wheel_rr, wheel_rl, session_type, session_date, create_date) "
-                           f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) "
-                           f"ON CONFLICT DO NOTHING RETURNING *;", client_id, vehicle_id, wheel_fr, wheel_fl,
-                           wheel_rr, wheel_rl, session_type, session_date, int(time.mktime(create_date.timetuple())))
-    return token
+    data = await db.fetch(f"INSERT INTO service_session (client_id, vehicle_id, wheel_fr, wheel_fl, "
+                          f"wheel_rr, wheel_rl, session_type, session_date, create_date) "
+                          f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) "
+                          f"ON CONFLICT DO NOTHING RETURNING *;", client_id, vehicle_id, wheel_fr, wheel_fl,
+                          wheel_rr, wheel_rl, session_type, session_date, int(time.mktime(create_date.timetuple())))
+    return data
+
+
+async def create_review(db: Depends, session_id: int, client_id: int, text: str, score: int):
+    """We are create a new review for service session"""
+    create_date = datetime.datetime.now()
+    data = await db.fetch(f"INSERT INTO review (session_id, client_id, text, score, create_date) "
+                          f"VALUES ($1, $2, $3, $4, $5) "
+                          f"ON CONFLICT DO NOTHING RETURNING *;", session_id, client_id, text, score,
+                          int(time.mktime(create_date.timetuple())))
+    return data
 
 
 async def get_user_id(db: Depends, token_type: str, token: str, device_id: str):

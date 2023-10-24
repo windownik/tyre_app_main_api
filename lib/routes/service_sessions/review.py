@@ -4,7 +4,7 @@ import requests
 import starlette.status as _status
 from fastapi import Depends
 from starlette.responses import JSONResponse
-from lib.db_objects import Vehicle, ServiceSession
+from lib.db_objects import Review, ServiceSession
 
 from lib import sql_connect as conn
 from lib.response_examples import *
@@ -22,13 +22,11 @@ ip_auth_port = os.environ.get("PORT_AUTH_SERVER")
 auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 
-@app.post(path='/service_session', tags=['Service session'], responses=get_login_res)
-async def create_service_session(access_token: str, vehicle_id: int, session_type: str, session_date: int,
-                                 wheel_fr: int = 0, wheel_fl: int = 0, wheel_rr: int = 0, wheel_rl: int = 0,
-                                 db=Depends(data_b.connection)):
+@app.post(path='/review', tags=['Review'], responses=get_login_res)
+async def create_review(access_token: str, session_id: int, text: str, score: int, db=Depends(data_b.connection)):
     """
-    Create service_session with information\n
-    service_session string can be: now, schedule
+    Create review with information\n
+    score integer can be: 1...5
     """
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
@@ -38,28 +36,24 @@ async def create_service_session(access_token: str, vehicle_id: int, session_typ
         return JSONResponse(content=res.json(),
                             status_code=status_code)
 
-    vehicle_data = await conn.read_data(db=db, table='vehicle', id_name='vehicle_id', id_data=vehicle_id)
-    if not vehicle_data:
+    service_data = await conn.read_data(db=db, table='service_session', id_name='session_id', id_data=session_id)
+    if not service_data:
         return JSONResponse(content={"ok": False,
-                                     'description': "The vehicle with this vehicle_id is not registered",
-                                     },
+                                     'description': "The service session with this session_id is not registered"},
                             status_code=_status.HTTP_400_BAD_REQUEST)
-    if session_type not in ('now', 'schedule'):
+    if score not in (1, 2, 3, 4, 5):
         return JSONResponse(content={"ok": False,
-                                     'description': "Wrong session_type"},
+                                     'description': "Wrong score"},
                             status_code=_status.HTTP_400_BAD_REQUEST)
-    session_data = await conn.create_service_session(db=db, client_id=user_id, vehicle_id=vehicle_id,
-                                                     wheel_fr=wheel_fr, wheel_fl=wheel_fl, session_type=session_type,
-                                                     session_date=session_date, wheel_rl=wheel_rl, wheel_rr=wheel_rr)
-    service_session: ServiceSession = ServiceSession.parse_obj(session_data[0])
+    review = await conn.create_review(db=db, client_id=user_id, score=score, session_id=session_id, text=text)
+    review: Review = Review.parse_obj(review[0])
     return JSONResponse(content={"ok": True,
-                                 'service_session': await service_session.to_json(db=db)
-                                 },
+                                 'review': review.dict()},
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.get(path='/service_session', tags=['Service session'], responses=get_login_res)
+@app.get(path='/review', tags=['Review'], responses=get_login_res)
 async def get_service_session(access_token: str, session_id: int, db=Depends(data_b.connection)):
     """Get service_session by service_session_id"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
@@ -70,7 +64,7 @@ async def get_service_session(access_token: str, session_id: int, db=Depends(dat
         return JSONResponse(content=res.json(),
                             status_code=status_code)
 
-    service_data = await conn.read_data(db=db, table='service_session', id_name='session_id', id_data=session_id)
+    service_data = await conn.read_data(db=db, table='review', id_name='session_id', id_data=session_id)
     if not service_data:
         return JSONResponse(content={"ok": False,
                                      'description': "The service session with this session_id is not registered",
@@ -85,7 +79,7 @@ async def get_service_session(access_token: str, session_id: int, db=Depends(dat
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.delete(path='/service_session', tags=['Service session'], responses=get_login_res)
+@app.delete(path='/review', tags=['Review'], responses=get_login_res)
 async def delete_service_session(access_token: str, session_id: int, db=Depends(data_b.connection)):
     """Delete service_session in service by session_id"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
