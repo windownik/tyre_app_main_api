@@ -53,7 +53,7 @@ async def create_service_session(access_token: str, vehicle_id: int, session_typ
                                                      session_date=session_date, wheel_rl=wheel_rl, wheel_rr=wheel_rr)
     service_session: ServiceSession = ServiceSession.parse_obj(session_data[0])
     return JSONResponse(content={"ok": True,
-                                 'vehicle': await service_session.to_json(db=db)
+                                 'service_session': await service_session.to_json(db=db)
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})

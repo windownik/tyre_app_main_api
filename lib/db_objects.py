@@ -1,5 +1,6 @@
 from fastapi import Depends
 from pydantic import BaseModel
+from lib import sql_connect as conn
 
 
 class User(BaseModel):
@@ -53,6 +54,15 @@ class Contractor(BaseModel):
     create_date: int
 
 
+class Review(BaseModel):
+    client_id: int
+    text: str
+    score: str
+    status: str
+    delete_date: str
+    create_date: str
+
+
 class ServiceSession(BaseModel):
     session_id: int
     client_id: int
@@ -71,4 +81,13 @@ class ServiceSession(BaseModel):
 
     async def to_json(self, db: Depends):
         res = self.dict()
+        review_data = await conn.read_review(db=db, session_id=self.session_id)
+        review_list = []
+        services_list = []
+        for one in review_data:
+            review = Review.parse_obj(one)
+            review_list.append(review)
+
+        res['reviews'] = review_list
+        res['services_session_list'] = services_list
         return res

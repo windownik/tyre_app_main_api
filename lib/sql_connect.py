@@ -224,6 +224,12 @@ async def read_data(db: Depends, table: str, id_name: str, id_data, order: str =
     return data
 
 
+async def read_review(db: Depends, session_id: int, ):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"SELECT * FROM review WHERE session_id = $1 ORDER BY session_id;", session_id)
+    return data
+
+
 async def read_vehicles(db: Depends, user_id: int):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT * FROM vehicle WHERE owner_id = $1 AND status = 'active' ORDER BY vehicle_id;",
