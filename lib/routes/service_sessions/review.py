@@ -54,7 +54,7 @@ async def create_review(access_token: str, session_id: int, text: str, score: in
 
 
 @app.get(path='/review', tags=['Review'], responses=get_login_res)
-async def get_service_session(access_token: str, session_id: int, db=Depends(data_b.connection)):
+async def get_review(access_token: str, session_id: int, db=Depends(data_b.connection)):
     """Get service_session by service_session_id"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
@@ -71,16 +71,16 @@ async def get_service_session(access_token: str, session_id: int, db=Depends(dat
                                      },
                             status_code=_status.HTTP_400_BAD_REQUEST)
 
-    service_session: ServiceSession = ServiceSession.parse_obj(service_data[0])
+    review: Review = Review.parse_obj(service_data[0])
     return JSONResponse(content={"ok": True,
-                                 'service_session': await service_session.to_json(db=db)
+                                 'service_session': review.dict()
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
 @app.delete(path='/review', tags=['Review'], responses=get_login_res)
-async def delete_service_session(access_token: str, session_id: int, db=Depends(data_b.connection)):
+async def delete_review(access_token: str, session_id: int, db=Depends(data_b.connection)):
     """Delete service_session in service by session_id"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
