@@ -1,10 +1,13 @@
+import datetime
 import os
+import time
+
 import requests
 
 import starlette.status as _status
 from fastapi import Depends
 from starlette.responses import JSONResponse
-from lib.db_objects import Review, ServiceSession
+from lib.db_objects import Review
 
 from lib import sql_connect as conn
 from lib.response_examples import *
@@ -64,14 +67,14 @@ async def get_review(access_token: str, session_id: int, db=Depends(data_b.conne
         return JSONResponse(content=res.json(),
                             status_code=status_code)
 
-    service_data = await conn.read_data(db=db, table='review', id_name='session_id', id_data=session_id)
-    if not service_data:
+    review_data = await conn.read_data(db=db, table='review', id_name='session_id', id_data=session_id)
+    if not review_data:
         return JSONResponse(content={"ok": False,
                                      'description': "The review with this session_id is not registered",
                                      },
                             status_code=_status.HTTP_400_BAD_REQUEST)
 
-    review: Review = Review.parse_obj(service_data[0])
+    review: Review = Review.parse_obj(review_data[0])
     return JSONResponse(content={"ok": True,
                                  'service_session': review.dict()},
                         status_code=_status.HTTP_200_OK,
@@ -80,7 +83,7 @@ async def get_review(access_token: str, session_id: int, db=Depends(data_b.conne
 
 @app.delete(path='/review', tags=['Review'], responses=get_login_res)
 async def delete_review(access_token: str, session_id: int, db=Depends(data_b.connection)):
-    """Delete service_session in service by session_id"""
+    """Delete review in service_session by session_id"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
     if status_code == 200:
@@ -89,17 +92,21 @@ async def delete_review(access_token: str, session_id: int, db=Depends(data_b.co
         return JSONResponse(content=res.json(),
                             status_code=status_code)
 
-    vehicle_data = await conn.read_data(db=db, table='service_session', id_name='session_id', id_data=session_id)
-    if not vehicle_data:
+    review_data = await conn.read_data(db=db, table='review', id_name='session_id', id_data=session_id)
+    if not review_data:
         return JSONResponse(content={"ok": False,
-                                     'description': "The service_session with this session_id is not registered",
+                                     'description': "The review with this session_id is not registered",
                                      },
                             status_code=_status.HTTP_400_BAD_REQUEST)
 
-    await conn.update_inform(db=db, table="service_session", name='status', data='deleted', id_name='session_id',
+    await conn.update_inform(db=db, table="review", name='status', data='deleted', id_name='session_id',
+                             id_data=session_id)
+    now = datetime.datetime.now()
+    delete_date = int(time.mktime(now.timetuple()))
+
+    await conn.update_inform(db=db, table="review", name='delete_date', data=delete_date, id_name='session_id',
                              id_data=session_id)
 
     return JSONResponse(content={"ok": True,
-                                 'description': "Service_session was successful delete"
-                                 },
+                                 'description': "Service_session was successful delete"},
                         status_code=_status.HTTP_200_OK)

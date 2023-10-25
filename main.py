@@ -23,7 +23,10 @@ def custom_openapi():
         routes=app.routes,
         tags=[
             {'name': 'Auth', 'description': "Auth user methods in server"},
-            {'name': 'Devices', 'description': "Device management"},
+            {'name': 'User', 'description': "Routes for work with users"},
+            {'name': 'Vehicle', 'description': "Routes for work with vehicle"},
+            {'name': 'Service session', 'description': "Routes for work with Service session"},
+            {'name': 'Review', 'description': "Routes for work with reviews for services session"}
         ]
     )
     app.openapi_schema = openapi_schema
