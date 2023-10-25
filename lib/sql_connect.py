@@ -114,7 +114,7 @@ async def create_review_table(db):
     await db.execute(f'''CREATE TABLE IF NOT EXISTS review (
  session_id BIGINT PRIMARY KEY,
  client_id BIGINT DEFAULT 0,
- text BIGINT DEFAULT 0,
+ text TEXT DEFAULT '0',
  score INTEGER DEFAULT 5,
  status VARCHAR(20) DEFAULT 'active',
  delete_date BIGINT DEFAULT 0,

@@ -45,8 +45,8 @@ async def create_review(access_token: str, session_id: int, text: str, score: in
         return JSONResponse(content={"ok": False,
                                      'description': "Wrong score"},
                             status_code=_status.HTTP_400_BAD_REQUEST)
-    review = await conn.create_review(db=db, client_id=user_id, score=score, session_id=session_id, text=text)
-    review: Review = Review.parse_obj(review[0])
+    review_data = await conn.create_review(db=db, client_id=user_id, score=score, session_id=session_id, text=text)
+    review: Review = Review.parse_obj(review_data[0])
     return JSONResponse(content={"ok": True,
                                  'review': review.dict()},
                         status_code=_status.HTTP_200_OK,
@@ -67,14 +67,13 @@ async def get_review(access_token: str, session_id: int, db=Depends(data_b.conne
     service_data = await conn.read_data(db=db, table='review', id_name='session_id', id_data=session_id)
     if not service_data:
         return JSONResponse(content={"ok": False,
-                                     'description': "The service session with this session_id is not registered",
+                                     'description': "The review with this session_id is not registered",
                                      },
                             status_code=_status.HTTP_400_BAD_REQUEST)
 
     review: Review = Review.parse_obj(service_data[0])
     return JSONResponse(content={"ok": True,
-                                 'service_session': review.dict()
-                                 },
+                                 'service_session': review.dict()},
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
 
