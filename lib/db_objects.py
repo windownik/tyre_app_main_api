@@ -59,8 +59,8 @@ class Review(BaseModel):
     text: str
     score: str
     status: str
-    delete_date: str
-    create_date: str
+    delete_date: int
+    create_date: int
 
 
 class ServiceSession(BaseModel):
