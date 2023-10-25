@@ -59,7 +59,7 @@ async def create_vehicle(access_token: str, reg_num: str, make: str, model: str,
 
 
 @app.get(path='/vehicle', tags=['Vehicle'], responses=get_login_res)
-async def get_vehicle(access_token: str, reg_num: str, vehicle_id: int, db=Depends(data_b.connection)):
+async def get_vehicle(access_token: str, vehicle_id: int, db=Depends(data_b.connection)):
     """Get vehicle in service by reg_num or vehicle_id"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
@@ -69,14 +69,13 @@ async def get_vehicle(access_token: str, reg_num: str, vehicle_id: int, db=Depen
         return JSONResponse(content=res.json(),
                             status_code=status_code)
 
-    vehicle_data = await conn.read_data(db=db, table='vehicle', id_name='reg_num', id_data=reg_num)
+    vehicle_data = await conn.read_data(db=db, table='vehicle', id_name='vehicle_id', id_data=vehicle_id)
+
     if not vehicle_data:
-        vehicle_data = await conn.read_data(db=db, table='vehicle', id_name='vehicle_id', id_data=vehicle_id)
-        if not vehicle_data:
-            return JSONResponse(content={"ok": False,
-                                         'description': "The vehicle with this reg_num or vehicle_id is not registered",
-                                         },
-                                status_code=_status.HTTP_400_BAD_REQUEST)
+        return JSONResponse(content={"ok": False,
+                                     'description': "The vehicle with this reg_num or vehicle_id is not registered",
+                                     },
+                            status_code=_status.HTTP_400_BAD_REQUEST)
 
     vehicle: Vehicle = Vehicle.parse_obj(vehicle_data[0])
     return JSONResponse(content={"ok": True,
