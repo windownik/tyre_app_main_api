@@ -85,9 +85,4 @@ class ServiceSession(BaseModel):
         if review_data:
             review: Review = Review.parse_obj(review_data[0])
             res['review'] = review.dict()
-        vehicle_data = await conn.read_data(db=db, table='vehicle', id_name="vehicle_id", id_data=self.vehicle_id)
-        if vehicle_data:
-            vehicle: Vehicle = Vehicle.parse_obj(review_data[0])
-            res.pop('vehicle_id')
-            res['vehicle'] = vehicle.dict()
         return res
