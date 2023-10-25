@@ -136,6 +136,28 @@ async def create_photo_table(db):
  )''')
 
 
+async def create_work_types_table(db):
+    await db.execute(f'''CREATE TABLE IF NOT EXISTS work_types (
+ work_id SERIAL PRIMARY KEY,
+ name_en TEXT DEFAULT '0',
+ price BIGINT DEFAULT 0,
+ currency VARCHAR(20) DEFAULT 'GBP',
+ status VARCHAR(20) DEFAULT 'active'
+ )''')
+
+
+async def create_session_works_table(db):
+    await db.execute(f'''CREATE TABLE IF NOT EXISTS session_works (
+ id SERIAL PRIMARY KEY,
+ session_id BIGINT DEFAULT 0,
+ work_type_id BIGINT DEFAULT 0,
+ name_en TEXT DEFAULT '0',
+ price BIGINT DEFAULT 0,
+ currency VARCHAR(20) DEFAULT 'GBP',
+ create_date BIGINT DEFAULT 0
+ )''')
+
+
 # Создаем новый токен
 async def save_user(db: Depends, user_id: int, name: str, surname: str, phone: int):
     create_date = datetime.datetime.now()
@@ -181,6 +203,14 @@ async def create_review(db: Depends, session_id: int, client_id: int, text: str,
                           f"VALUES ($1, $2, $3, $4, $5) "
                           f"ON CONFLICT DO NOTHING RETURNING *;", session_id, client_id, text, score,
                           int(time.mktime(create_date.timetuple())))
+    return data
+
+
+async def create_work_type(db: Depends, name_en: str, price: int, currency: str):
+    """We are create a new Work type for services sessions"""
+    data = await db.fetch(f"INSERT INTO work_types (name_en, price, currency) "
+                          f"VALUES ($1, $2, $3) "
+                          f"ON CONFLICT DO NOTHING RETURNING *;", name_en, price, currency)
     return data
 
 
@@ -253,6 +283,12 @@ async def read_vehicles(db: Depends, user_id: int):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT * FROM vehicle WHERE owner_id = $1 AND status = 'active' ORDER BY vehicle_id;",
                           user_id)
+    return data
+
+
+async def read_all(db: Depends, table: str, order: str):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"SELECT * FROM {table} ORDER BY {order};",)
     return data
 
 

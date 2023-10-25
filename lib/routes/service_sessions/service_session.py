@@ -110,3 +110,4 @@ async def delete_service_session(access_token: str, session_id: int, db=Depends(
                                  'description': "Service_session was successful delete"
                                  },
                         status_code=_status.HTTP_200_OK)
+

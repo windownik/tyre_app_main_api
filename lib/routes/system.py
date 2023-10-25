@@ -20,6 +20,8 @@ async def initialization(connect):
     await conn.create_review_table(db=connect)
     await conn.create_vehicle_table(db=connect)
     await conn.create_contractor_table(db=connect)
+    await conn.create_work_types_table(db=connect)
+    await conn.create_session_works_table(db=connect)
     await conn.create_service_session_table(db=connect)
     await conn.create_user_in_contractor_table(db=connect)
     print('Create all tables')

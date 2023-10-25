@@ -63,6 +63,13 @@ class Review(BaseModel):
     create_date: int
 
 
+class WorkType(BaseModel):
+    work_id: int
+    name_en: str
+    price: int
+    currency: str
+
+
 class ServiceSession(BaseModel):
     session_id: int
     client_id: int
