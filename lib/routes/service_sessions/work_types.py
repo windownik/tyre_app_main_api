@@ -41,8 +41,7 @@ async def create_work_type(access_token: str, name_en: str, price: int, currency
 
     if user.status != 'admin':
         return JSONResponse(content={"ok": False,
-                                     'description': "Not enough rights",
-                                     },
+                                     'description': f"Not enough rights {user.status}"},
                             status_code=500)
 
     await conn.create_work_type(db=db, name_en=name_en, price=price, currency=currency)
