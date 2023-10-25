@@ -54,7 +54,7 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
     return JSONResponse(content={"ok": True,
                                  'user': user.dict(),
                                  "vehicles": vehicles,
-                                 "services_sessions": services_sessions
+                                 "service_sessions": services_sessions
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
