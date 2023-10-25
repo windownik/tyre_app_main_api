@@ -241,6 +241,14 @@ async def read_review(db: Depends, session_id: int, ):
     return data
 
 
+async def read_service_session(db: Depends, client_id: int, ):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"SELECT * FROM service_session WHERE client_id = $1 AND status = 'active' "
+                          f"ORDER BY session_id;",
+                          client_id)
+    return data
+
+
 async def read_vehicles(db: Depends, user_id: int):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT * FROM vehicle WHERE owner_id = $1 AND status = 'active' ORDER BY vehicle_id;",

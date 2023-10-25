@@ -6,7 +6,7 @@ from fastapi import Depends
 from starlette.responses import JSONResponse
 
 from lib import sql_connect as conn
-from lib.db_objects import User, Vehicle
+from lib.db_objects import User, Vehicle, ServiceSession
 from lib.response_examples import *
 from lib.sql_connect import data_b, app
 
@@ -45,9 +45,16 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
         vehicle: Vehicle = Vehicle.parse_obj(one)
         vehicles.append(vehicle.dict())
 
+    session_data = await conn.read_service_session(db=db, client_id=user_id)
+    services_sessions = []
+    for one in session_data:
+        session: ServiceSession = ServiceSession.parse_obj(one)
+        services_sessions.append(await session.to_json(db=db))
+
     return JSONResponse(content={"ok": True,
                                  'user': user.dict(),
-                                 "vehicles": vehicles
+                                 "vehicles": vehicles,
+                                 "services_sessions": services_sessions
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
