@@ -94,15 +94,15 @@ async def update_vehicle(access_token: str, vehicle_id: int, front_rim_diameter:
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
     if status_code == 200:
-        user_id = res.json()['user_id']
+        pass
     else:
         return JSONResponse(content=res.json(),
                             status_code=status_code)
 
     vehicle_data = await conn.read_data(db=db, table='vehicle', id_name='vehicle_id', id_data=vehicle_id)
-    if vehicle_data:
+    if not vehicle_data:
         return JSONResponse(content={"ok": False,
-                                     'description': "The vehicle with this vehicle_id is registered",
+                                     'description': "We haven't vehicle with this vehicle_id",
                                      },
                             status_code=_status.HTTP_400_BAD_REQUEST)
 
