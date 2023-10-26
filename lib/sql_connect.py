@@ -237,6 +237,17 @@ async def get_user_id_by_token(db: Depends, token_type: str, token: str):
     return data
 
 
+async def update_vehicle(db: Depends, vehicle_id: int,
+                         front_rim_diameter: int, front_aspect_ratio: int, front_section_width: int,
+                         rear_rim_diameter: int, rear_aspect_ratio: int, rear_section_width: int):
+    """We are update wheels params of vehicle with vehicle_id"""
+    data = await db.fetch(f"UPDATE vehicle SET front_rim_diameter=$1, front_aspect_ratio=$2, front_section_width=$3, "
+                          f"rear_rim_diameter=$4, rear_aspect_ratio=$5, rear_section_width=$6 "
+                          f"WHERE vehicle_id=$7;", front_rim_diameter, front_aspect_ratio,
+                          front_section_width, rear_rim_diameter, rear_aspect_ratio, rear_section_width, vehicle_id)
+    return data
+
+
 # Обновляем информацию
 async def update_inform(db: Depends, name: str, data, table: str, id_name: str, id_data):
     await db.fetch(f"UPDATE {table} SET {name}=$1 WHERE {id_name}=$2;",

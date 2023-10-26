@@ -25,7 +25,7 @@ auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 @app.post(path='/vehicle', tags=['Vehicle'], responses=get_login_res)
 async def create_vehicle(access_token: str, reg_num: str, make: str, model: str, year: int, front_rim_diameter: int,
                          front_aspect_ratio: int, front_section_width: int, rear_rim_diameter: int,
-                         rear_aspect_ratio: int, rear_section_width: int, bolt_key: bool,
+                         rear_aspect_ratio: int, rear_section_width: int, bolt_key: bool = True,
                          db=Depends(data_b.connection)):
     """Create vehicle in service by information"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
@@ -78,6 +78,42 @@ async def get_vehicle(access_token: str, vehicle_id: int, db=Depends(data_b.conn
                             status_code=_status.HTTP_400_BAD_REQUEST)
 
     vehicle: Vehicle = Vehicle.parse_obj(vehicle_data[0])
+    return JSONResponse(content={"ok": True,
+                                 'vehicle': vehicle.dict()
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.put(path='/vehicle', tags=['Vehicle'], responses=get_login_res)
+async def update_vehicle(access_token: str, vehicle_id: int, front_rim_diameter: int, front_aspect_ratio: int,
+                         front_section_width: int, rear_rim_diameter: int, rear_aspect_ratio: int,
+                         rear_section_width: int, db=Depends(data_b.connection)):
+
+    """Create vehicle in service by information"""
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    status_code = res.status_code
+    if status_code == 200:
+        user_id = res.json()['user_id']
+    else:
+        return JSONResponse(content=res.json(),
+                            status_code=status_code)
+
+    vehicle_data = await conn.read_data(db=db, table='vehicle', id_name='vehicle_id', id_data=vehicle_id)
+    if vehicle_data:
+        return JSONResponse(content={"ok": False,
+                                     'description': "The vehicle with this vehicle_id is registered",
+                                     },
+                            status_code=_status.HTTP_400_BAD_REQUEST)
+
+    await conn.update_vehicle(db=db, vehicle_id=vehicle_id, front_aspect_ratio=front_aspect_ratio,
+                              front_rim_diameter=front_rim_diameter, front_section_width=front_section_width,
+                              rear_aspect_ratio=rear_aspect_ratio, rear_rim_diameter=rear_rim_diameter,
+                              rear_section_width=rear_section_width)
+
+    vehicle_data = await conn.read_data(db=db, table='vehicle', id_name='vehicle_id', id_data=vehicle_id)
+    vehicle: Vehicle = Vehicle.parse_obj(vehicle_data[0])
+
     return JSONResponse(content={"ok": True,
                                  'vehicle': vehicle.dict()
                                  },
