@@ -22,142 +22,6 @@ secret = 'secret12345' if secret is None else secret
 data_b = configure_asyncpg(app, f'postgres://postgres:{password}@{host}:{port}/{db_name}')
 
 
-async def create_user_table(db):
-    await db.execute(f'''CREATE TABLE IF NOT EXISTS users (
- user_id BIGINT PRIMARY KEY,
- name VARCHAR(100) DEFAULT '0',
- surname VARCHAR(100) DEFAULT '0',
- phone BIGINT UNIQUE,
- email VARCHAR(100) DEFAULT '0',
- user_type VARCHAR(20) DEFAULT 'client',
- status VARCHAR(20) DEFAULT 'active',
- lat DOUBLE PRECISION DEFAULT 0,
- long DOUBLE PRECISION DEFAULT 0,
- get_push BOOL DEFAULT false,
- get_email BOOL DEFAULT false,
- push_token TEXT DEFAULT '0',
- last_active BIGINT DEFAULT 0,
- createdate BIGINT
- )''')
-
-
-async def create_vehicle_table(db):
-    await db.execute(f'''CREATE TABLE IF NOT EXISTS vehicle (
- vehicle_id SERIAL PRIMARY KEY,
- reg_num VARCHAR(100) DEFAULT 0,
- owner_id BIGINT DEFAULT 0,
- make VARCHAR(100) DEFAULT '0',
- model VARCHAR(100) DEFAULT '0',
- year INT DEFAULT 0,
- front_rim_diameter INT DEFAULT 0,
- front_aspect_ratio INT DEFAULT 0,
- front_section_width INT DEFAULT 0,
- rear_rim_diameter INT DEFAULT 0,
- rear_aspect_ratio INT DEFAULT 0,
- rear_section_width INT DEFAULT 0,
- status VARCHAR(20) DEFAULT 'active',
- bolt_key BOOL DEFAULT false,
- createdate BIGINT
- )''')
-
-
-async def create_contractor_table(db):
-    await db.execute(f'''CREATE TABLE IF NOT EXISTS contractor (
- contractor_id SERIAL PRIMARY KEY,
- owner_id BIGINT DEFAULT 0,
- co_name VARCHAR(100) DEFAULT '0',
- acc_num TEXT DEFAULT '0',
- sort_code BIGINT DEFAULT 0,
- contact_name TEXT DEFAULT '0',
- address TEXT DEFAULT '0',
- postcode BIGINT DEFAULT 0,
- lat DOUBLE PRECISION DEFAULT 0,
- long DOUBLE PRECISION DEFAULT 0,
- money BIGINT DEFAULT 0,
- currency VARCHAR(20) DEFAULT 'GBP',
- status VARCHAR(20) DEFAULT 'active',
- createdate BIGINT
- )''')
-
-
-async def create_user_in_contractor_table(db):
-    await db.execute(f'''CREATE TABLE IF NOT EXISTS user_in_contractor (
- id SERIAL PRIMARY KEY,
- contractor_id BIGINT DEFAULT 0,
- user_id BIGINT DEFAULT 0,
- status VARCHAR(20) DEFAULT 'active',
- delete_date BIGINT DEFAULT 0,
- createdate BIGINT DEFAULT 0
- )''')
-
-
-async def create_service_session_table(db):
-    await db.execute(f'''CREATE TABLE IF NOT EXISTS service_session (
- session_id SERIAL PRIMARY KEY,
- client_id BIGINT DEFAULT 0,
- worker_id BIGINT DEFAULT 0,
- contractor_id BIGINT DEFAULT 0,
- vehicle_id BIGINT DEFAULT 0,
- wheel_fr INT DEFAULT 0,
- wheel_fl INT DEFAULT 0,
- wheel_rr INT DEFAULT 0,
- wheel_rl INT DEFAULT 0,
- description TEXT DEFAULT '0',
- status VARCHAR(20) DEFAULT 'active',
- session_type VARCHAR(20) DEFAULT 'now',
- session_date BIGINT DEFAULT 0,
- create_date BIGINT DEFAULT 0
- )''')
-
-
-async def create_review_table(db):
-    await db.execute(f'''CREATE TABLE IF NOT EXISTS review (
- session_id BIGINT PRIMARY KEY,
- client_id BIGINT DEFAULT 0,
- text TEXT DEFAULT '0',
- score INTEGER DEFAULT 5,
- status VARCHAR(20) DEFAULT 'active',
- delete_date BIGINT DEFAULT 0,
- create_date BIGINT DEFAULT 0
- )''')
-
-
-async def create_photo_table(db):
-    await db.execute(f'''CREATE TABLE IF NOT EXISTS photo (
- session_id BIGINT PRIMARY KEY,
- photo_before_1 BIGINT DEFAULT 0,
- photo_before_2 BIGINT DEFAULT 0,
- photo_before_3 BIGINT DEFAULT 0,
- photo_before_4 BIGINT DEFAULT 0,
- photo_after_1 BIGINT DEFAULT 0,
- photo_after_2 BIGINT DEFAULT 0,
- photo_after_3 BIGINT DEFAULT 0,
- photo_after_4 BIGINT DEFAULT 0
- )''')
-
-
-async def create_work_types_table(db):
-    await db.execute(f'''CREATE TABLE IF NOT EXISTS work_types (
- work_id SERIAL PRIMARY KEY,
- name_en TEXT DEFAULT '0',
- price BIGINT DEFAULT 0,
- currency VARCHAR(20) DEFAULT 'GBP',
- status VARCHAR(20) DEFAULT 'active'
- )''')
-
-
-async def create_session_works_table(db):
-    await db.execute(f'''CREATE TABLE IF NOT EXISTS session_works (
- id SERIAL PRIMARY KEY,
- session_id BIGINT DEFAULT 0,
- work_type_id BIGINT DEFAULT 0,
- name_en TEXT DEFAULT '0',
- price BIGINT DEFAULT 0,
- currency VARCHAR(20) DEFAULT 'GBP',
- create_date BIGINT DEFAULT 0
- )''')
-
-
 # Создаем новый токен
 async def save_user(db: Depends, user_id: int, name: str, surname: str, phone: int):
     create_date = datetime.datetime.now()
@@ -183,16 +47,26 @@ async def create_vehicle(db: Depends, reg_num: str, owner_id: int, make: str, mo
     return data
 
 
-async def create_service_session(db: Depends, client_id: int, vehicle_id: int, wheel_fr: int,
-                                 wheel_fl: int, wheel_rr: int, wheel_rl: int, session_type: str,
+async def create_service_session(db: Depends, client_id: int, vehicle_id: int, session_type: str,
                                  session_date: int):
     """We are create a new service session"""
     create_date = datetime.datetime.now()
-    data = await db.fetch(f"INSERT INTO service_session (client_id, vehicle_id, wheel_fr, wheel_fl, "
-                          f"wheel_rr, wheel_rl, session_type, session_date, create_date) "
-                          f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) "
-                          f"ON CONFLICT DO NOTHING RETURNING *;", client_id, vehicle_id, wheel_fr, wheel_fl,
-                          wheel_rr, wheel_rl, session_type, session_date, int(time.mktime(create_date.timetuple())))
+    data = await db.fetch(f"INSERT INTO service_session (client_id, vehicle_id, session_type, session_date, "
+                          f"create_date) VALUES ($1, $2, $3, $4, $5) "
+                          f"ON CONFLICT DO NOTHING RETURNING *;", client_id, vehicle_id, session_type, session_date,
+                          int(time.mktime(create_date.timetuple())))
+    return data
+
+
+async def create_ss_work(db: Depends, session_id: int, work_type_id: int, name_en: str, price: int, currency: str,
+                         wheel_fr: bool, wheel_fl: bool, wheel_rr: bool, wheel_rl: bool):
+    """We are create a new service session"""
+    create_date = datetime.datetime.now()
+    data = await db.fetch(f"INSERT INTO session_works (session_id, work_type_id, name_en, price, "
+                          f"currency, wheel_fr, wheel_fl, wheel_rr, wheel_rl, create_date) "
+                          f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) "
+                          f"ON CONFLICT DO NOTHING RETURNING *;", session_id, work_type_id, name_en, price, currency,
+                          wheel_fr, wheel_fl, wheel_rr, wheel_rl, int(time.mktime(create_date.timetuple())))
     return data
 
 
@@ -299,7 +173,7 @@ async def read_vehicles(db: Depends, user_id: int):
 
 async def read_all(db: Depends, table: str, order: str):
     """Получаем актуальные события"""
-    data = await db.fetch(f"SELECT * FROM {table} ORDER BY {order};",)
+    data = await db.fetch(f"SELECT * FROM {table} ORDER BY {order};", )
     return data
 
 

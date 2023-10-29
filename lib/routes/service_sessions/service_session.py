@@ -4,7 +4,7 @@ import requests
 import starlette.status as _status
 from fastapi import Depends
 from starlette.responses import JSONResponse
-from lib.db_objects import Vehicle, ServiceSession
+from lib.db_objects import ServiceSession, WorkType, SessionWork
 
 from lib import sql_connect as conn
 from lib.response_examples import *
@@ -24,7 +24,7 @@ auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 @app.post(path='/service_session', tags=['Service session'], responses=get_login_res)
 async def create_service_session(access_token: str, vehicle_id: int, session_type: str, session_date: int,
-                                 wheel_fr: int = 0, wheel_fl: int = 0, wheel_rr: int = 0, wheel_rl: int = 0,
+                                 work_type_id: int, wheel_fr: bool, wheel_fl: bool, wheel_rr: bool, wheel_rl: bool,
                                  db=Depends(data_b.connection)):
     """
     Create service_session with information\n
@@ -49,11 +49,20 @@ async def create_service_session(access_token: str, vehicle_id: int, session_typ
                                      'description': "Wrong session_type"},
                             status_code=_status.HTTP_400_BAD_REQUEST)
     session_data = await conn.create_service_session(db=db, client_id=user_id, vehicle_id=vehicle_id,
-                                                     wheel_fr=wheel_fr, wheel_fl=wheel_fl, session_type=session_type,
-                                                     session_date=session_date, wheel_rl=wheel_rl, wheel_rr=wheel_rr)
+                                                     session_type=session_type,
+                                                     session_date=session_date,)
     service_session: ServiceSession = ServiceSession.parse_obj(session_data[0])
+
+    work_type_data = await conn.read_data(db=db, table="work_types", id_data=work_type_id, id_name='work_id')
+    work_type: WorkType = WorkType.parse_obj(work_type_data[0])
+    ss_work = await conn.create_ss_work(db=db, session_id=session_data[0][0], currency=work_type.currency,
+                                        name_en=work_type.name_en, price=work_type.price,
+                                        work_type_id=work_type.work_id, wheel_rr=wheel_rr, wheel_rl=wheel_rl,
+                                        wheel_fl=wheel_fl, wheel_fr=wheel_fr)
+    session_work: SessionWork = SessionWork.parse_obj(ss_work[0])
+
     return JSONResponse(content={"ok": True,
-                                 'service_session': await service_session.to_json(db=db)
+                                 'service_session': await service_session.to_json(db=db, session_work=session_work)
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
@@ -110,4 +119,3 @@ async def delete_service_session(access_token: str, session_id: int, db=Depends(
                                  'description': "Service_session was successful delete"
                                  },
                         status_code=_status.HTTP_200_OK)
-

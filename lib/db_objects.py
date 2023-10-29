@@ -70,26 +70,44 @@ class WorkType(BaseModel):
     currency: str
 
 
+class SessionWork(BaseModel):
+    work_type_id: int
+    name_en: str
+    price: int
+    currency: str
+    wheel_fr: bool
+    wheel_fl: bool
+    wheel_rr: bool
+    wheel_rl: bool
+
+
 class ServiceSession(BaseModel):
     session_id: int
     client_id: int
     worker_id: int
     contractor_id: int
     vehicle_id: int
-    wheel_fr: int
-    wheel_fl: int
-    wheel_rr: int
-    wheel_rl: int
     description: str
     status: str
     session_type: str
     session_date: int
     create_date: int
 
-    async def to_json(self, db: Depends):
+    async def to_json(self, db: Depends, session_work: SessionWork = None):
         res: dict = self.dict()
         review_data = await conn.read_review(db=db, session_id=self.session_id)
         if review_data:
             review: Review = Review.parse_obj(review_data[0])
             res['review'] = review.dict()
+        if session_work is not None:
+            res['session_works'] = [session_work.dict()]
+        else:
+            ss_work_data = await conn.read_data(db=db, table="session_works", id_name='session_id',
+                                                id_data=self.session_id)
+            session_work_list = []
+            for one in ss_work_data:
+                session_work: SessionWork = SessionWork.parse_obj(one)
+                session_work_list.append(session_work.dict())
+
+            res['session_works'] = session_work_list
         return res
