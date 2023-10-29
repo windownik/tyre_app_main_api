@@ -3,7 +3,7 @@ import os
 import uvicorn
 from fastapi.openapi.utils import get_openapi
 
-from lib.sql_connect import app
+from lib.sql_create_tables import app
 
 
 ip_server = os.environ.get("IP_SERVER")
