@@ -24,8 +24,8 @@ auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 @app.post(path='/service_session', tags=['Service session'], responses=get_login_res)
 async def create_service_session(access_token: str, vehicle_id: int, session_type: str, session_date: int,
-                                 work_type_id: int, wheel_fr: bool, wheel_fl: bool, wheel_rr: bool, wheel_rl: bool,
-                                 db=Depends(data_b.connection)):
+                                 work_type_id: int, wheel_fr: bool = False, wheel_fl: bool = False,
+                                 wheel_rr: bool = False, wheel_rl: bool = False, db=Depends(data_b.connection)):
     """
     Create service_session with information\n
     service_session string can be: now, schedule
