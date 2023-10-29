@@ -3,6 +3,7 @@ import os
 import time
 
 from fastapi import Depends
+from lib.sql_create_tables import data_b, app
 
 password = os.environ.get("DATABASE_PASS")
 host = os.environ.get("DATABASE_HOST")
