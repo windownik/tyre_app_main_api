@@ -2,8 +2,6 @@ import datetime
 import os
 import time
 
-from fastapi_asyncpg import configure_asyncpg
-from lib.app_init import app
 from fastapi import Depends
 
 password = os.environ.get("DATABASE_PASS")
@@ -17,9 +15,6 @@ host = '127.0.0.1' if host is None else host
 port = 5432 if port is None else port
 db_name = 'tyre_app' if db_name is None else db_name
 secret = 'secret12345' if secret is None else secret
-
-# Создаем новую таблицу
-data_b = configure_asyncpg(app, f'postgres://postgres:{password}@{host}:{port}/{db_name}')
 
 
 # Создаем новый токен
