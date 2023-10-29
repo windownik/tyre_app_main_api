@@ -1,14 +1,7 @@
-import os
 from starlette.responses import HTMLResponse
 
 from lib import sql_create_tables as conn
-from lib.sql_connect import data_b, app
-
-ip_server = os.environ.get("IP_SERVER")
-ip_port = os.environ.get("PORT_SERVER")
-
-ip_port = 80 if ip_port is None else ip_port
-ip_server = "127.0.0.1" if ip_server is None else ip_server
+from lib.sql_create_tables import data_b, app
 
 
 @data_b.on_init

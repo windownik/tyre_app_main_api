@@ -8,7 +8,8 @@ from starlette.responses import JSONResponse
 from lib import sql_connect as conn
 from lib.db_objects import User, Vehicle, ServiceSession
 from lib.response_examples import *
-from lib.sql_connect import data_b, app
+from lib.sql_create_tables import data_b, app
+
 
 ip_server = os.environ.get("IP_SERVER")
 ip_port = os.environ.get("PORT_SERVER")

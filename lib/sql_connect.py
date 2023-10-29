@@ -1,25 +1,11 @@
 import datetime
-import os
 import time
 
 from fastapi import Depends
-from lib.sql_create_tables import data_b, app
-
-password = os.environ.get("DATABASE_PASS")
-host = os.environ.get("DATABASE_HOST")
-port = os.environ.get("DATABASE_PORT")
-db_name = os.environ.get("DATABASE_NAME")
-secret = os.environ.get("SECRET")
-
-password = 102015 if password is None else password
-host = '127.0.0.1' if host is None else host
-port = 5432 if port is None else port
-db_name = 'tyre_app' if db_name is None else db_name
-secret = 'secret12345' if secret is None else secret
 
 
-# Создаем новый токен
 async def save_user(db: Depends, user_id: int, name: str, surname: str, phone: int):
+    """Save main users information"""
     create_date = datetime.datetime.now()
     data = await db.fetch(f"INSERT INTO users (user_id, name, surname, phone, last_active, createdate) "
                           f"VALUES ($1, $2, $3, $4, $5, $6) "
