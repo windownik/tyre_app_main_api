@@ -23,7 +23,7 @@ ip_auth_port = os.environ.get("PORT_AUTH_SERVER")
 auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 
-@app.get(path='/test', tags=['Test'], responses=get_login_res)
+@app.post(path='/test', tags=['Test'], responses=get_login_res)
 async def create_vehicle(test: list):
     return {
         "type": type(list),
