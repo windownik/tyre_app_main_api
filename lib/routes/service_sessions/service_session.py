@@ -101,7 +101,7 @@ async def get_service_session(access_token: str, session_id: int, db=Depends(dat
 
     service_session: ServiceSession = ServiceSession.parse_obj(service_data[0])
     return JSONResponse(content={"ok": True,
-                                 'service_session': await service_session.to_json(db=db)
+                                 'service_session': await service_session.to_json(db=db, session_work_list=[])
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
