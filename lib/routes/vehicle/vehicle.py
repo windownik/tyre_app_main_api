@@ -10,7 +10,6 @@ from lib import sql_connect as conn
 from lib.response_examples import *
 from lib.sql_create_tables import data_b, app
 
-
 ip_server = os.environ.get("IP_SERVER")
 ip_port = os.environ.get("PORT_SERVER")
 
@@ -25,10 +24,9 @@ auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 @app.post(path='/test', tags=['Test'], responses=get_login_res)
 async def create_vehicle(test: list):
-    return {
-        "type": type(list),
-        "value": f"{test}"
-    }
+    return JSONResponse(content={"type": f"{type(list)}",
+                                 "value": f"{test}"},
+                        status_code=_status.HTTP_400_BAD_REQUEST)
 
 
 @app.post(path='/vehicle', tags=['Vehicle'], responses=get_login_res)
@@ -98,7 +96,6 @@ async def get_vehicle(access_token: str, vehicle_id: int, db=Depends(data_b.conn
 async def update_vehicle(access_token: str, vehicle_id: int, front_rim_diameter: int, front_aspect_ratio: int,
                          front_section_width: int, rear_rim_diameter: int, rear_aspect_ratio: int,
                          rear_section_width: int, db=Depends(data_b.connection)):
-
     """Create vehicle in service by information"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
