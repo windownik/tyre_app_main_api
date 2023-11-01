@@ -24,8 +24,9 @@ auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 @app.post(path='/service_session', tags=['Service session'], responses=get_login_res)
 async def create_service_session(access_token: str, vehicle_id: int, session_type: str, session_date: int,
-                                 work_type_id: int, wheel_fr: bool = False, wheel_fl: bool = False,
-                                 wheel_rr: bool = False, wheel_rl: bool = False, db=Depends(data_b.connection)):
+                                 work_type_id: int, bolt_key: bool = False, wheel_fr: bool = False,
+                                 wheel_fl: bool = False, wheel_rr: bool = False, wheel_rl: bool = False,
+                                 db=Depends(data_b.connection)):
     """
     Create service_session with information\n
     service_session string can be: now, schedule
@@ -58,7 +59,7 @@ async def create_service_session(access_token: str, vehicle_id: int, session_typ
     ss_work = await conn.create_ss_work(db=db, session_id=session_data[0][0], currency=work_type.currency,
                                         name_en=work_type.name_en, price=work_type.price,
                                         work_type_id=work_type.work_id, wheel_rr=wheel_rr, wheel_rl=wheel_rl,
-                                        wheel_fl=wheel_fl, wheel_fr=wheel_fr)
+                                        wheel_fl=wheel_fl, wheel_fr=wheel_fr, bolt_key=bolt_key)
     session_work: SessionWork = SessionWork.parse_obj(ss_work[0])
 
     return JSONResponse(content={"ok": True,

@@ -27,7 +27,9 @@ auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 async def create_work_type(access_token: str, name_en: str, price: int, currency: str = "GBP",
                            db=Depends(data_b.connection)):
     """
-    Create work_types with name and price
+    Create work_types with name and price\n
+    Price in cents\n
+    example: price GBP 20 should send 2000
     """
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
