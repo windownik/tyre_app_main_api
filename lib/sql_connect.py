@@ -33,7 +33,7 @@ async def create_service_session(db: Depends, client_id: int, vehicle_id: int, s
                                  session_date: int):
     """We are create a new service session"""
     create_date = datetime.datetime.now()
-    data = await db.fetch(f"INSERT INTO service_session (client_id, vehicle_id, session_type, session_date, bolt_key"
+    data = await db.fetch(f"INSERT INTO service_session (client_id, vehicle_id, session_type, session_date, bolt_key, "
                           f"create_date) VALUES ($1, $2, $3, $4, $5) "
                           f"ON CONFLICT DO NOTHING RETURNING *;", client_id, vehicle_id, session_type, session_date,
                           bolt_key, int(time.mktime(create_date.timetuple())))
