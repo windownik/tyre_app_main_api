@@ -50,7 +50,7 @@ async def create_service_session(access_token: str, vehicle_id: int, session_typ
                                      'description': "Wrong session_type"},
                             status_code=_status.HTTP_400_BAD_REQUEST)
     session_data = await conn.create_service_session(db=db, client_id=user_id, vehicle_id=vehicle_id,
-                                                     session_type=session_type,
+                                                     session_type=session_type, bolt_key=bolt_key,
                                                      session_date=session_date,)
     service_session: ServiceSession = ServiceSession.parse_obj(session_data[0])
 
@@ -59,7 +59,7 @@ async def create_service_session(access_token: str, vehicle_id: int, session_typ
     ss_work = await conn.create_ss_work(db=db, session_id=session_data[0][0], currency=work_type.currency,
                                         name_en=work_type.name_en, price=work_type.price,
                                         work_type_id=work_type.work_id, wheel_rr=wheel_rr, wheel_rl=wheel_rl,
-                                        wheel_fl=wheel_fl, wheel_fr=wheel_fr, bolt_key=bolt_key)
+                                        wheel_fl=wheel_fl, wheel_fr=wheel_fr)
     session_work: SessionWork = SessionWork.parse_obj(ss_work[0])
 
     return JSONResponse(content={"ok": True,

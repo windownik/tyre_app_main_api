@@ -29,26 +29,26 @@ async def create_vehicle(db: Depends, reg_num: str, owner_id: int, make: str, mo
     return data
 
 
-async def create_service_session(db: Depends, client_id: int, vehicle_id: int, session_type: str,
+async def create_service_session(db: Depends, client_id: int, vehicle_id: int, session_type: str, bolt_key: bool,
                                  session_date: int):
     """We are create a new service session"""
     create_date = datetime.datetime.now()
-    data = await db.fetch(f"INSERT INTO service_session (client_id, vehicle_id, session_type, session_date, "
+    data = await db.fetch(f"INSERT INTO service_session (client_id, vehicle_id, session_type, session_date, bolt_key"
                           f"create_date) VALUES ($1, $2, $3, $4, $5) "
                           f"ON CONFLICT DO NOTHING RETURNING *;", client_id, vehicle_id, session_type, session_date,
-                          int(time.mktime(create_date.timetuple())))
+                          bolt_key, int(time.mktime(create_date.timetuple())))
     return data
 
 
 async def create_ss_work(db: Depends, session_id: int, work_type_id: int, name_en: str, price: int, currency: str,
-                         bolt_key: bool):
+                         wheel_fr: bool, wheel_fl: bool, wheel_rr: bool, wheel_rl: bool):
     """We are create a new service session"""
     create_date = datetime.datetime.now()
     data = await db.fetch(f"INSERT INTO session_works (session_id, work_type_id, name_en, price, "
-                          f"currency, bolt_key, create_date) "
-                          f"VALUES ($1, $2, $3, $4, $5, $6, $7) "
+                          f"currency, wheel_fr, wheel_fl, wheel_rr, wheel_rl, create_date) "
+                          f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) "
                           f"ON CONFLICT DO NOTHING RETURNING *;", session_id, work_type_id, name_en, price, currency,
-                          bolt_key, int(time.mktime(create_date.timetuple())))
+                          wheel_fr, wheel_fl, wheel_rr, wheel_rl, int(time.mktime(create_date.timetuple())))
     return data
 
 
