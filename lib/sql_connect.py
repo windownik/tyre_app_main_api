@@ -46,7 +46,7 @@ async def create_ss_work(db: Depends, session_id: int, work_type_id: int, name_e
     create_date = datetime.datetime.now()
     data = await db.fetch(f"INSERT INTO session_works (session_id, work_type_id, name_en, price, "
                           f"currency, wheel_fr, wheel_fl, wheel_rr, wheel_rl, create_date) "
-                          f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) "
+                          f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) "
                           f"ON CONFLICT DO NOTHING RETURNING *;", session_id, work_type_id, name_en, price, currency,
                           wheel_fr, wheel_fl, wheel_rr, wheel_rl, int(time.mktime(create_date.timetuple())))
     return data
