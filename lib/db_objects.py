@@ -93,14 +93,17 @@ class ServiceSession(BaseModel):
     session_date: int
     create_date: int
 
-    async def to_json(self, db: Depends, session_work: SessionWork = None):
+    async def to_json(self, db: Depends, session_work_list: list):
         res: dict = self.dict()
         review_data = await conn.read_review(db=db, session_id=self.session_id)
         if review_data:
             review: Review = Review.parse_obj(review_data[0])
             res['review'] = review.dict()
-        if session_work is not None:
-            res['session_works'] = [session_work.dict()]
+        if len(session_work_list) != 0:
+            session_works_dict = []
+            for one in session_work_list:
+                session_works_dict.append(one.dict())
+            res['session_works'] = [session_works_dict]
         else:
             ss_work_data = await conn.read_data(db=db, table="session_works", id_name='session_id',
                                                 id_data=self.session_id)

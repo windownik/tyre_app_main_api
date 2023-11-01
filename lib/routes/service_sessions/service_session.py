@@ -24,13 +24,20 @@ auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 @app.post(path='/service_session', tags=['Service session'], responses=get_login_res)
 async def create_service_session(access_token: str, vehicle_id: int, session_type: str, session_date: int,
-                                 work_type_id: int, bolt_key: bool = False, wheel_fr: bool = False,
+                                 work_type_id: list, bolt_key: bool = False, wheel_fr: bool = False,
                                  wheel_fl: bool = False, wheel_rr: bool = False, wheel_rl: bool = False,
                                  db=Depends(data_b.connection)):
     """
     Create service_session with information\n
     service_session string can be: now, schedule
     """
+
+    for one in work_type_id:
+        if type(one) != int:
+            return JSONResponse(content={"ok": False,
+                                         'description': "Bad list of integers in work_type_id",
+                                         },
+                                status_code=_status.HTTP_400_BAD_REQUEST)
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
     if status_code == 200:
@@ -54,16 +61,21 @@ async def create_service_session(access_token: str, vehicle_id: int, session_typ
                                                      session_date=session_date,)
     service_session: ServiceSession = ServiceSession.parse_obj(session_data[0])
 
-    work_type_data = await conn.read_data(db=db, table="work_types", id_data=work_type_id, id_name='work_id')
-    work_type: WorkType = WorkType.parse_obj(work_type_data[0])
-    ss_work = await conn.create_ss_work(db=db, session_id=session_data[0][0], currency=work_type.currency,
-                                        name_en=work_type.name_en, price=work_type.price,
-                                        work_type_id=work_type.work_id, wheel_rr=wheel_rr, wheel_rl=wheel_rl,
-                                        wheel_fl=wheel_fl, wheel_fr=wheel_fr)
-    session_work: SessionWork = SessionWork.parse_obj(ss_work[0])
+    list_ss_work = []
+
+    for one in work_type_id:
+
+        work_type_data = await conn.read_data(db=db, table="work_types", id_data=one, id_name='work_id')
+        work_type: WorkType = WorkType.parse_obj(work_type_data[0])
+        ss_work = await conn.create_ss_work(db=db, session_id=session_data[0][0], currency=work_type.currency,
+                                            name_en=work_type.name_en, price=work_type.price,
+                                            work_type_id=work_type.work_id, wheel_rr=wheel_rr, wheel_rl=wheel_rl,
+                                            wheel_fl=wheel_fl, wheel_fr=wheel_fr)
+        session_work: SessionWork = SessionWork.parse_obj(ss_work[0])
+        list_ss_work.append(session_work)
 
     return JSONResponse(content={"ok": True,
-                                 'service_session': await service_session.to_json(db=db, session_work=session_work)
+                                 'service_session': await service_session.to_json(db=db, session_work_list=list_ss_work)
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
