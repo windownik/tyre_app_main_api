@@ -103,7 +103,7 @@ class ServiceSession(BaseModel):
             session_works_dict = []
             for one in session_work_list:
                 session_works_dict.append(one.dict())
-            res['session_works'] = [session_works_dict]
+            res['session_works'] = session_works_dict
         else:
             ss_work_data = await conn.read_data(db=db, table="session_works", id_name='session_id',
                                                 id_data=self.session_id)
