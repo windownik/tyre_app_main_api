@@ -50,7 +50,7 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
     services_sessions = []
     for one in session_data:
         session: ServiceSession = ServiceSession.parse_obj(one)
-        services_sessions.append(await session.to_json(db=db))
+        services_sessions.append(await session.to_json(db=db, session_work_list=[]))
 
     return JSONResponse(content={"ok": True,
                                  'user': user.dict(),
