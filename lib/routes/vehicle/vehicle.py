@@ -24,8 +24,8 @@ auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 @app.post(path='/test', tags=['Test'], responses=get_login_res)
 async def create_vehicle(test: list):
-    return JSONResponse(content={"value": f"{test}"},
-                        status_code=_status.HTTP_400_BAD_REQUEST)
+    return JSONResponse(content={"type": f"{type(test)}",
+                                 "value": f"{test}"})
 
 
 @app.post(path='/vehicle', tags=['Vehicle'], responses=get_login_res)
