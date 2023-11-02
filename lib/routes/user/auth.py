@@ -116,3 +116,35 @@ async def update_push_token(access_token: str, push_token: str, db=Depends(data_
                                  'description': "Push token was updated",
                                  },
                         status_code=_status.HTTP_200_OK)
+
+
+@app.get(path='/get_admin', tags=['Auth'], responses=get_user_res)
+async def update_user(access_token: str, user_id: int = 0, db=Depends(data_b.connection)):
+    """Get admin information"""
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    status_code = res.status_code
+    if status_code == 200:
+        if user_id == 0:
+            user_id = res.json()['user_id']
+    else:
+        return JSONResponse(content=res.json(),
+                            status_code=status_code)
+
+    user_data = await conn.read_data(db=db, table='users', id_name='user_id', id_data=user_id)
+    if not user_data:
+        return JSONResponse(content={"ok": False,
+                                     'description': "Error with login account",
+                                     },
+                            status_code=500)
+    user: User = User.parse_obj(user_data[0])
+    if user.status != 'admin':
+        return JSONResponse(content={"ok": False,
+                                     'description': "No rights",
+                                     },
+                            status_code=401)
+
+    return JSONResponse(content={"ok": True,
+                                 'user': user.dict(),
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
