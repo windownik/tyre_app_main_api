@@ -136,7 +136,7 @@ async def get_admin_user(access_token: str, db=Depends(data_b.connection)):
                                      },
                             status_code=500)
     user: User = User.parse_obj(user_data[0])
-    if user.status != 'admin':
+    if user.user_type != 'admin':
         return JSONResponse(content={"ok": False,
                                      'description': "No rights",
                                      },
