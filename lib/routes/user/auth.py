@@ -119,13 +119,12 @@ async def update_push_token(access_token: str, push_token: str, db=Depends(data_
 
 
 @app.get(path='/get_admin', tags=['Auth'], responses=get_user_res)
-async def update_user(access_token: str, user_id: int = 0, db=Depends(data_b.connection)):
+async def get_admin_user(access_token: str, db=Depends(data_b.connection)):
     """Get admin information"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
     if status_code == 200:
-        if user_id == 0:
-            user_id = res.json()['user_id']
+        user_id = res.json()['user_id']
     else:
         return JSONResponse(content=res.json(),
                             status_code=status_code)
