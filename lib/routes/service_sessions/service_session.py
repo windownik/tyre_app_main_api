@@ -75,7 +75,6 @@ async def create_service_session(access_token: str, vehicle_id: int, session_typ
                                             wheel_fl=wheel_fl, wheel_fr=wheel_fr)
         session_work: SessionWork = SessionWork.parse_obj(ss_work[0])
         list_ss_work.append(session_work)
-
     return JSONResponse(content={"ok": True,
                                  'service_session': await service_session.to_json(db=db, session_work_list=list_ss_work)
                                  },
