@@ -34,11 +34,12 @@ async def create_service_session(access_token: str, vehicle_id: int, session_typ
 
     for one in work_type_id:
         try:
-            int(one)
+            a = int(one)
         except Exception as e:
             print(e)
             return JSONResponse(content={"ok": False,
-                                         'description': "Bad list of integers in work_type_id",},
+                                         "list": f"{work_type_id}",
+                                         'description': "Bad list of integers in work_type_id"},
                                 status_code=_status.HTTP_400_BAD_REQUEST)
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
