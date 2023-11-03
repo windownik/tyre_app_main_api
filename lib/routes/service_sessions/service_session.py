@@ -35,6 +35,7 @@ async def create_service_session(access_token: str, vehicle_id: int, session_typ
     for one in work_type_id:
         if type(one) != int:
             return JSONResponse(content={"ok": False,
+                                         "type": str(type(one)),
                                          'description': "Bad list of integers in work_type_id",
                                          },
                                 status_code=_status.HTTP_400_BAD_REQUEST)
