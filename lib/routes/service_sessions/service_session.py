@@ -33,11 +33,12 @@ async def create_service_session(access_token: str, vehicle_id: int, session_typ
     """
 
     for one in work_type_id:
-        if type(one) != int:
+        try:
+            int(one)
+        except Exception as e:
+            print(e)
             return JSONResponse(content={"ok": False,
-                                         "type": str(type(one)),
-                                         'description': "Bad list of integers in work_type_id",
-                                         },
+                                         'description': "Bad list of integers in work_type_id",},
                                 status_code=_status.HTTP_400_BAD_REQUEST)
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
@@ -65,7 +66,7 @@ async def create_service_session(access_token: str, vehicle_id: int, session_typ
     list_ss_work = []
 
     for one in work_type_id:
-
+        one = int(one)
         work_type_data = await conn.read_data(db=db, table="work_types", id_data=one, id_name='work_id')
         work_type: WorkType = WorkType.parse_obj(work_type_data[0])
         ss_work = await conn.create_ss_work(db=db, session_id=session_data[0][0], currency=work_type.currency,
