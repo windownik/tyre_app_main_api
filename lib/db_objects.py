@@ -68,6 +68,7 @@ class WorkType(BaseModel):
     name_en: str
     price: int
     currency: str
+    status: str
 
 
 class SessionWork(BaseModel):
