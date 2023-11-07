@@ -4,7 +4,7 @@ import requests
 import starlette.status as _status
 from fastapi import Depends
 from starlette.responses import JSONResponse
-from lib.db_objects import Vehicle
+from lib.db_objects import Vehicle, VehicleApi
 
 from lib import sql_connect as conn
 from lib.response_examples import *
@@ -18,6 +18,8 @@ ip_server = "127.0.0.1" if ip_server is None else ip_server
 
 ip_auth_server = os.environ.get("IP_AUTH_SERVER")
 ip_auth_port = os.environ.get("PORT_AUTH_SERVER")
+
+ApiKey = os.environ.get("DVLA_API")
 
 auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
@@ -151,3 +153,40 @@ async def delete_vehicle(access_token: str, vehicle_id: int, db=Depends(data_b.c
                                  'description': "Vehicle was successful delete"
                                  },
                         status_code=_status.HTTP_200_OK)
+
+
+@app.get(path='/check_vehicle', tags=['Vehicle'], responses=get_vehicle_from_api_res)
+async def check_vehicle_in_dvla(access_token: str, reg_number: str):
+    """Get vehicle data in DVLA by reg_num"""
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    status_code = res.status_code
+    if status_code == 200:
+        pass
+    else:
+        return JSONResponse(content=res.json(),
+                            status_code=status_code)
+
+    params = {
+        "v": 2,
+        "api_nullitems": 1,
+        "key_vrm": reg_number,
+        "auth_apikey": ApiKey
+    }
+
+    r = requests.get('https://uk1.ukvehicledata.co.uk/api/datapackage/TyreData', params=params)
+
+    if r.status_code == 200:
+        res = r.json()
+        print(res)
+        vehicle_api: VehicleApi = VehicleApi(data=r.json(), reg_num=reg_number)
+    else:
+        return JSONResponse(content={"ok": False,
+                                     'vehicle': "vehicle"
+                                     },
+                            status_code=_status.HTTP_400_BAD_REQUEST,)
+
+    return JSONResponse(content={"ok": True,
+                                 'vehicle': vehicle_api.to_json()
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})

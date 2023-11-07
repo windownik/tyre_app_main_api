@@ -9,6 +9,7 @@ services:
       IP_AUTH_SERVER: "167.235.253.89"
       PORT_AUTH_SERVER: 10099
       PORT_SERVER: 10020
+      DVLA_API: "85d27fa8-7cca-4429-a0d4-cb8798fd68ee"
 
     volumes:
       - ./:/main

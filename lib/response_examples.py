@@ -281,3 +281,83 @@ delete_user_res = {
         }
     },
 }
+
+get_vehicle_from_api_res = {
+    200: {
+        "description": "Success",
+        "content": {
+            "application/json": {
+                "examples": {
+                    "odd": {
+                        "summary": "Success",
+                        "value": {
+                            "ok": True,
+                            "vehicle": {
+                                "reg_num": "1M14 111",
+                                "make": "BMW",
+                                "model": "520D M SPORT AUTO",
+                                "year": "2014",
+                                "tyre_variants": [
+                                    {
+                                        "name_front": "245/50R18",
+                                        "name_rear": "245/50R18",
+                                        "front_rim_diameter": 18,
+                                        "front_aspect_ratio": 50,
+                                        "front_section_width": 245,
+                                        "rear_rim_diameter": 18,
+                                        "rear_aspect_ratio": 50,
+                                        "rear_section_width": 245
+                                    },
+                                    {
+                                        "name_front": "245/45R19",
+                                        "name_rear": "275/40R19",
+                                        "front_rim_diameter": 19,
+                                        "front_aspect_ratio": 45,
+                                        "front_section_width": 245,
+                                        "rear_rim_diameter": 19,
+                                        "rear_aspect_ratio": 40,
+                                        "rear_section_width": 275
+                                    },
+                                    {
+                                        "name_front": "245/40R20",
+                                        "name_rear": "275/35R20",
+                                        "front_rim_diameter": 20,
+                                        "front_aspect_ratio": 40,
+                                        "front_section_width": 245,
+                                        "rear_rim_diameter": 20,
+                                        "rear_aspect_ratio": 35,
+                                        "rear_section_width": 275
+                                    },
+                                    {
+                                        "name_front": "245/35R21",
+                                        "name_rear": "275/30R21",
+                                        "front_rim_diameter": 21,
+                                        "front_aspect_ratio": 35,
+                                        "front_section_width": 245,
+                                        "rear_rim_diameter": 21,
+                                        "rear_aspect_ratio": 30,
+                                        "rear_section_width": 275
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                }
+            }
+        }
+    },
+    401: {
+        "description": "Success",
+        "content": {
+            "application/json": {
+                "examples": {
+                    "odd": {
+                        "summary": "Success",
+                        "value": {"ok": False,
+                                  'description': 'You have bad refresh token or device_id, please login', }
+                    },
+                }
+            }
+        }
+    },
+}

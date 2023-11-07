@@ -37,6 +37,73 @@ class Vehicle(BaseModel):
     createdate: int
 
 
+class VehicleTyreApi:
+    name_front: str
+    name_rear: str
+    front_rim_diameter: int
+    front_aspect_ratio: int
+    front_section_width: int
+    rear_rim_diameter: int
+    rear_aspect_ratio: int
+    rear_section_width: int
+
+    def __init__(self, data: dict):
+        self.name_front = data["Front"]["Tyre"]["Size"]
+        self.name_rear = data["Rear"]["Tyre"]["Size"]
+        self.front_rim_diameter = data["Front"]["Tyre"]["RimDiameter"]
+        self.front_aspect_ratio = data["Front"]["Tyre"]["AspectRatio"]
+        self.front_section_width = data["Front"]["Tyre"]["SectionWidth"]
+
+        self.rear_rim_diameter = data["Rear"]["Tyre"]["RimDiameter"]
+        self.rear_aspect_ratio = data["Rear"]["Tyre"]["AspectRatio"]
+        self.rear_section_width = data["Rear"]["Tyre"]["SectionWidth"]
+
+    def to_json(self) -> dict:
+        return {
+            "name_front": self.name_front,
+            "name_rear": self.name_rear,
+            "front_rim_diameter": self.front_rim_diameter,
+            "front_aspect_ratio": self.front_aspect_ratio,
+            "front_section_width": self.front_section_width,
+            "rear_rim_diameter": self.rear_rim_diameter,
+            "rear_aspect_ratio": self.rear_aspect_ratio,
+            "rear_section_width": self.rear_section_width,
+        }
+
+
+class VehicleApi:
+    reg_num: str
+    make: str
+    model: str
+    year: int
+    tyre_variants: list[VehicleTyreApi]
+
+    def __init__(self, data: dict, reg_num: str):
+        vehicle = data['Response']['DataItems']["VehicleDetails"]
+        self.reg_num = reg_num
+        self.make = vehicle['Make']
+        self.model = vehicle['Model']
+        self.year = vehicle['BuildYear']
+        tyres = data['Response']["DataItems"]["TyreDetails"]["RecordList"]
+        list_tyres = []
+        for one in tyres:
+            tyre_api = VehicleTyreApi(one)
+            list_tyres.append(tyre_api)
+        self.tyre_variants = list_tyres
+
+    def to_json(self) -> dict:
+        list_tyre_types = []
+        for one in self.tyre_variants:
+            list_tyre_types.append(one.to_json())
+        return {
+            "reg_num": self.reg_num,
+            "make": self.make,
+            "model": self.model,
+            "year": int(self.year),
+            "tyre_variants": list_tyre_types
+        }
+
+
 class Contractor(BaseModel):
     contractor_id: int
     owner_id: int
