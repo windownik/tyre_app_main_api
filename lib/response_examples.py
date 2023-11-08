@@ -354,7 +354,7 @@ get_vehicle_from_api_res = {
                     "odd": {
                         "summary": "Success",
                         "value": {"ok": False,
-                                  'description': 'You have bad refresh token or device_id, please login', }
+                                  'description': 'You have bad access token or device_id, please login', }
                     },
                 }
             }

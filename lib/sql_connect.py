@@ -131,6 +131,18 @@ async def read_data(db: Depends, table: str, id_name: str, id_data, order: str =
     return data
 
 
+async def read_users(db: Depends, search: str,):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"SELECT * FROM users "
+                          f"WHERE name LIKE $1 "
+                          f"OR name LIKE $2 "
+                          f"OR surname LIKE $3 "
+                          f"OR phone LIKE $4 "
+                          f"OR email LIKE $5 "
+                          f"ORDER BY user_id;", search, search, search, search, search)
+    return data
+
+
 async def read_review(db: Depends, session_id: int, ):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT * FROM review WHERE session_id = $1 AND status = 'active' ORDER BY session_id;",

@@ -157,7 +157,7 @@ async def delete_vehicle(access_token: str, vehicle_id: int, db=Depends(data_b.c
 
 @app.get(path='/check_vehicle', tags=['Vehicle'], responses=get_vehicle_from_api_res)
 async def check_vehicle_in_dvla(access_token: str, reg_number: str):
-    """Get vehicle data in DVLA by reg_num"""
+    """Get vehicle data in DVLA by reg_number"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
     if status_code == 200:
@@ -176,12 +176,10 @@ async def check_vehicle_in_dvla(access_token: str, reg_number: str):
     r = requests.get('https://uk1.ukvehicledata.co.uk/api/datapackage/TyreData', params=params)
 
     if r.status_code == 200:
-        res = r.json()
-        print(res)
         vehicle_api: VehicleApi = VehicleApi(data=r.json(), reg_num=reg_number)
     else:
         return JSONResponse(content={"ok": False,
-                                     'vehicle': "vehicle"
+                                     'description': "No vehicle"
                                      },
                             status_code=_status.HTTP_400_BAD_REQUEST,)
 
