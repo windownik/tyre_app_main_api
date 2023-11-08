@@ -26,9 +26,7 @@ auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 @app.get(path='/admin_users', tags=['Admin users'], responses=get_login_res)
 async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=Depends(data_b.connection)):
     """
-    Create work_types with name and price\n
-    Price in cents\n
-    example: price GBP 20 should send 2000
+    Admin get users with search
     """
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
@@ -62,7 +60,7 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
         elif search in str(i[3]):
             new_user_list.append(i)
 
-    # new_user_list = new_user_list[page*20: (page+1)*20]
+    new_user_list = new_user_list[page*20: (page+1)*20]
 
     list_user = []
     for one in new_user_list:
@@ -74,3 +72,4 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
+
