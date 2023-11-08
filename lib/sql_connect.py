@@ -131,14 +131,9 @@ async def read_data(db: Depends, table: str, id_name: str, id_data, order: str =
     return data
 
 
-async def read_users(db: Depends, search: str,):
+async def read_users(db: Depends,):
     """Получаем актуальные события"""
-    data = await db.fetch(f"SELECT * FROM users "
-                          f"WHERE name LIKE $1 "
-                          f"OR name LIKE $2 "
-                          f"OR surname LIKE $3 "
-                          f"OR email LIKE $4 "
-                          f"ORDER BY user_id;", search, search, search, search)
+    data = await db.fetch(f"SELECT * FROM users ORDER BY user_id;",)
     return data
 
 

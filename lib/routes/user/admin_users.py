@@ -46,10 +46,16 @@ async def admin_get_users(access_token: str, search: str, page: int = 0, db=Depe
                                      'description': "Not enough rights"},
                             status_code=500)
 
-    user_data = await conn.read_users(db=db, search=search,)
+    user_data = await conn.read_users(db=db,)
+
+    new_user_list = []
+    for i in user_data:
+        if search in i:
+            new_user_list.append(i)
+    new_user_list = new_user_list[page*20: (page+1)*20]
 
     list_user = []
-    for one in user_data:
+    for one in new_user_list:
         user: User = User.parse_obj(one)
         list_user.append(user.dict())
 
