@@ -10,7 +10,6 @@ from lib import sql_connect as conn
 from lib.response_examples import *
 from lib.sql_create_tables import data_b, app
 
-
 ip_server = os.environ.get("IP_SERVER")
 ip_port = os.environ.get("PORT_SERVER")
 
@@ -44,7 +43,7 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
                                      'description': "Not enough rights"},
                             status_code=500)
 
-    user_data = await conn.read_users(db=db,)
+    user_data = await conn.read_users(db=db, )
 
     new_user_list = []
     for i in user_data:
@@ -60,7 +59,7 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
         elif search in str(i[3]):
             new_user_list.append(i)
 
-    new_user_list = new_user_list[page*20: (page+1)*20]
+    new_user_list = new_user_list[page * 20: (page + 1) * 20]
 
     list_user = []
     for one in new_user_list:
@@ -68,8 +67,8 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
         list_user.append(user.dict())
 
     return JSONResponse(content={"ok": True,
-                                 'list_users': list_user
+                                 'list_users': list_user,
+                                 "pages": len(user_data) // 20 + 1
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
-
