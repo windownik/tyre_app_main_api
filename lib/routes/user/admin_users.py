@@ -24,7 +24,7 @@ auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 
 @app.get(path='/admin_users', tags=['Admin users'], responses=get_login_res)
-async def create_work_type(access_token: str, search: str, page: int = 0, db=Depends(data_b.connection)):
+async def admin_get_users(access_token: str, search: str, page: int = 0, db=Depends(data_b.connection)):
     """
     Create work_types with name and price\n
     Price in cents\n

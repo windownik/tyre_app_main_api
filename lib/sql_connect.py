@@ -137,9 +137,8 @@ async def read_users(db: Depends, search: str,):
                           f"WHERE name LIKE $1 "
                           f"OR name LIKE $2 "
                           f"OR surname LIKE $3 "
-                          f"OR phone LIKE $4 "
-                          f"OR email LIKE $5 "
-                          f"ORDER BY user_id;", search, search, search, search, search)
+                          f"OR email LIKE $4 "
+                          f"ORDER BY user_id;", search, search, search, search)
     return data
 
 
