@@ -24,7 +24,7 @@ auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 
 @app.get(path='/admin_users', tags=['Admin users'], responses=get_login_res)
-async def admin_get_users(access_token: str, search: str, page: int = 0, db=Depends(data_b.connection)):
+async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=Depends(data_b.connection)):
     """
     Create work_types with name and price\n
     Price in cents\n
@@ -50,9 +50,19 @@ async def admin_get_users(access_token: str, search: str, page: int = 0, db=Depe
 
     new_user_list = []
     for i in user_data:
-        if search in i:
+        if search == "0":
             new_user_list.append(i)
-    new_user_list = new_user_list[page*20: (page+1)*20]
+            continue
+        if search in i[1]:
+            new_user_list.append(i)
+        elif search in i[2]:
+            new_user_list.append(i)
+        elif search in i[4]:
+            new_user_list.append(i)
+        elif search in str(i[3]):
+            new_user_list.append(i)
+
+    # new_user_list = new_user_list[page*20: (page+1)*20]
 
     list_user = []
     for one in new_user_list:
