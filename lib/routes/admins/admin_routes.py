@@ -104,7 +104,7 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-def check_admin(access_token: str, db: Depends):
+async def check_admin(access_token: str, db: Depends):
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
     if status_code == 200:
