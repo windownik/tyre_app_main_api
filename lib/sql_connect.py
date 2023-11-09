@@ -137,7 +137,7 @@ async def read_users(db: Depends,):
     return data
 
 
-async def read_vehicles(db: Depends):
+async def read_admin_vehicles(db: Depends):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT * FROM vehicle ORDER BY vehicle_id;",)
     return data

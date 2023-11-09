@@ -74,7 +74,7 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
     if type(res) != bool:
         return res
 
-    vehicle_data = await conn.read_vehicles(db=db)
+    vehicle_data = await conn.read_admin_vehicles(db=db)
 
     new_vehicle_list = []
     for i in vehicle_data:
