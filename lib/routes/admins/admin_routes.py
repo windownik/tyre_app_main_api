@@ -96,9 +96,9 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
         list_user.append(user.dict())
 
     return JSONResponse(content={"ok": True,
-                                 'list_users': list_user,
+                                 'list_vehicles': list_user,
                                  "pages": len(new_vehicle_list) // on_page + 1,
-                                 "all_users_count": len(vehicle_data)
+                                 "all_vehicles_count": len(vehicle_data)
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
