@@ -59,7 +59,7 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
         elif search in str(i[3]):
             new_user_list.append(i)
 
-    new_user_list = new_user_list[page * 20: (page + 1) * 20]
+    new_user_list = new_user_list[page * 1: (page + 1) * 20]
 
     list_user = []
     for one in new_user_list:
