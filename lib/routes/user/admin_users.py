@@ -58,8 +58,8 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
             new_user_list.append(i)
         elif search in str(i[3]):
             new_user_list.append(i)
-
-    new_user_list = new_user_list[page * 1: (page + 1) * 20]
+    users_one_page = 1
+    new_user_list = new_user_list[page * users_one_page: (page + 1) * users_one_page]
 
     list_user = []
     for one in new_user_list:
@@ -68,7 +68,7 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
 
     return JSONResponse(content={"ok": True,
                                  'list_users': list_user,
-                                 "pages": len(user_data) // 20 + 1
+                                 "pages": len(user_data) // users_one_page + 1
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
