@@ -29,7 +29,7 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
     """
     Admin get users with search
     """
-    res = check_admin(access_token=access_token, db=db)
+    res = await check_admin(access_token=access_token, db=db)
     if type(res) != bool:
         return res
 
@@ -70,7 +70,7 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
     """
     Admin get vehicles with search
     """
-    res = check_admin(access_token=access_token, db=db)
+    res = await check_admin(access_token=access_token, db=db)
     if type(res) != bool:
         return res
 
