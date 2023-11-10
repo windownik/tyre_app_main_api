@@ -4,7 +4,7 @@ import requests
 import starlette.status as _status
 from fastapi import Depends
 from starlette.responses import JSONResponse
-from lib.db_objects import Vehicle, User
+from lib.db_objects import Vehicle, User, ServiceSession
 
 from lib import sql_connect as conn
 from lib.response_examples import *
@@ -104,7 +104,47 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
+@app.get(path='/get_all_ss', tags=['Admin funcs'], responses=get_login_res)
+async def admin_get_service_sessions(access_token: str, search: str = 0, page: int = 0, db=Depends(data_b.connection)):
+    """
+    Admin get service_sessions with search
+    """
+    res = await check_admin(access_token=access_token, db=db)
+    if type(res) != bool:
+        return res
+
+    ss_data = await conn.read_admin_ss(db=db)
+
+    new_ss_list = []
+    for i in ss_data:
+        if search == "0":
+            new_ss_list.append(i)
+            continue
+        if search in i[1]:
+            new_ss_list.append(i)
+        elif search in i[3]:
+            new_ss_list.append(i)
+        elif search in i[4]:
+            new_ss_list.append(i)
+
+    crop_user_list = new_ss_list[page * on_page: (page + 1) * on_page]
+
+    list_ss = []
+    for one in crop_user_list:
+        ss: ServiceSession = ServiceSession.parse_obj(one)
+        list_ss.append(ss.dict())
+
+    return JSONResponse(content={"ok": True,
+                                 'list_sessions': list_ss,
+                                 "pages": len(new_ss_list) // on_page + 1,
+                                 "all_sessions_count": len(ss_data)
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
 async def check_admin(access_token: str, db: Depends):
+    """Check services access token for admin"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
     if status_code == 200:

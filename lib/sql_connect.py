@@ -143,6 +143,12 @@ async def read_admin_vehicles(db: Depends):
     return data
 
 
+async def read_admin_ss(db: Depends):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"SELECT * FROM service_session ORDER BY session_id DESC;",)
+    return data
+
+
 async def read_review(db: Depends, session_id: int, ):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT * FROM review WHERE session_id = $1 AND status = 'active' ORDER BY session_id;",
