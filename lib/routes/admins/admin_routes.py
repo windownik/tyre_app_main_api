@@ -90,14 +90,26 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
 
     crop_user_list = new_vehicle_list[page * on_page: (page + 1) * on_page]
 
-    list_user = []
+    list_vehicles = []
+    set_users = set()
     for one in crop_user_list:
-        user: Vehicle = Vehicle.parse_obj(one)
-        list_user.append(user.dict())
+        vehicle: Vehicle = Vehicle.parse_obj(one)
+        list_vehicles.append(vehicle.dict())
+
+        set_users.add(vehicle.owner_id)
+
+    list_user = []
+    if len(set_users) != 0:
+        crop_user_list = await conn.get_user_by_set(db=db, set_id=set_users)
+
+        for one in crop_user_list:
+            user: User = User.parse_obj(one)
+            list_user.append(user.dict())
 
     return JSONResponse(content={"ok": True,
-                                 'list_vehicles': list_user,
+                                 'list_vehicles': list_vehicles,
                                  "pages": len(new_vehicle_list) // on_page + 1,
+                                 "users": list_user,
                                  "all_vehicles_count": len(vehicle_data)
                                  },
                         status_code=_status.HTTP_200_OK,
@@ -130,13 +142,24 @@ async def admin_get_service_sessions(access_token: str, search: str = 0, page: i
     crop_user_list = new_ss_list[page * on_page: (page + 1) * on_page]
 
     list_ss = []
+    set_users = set()
     for one in crop_user_list:
         ss: ServiceSession = ServiceSession.parse_obj(one)
+        set_users.add(ss.session_id)
         list_ss.append(ss.dict())
+
+    list_user = []
+    if len(set_users) != 0:
+        crop_user_list = await conn.get_user_by_set(db=db, set_id=set_users)
+
+        for one in crop_user_list:
+            user: User = User.parse_obj(one)
+            list_user.append(user.dict())
 
     return JSONResponse(content={"ok": True,
                                  'list_sessions': list_ss,
                                  "pages": len(new_ss_list) // on_page + 1,
+                                 "users": list_user,
                                  "all_sessions_count": len(ss_data)
                                  },
                         status_code=_status.HTTP_200_OK,

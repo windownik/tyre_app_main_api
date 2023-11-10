@@ -82,6 +82,17 @@ async def get_user_id(db: Depends, token_type: str, token: str, device_id: str):
     return data
 
 
+async def get_user_by_set(db: Depends, set_id: set,):
+    """Get user_id by token and device id"""
+    sql_id = ""
+    for i in set_id:
+        sql_id = f"{sql_id} user_id={i} AND"
+    sql_id = sql_id[0: -4]
+    data = await db.fetch(f"SELECT * FROM users "
+                          f"WHERE{sql_id};")
+    return data
+
+
 async def get_user_id_by_token(db: Depends, token_type: str, token: str):
     """Get user_id by token and device id"""
     now = datetime.datetime.now()
