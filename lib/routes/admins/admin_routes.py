@@ -147,7 +147,7 @@ async def admin_get_service_sessions(access_token: str, search: str = 0, page: i
         ss: ServiceSession = ServiceSession.parse_obj(one)
         set_users.add(ss.client_id)
         set_users.add(ss.worker_id)
-        list_ss.append(ss.dict())
+        list_ss.append(await ss.to_json(db=db, session_work_list=[]))
 
     list_user = []
     if len(set_users) != 0:
