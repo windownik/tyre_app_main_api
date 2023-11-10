@@ -185,7 +185,7 @@ async def check_admin(access_token: str, db: Depends):
                             status_code=500)
     return True
 
-#
+
 # abcd = [1, 2, 3, 4, 4, 5, 5, 6]
 # a = set()
 # for one in abcd:
@@ -194,7 +194,8 @@ async def check_admin(access_token: str, db: Depends):
 # sql_id = ""
 #
 # for i in a:
-#     sql_id = f"{sql_id} user_id={i} AND"
-# sql_id = sql_id[0: -4]
+#     print(i)
+#     sql_id = f"{sql_id} user_id={i} OR"
+# sql_id = sql_id[0: -3]
 # DDD = f"SELECT * FROM users WHERE{sql_id};"
 # print(DDD)

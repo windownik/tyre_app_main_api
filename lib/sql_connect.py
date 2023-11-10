@@ -87,7 +87,7 @@ async def get_user_by_set(db: Depends, set_id: set,):
     sql_id = ""
     for i in set_id:
         sql_id = f"{sql_id} user_id={i} OR"
-    sql_id = sql_id[0: -4]
+    sql_id = sql_id[0: -3]
     data = await db.fetch(f"SELECT * FROM users "
                           f"WHERE{sql_id};")
     return data
