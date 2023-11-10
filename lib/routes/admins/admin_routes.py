@@ -145,7 +145,8 @@ async def admin_get_service_sessions(access_token: str, search: str = 0, page: i
     set_users = set()
     for one in crop_user_list:
         ss: ServiceSession = ServiceSession.parse_obj(one)
-        set_users.add(ss.session_id)
+        set_users.add(ss.client_id)
+        set_users.add(ss.worker_id)
         list_ss.append(ss.dict())
 
     list_user = []
