@@ -50,7 +50,7 @@ async def start_sending_push_msg(access_token: str, content_type: str, title: st
     if type(res) != bool:
         return res
 
-    if content_type != 'text' or content_type != 'img':
+    if content_type != 'text' and content_type != 'img':
         return JSONResponse(content={"ok": False,
                                      'description': "bad content_type"},
                             status_code=_status.HTTP_400_BAD_REQUEST)
