@@ -5,6 +5,7 @@ import starlette.status as _status
 from lib import sql_connect as conn
 from starlette.responses import JSONResponse
 
+from lib.db_objects import PushLogs, User
 from lib.response_examples import send_push_res
 from lib.routes.admins.admin_routes import check_admin
 from lib.sql_create_tables import data_b, app
@@ -14,6 +15,8 @@ ip_port = os.environ.get("PORT_SERVER")
 
 ip_port = 80 if ip_port is None else ip_port
 ip_server = "127.0.0.1" if ip_server is None else ip_server
+
+on_page = 20
 
 
 @app.get(path='/users_count_push', tags=['Admin funcs'], responses=send_push_res)
@@ -65,4 +68,58 @@ async def start_sending_push_msg(access_token: str, title: str, short_text: str,
                                img_url=url, push_type=content_type, push_msg_id=0)
 
     return JSONResponse(content={'ok': True, 'desc': 'successfully created'},
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.get(path='/sending_push', tags=['Admin funcs'], responses=send_push_res)
+async def start_sending_push_msg(access_token: str, search: str = 0, page: int = 0, db=Depends(data_b.connection)):
+    """
+    Use it route for create massive sending message for users with filter\n\n
+    access_token: users token\n
+    content_type: can be: text for text message and img for img message\n
+    title: Tittle of message\n
+    short_text: short text of push message\n
+    main_text: main text of message for content type 0\n
+    url: url to img in internet for content type 0\n
+    """
+    user_id = await check_admin(access_token=access_token, db=db)
+    if type(user_id) != int:
+        return user_id
+
+    push_data = await conn.read_all(db=db, table="push_logs", order="id DESC")
+
+    _push_data = []
+    for i in push_data:
+        if search == "0":
+            _push_data.append(i)
+            continue
+        if search in i[1]:
+            _push_data.append(i)
+        elif search in i[3]:
+            _push_data.append(i)
+        elif search in i[4]:
+            _push_data.append(i)
+
+    new_push_data = _push_data[page * on_page: (page + 1) * on_page]
+
+    push_log_list = []
+    set_users = set()
+    for one in new_push_data:
+
+        one_push: PushLogs = PushLogs.parse_obj(one)
+        set_users.add(one_push.creator_id)
+        push_log_list.append(one_push.dict())
+
+    list_user = []
+    if len(set_users) != 0:
+        crop_user_list = await conn.get_user_by_set(db=db, set_id=set_users)
+
+        for one in crop_user_list:
+            user: User = User.parse_obj(one)
+            list_user.append(user.dict())
+
+    return JSONResponse(content={'ok': True,
+                                 'push_log': push_log_list,
+                                 "users": list_user,
+                                 },
                         headers={'content-type': 'application/json; charset=utf-8'})

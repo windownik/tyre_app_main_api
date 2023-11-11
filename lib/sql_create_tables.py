@@ -159,7 +159,7 @@ async def create_session_works_table(db):
 
 async def create_push_logs_table(db):
     await db.execute(f'''CREATE TABLE IF NOT EXISTS push_logs (
- id SERIAL PRIMARY KEY,
+ push_id SERIAL PRIMARY KEY,
  creator_id BIGINT DEFAULT 0,
  tittle TEXT DEFAULT '0',
  short_text TEXT DEFAULT '0',

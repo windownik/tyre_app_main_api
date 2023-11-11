@@ -149,6 +149,17 @@ class SessionWork(BaseModel):
     wheel_rl: bool
 
 
+class PushLogs(BaseModel):
+    push_id: int
+    creator_id: int
+    tittle: str
+    short_text: str
+    content_type: str
+    main_text: str
+    url: str
+    create_date: int
+
+
 class ServiceSession(BaseModel):
     session_id: int
     client_id: int
