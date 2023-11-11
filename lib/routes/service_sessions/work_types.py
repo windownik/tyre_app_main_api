@@ -80,10 +80,10 @@ async def get_all_work_types(access_token: str, db=Depends(data_b.connection)):
 
 
 @app.put(path='/work_type', tags=['Work types'], responses=get_login_res)
-async def create_work_type(access_token: str, work_type_id: int, name_en: str, price: int,
+async def update_work_type(access_token: str, work_type_id: int, name_en: str, price: int,
                            db=Depends(data_b.connection)):
     """
-    Create work_types with name and price\n
+    Update work_types with name and price\n
     Price in cents\n
     example: price GBP 20 should send 2000
     """
@@ -110,7 +110,7 @@ async def create_work_type(access_token: str, work_type_id: int, name_en: str, p
         work_types_list.append(work.dict())
 
     return JSONResponse(content={"ok": True,
-                                 'work_type': 'Successful updated'
+                                 'work_types': work_types_list
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
