@@ -16,21 +16,15 @@ ip_port = 80 if ip_port is None else ip_port
 ip_server = "127.0.0.1" if ip_server is None else ip_server
 
 
-@app.post(path='/users_count_push', tags=['Push'], responses=send_push_res)
-async def check_users_push_count(access_token: str, content_type: str, db=Depends(data_b.connection)):
+@app.get(path='/users_count_push', tags=['Push'], responses=send_push_res)
+async def check_users_push_count(access_token: str, db=Depends(data_b.connection)):
     """
-    Use it route for create massive sending message for users with filter\n\n
+    Get users count for pushing messages\n\n
     access_token: users token\n
-    content_type: can be: text for text message and img for img message\n
     """
     res = await check_admin(access_token=access_token, db=db)
     if type(res) != bool:
         return res
-
-    if content_type != 'text' or content_type != 'img':
-        return JSONResponse(content={"ok": False,
-                                     'description': "bad content_type"},
-                            status_code=_status.HTTP_400_BAD_REQUEST)
 
     users_id = await conn.read_data_without(db=db, table="users", id_name="push_token", id_data="0")
 
