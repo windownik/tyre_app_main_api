@@ -361,3 +361,19 @@ get_vehicle_from_api_res = {
         }
     },
 }
+
+send_push_res = {
+    200: {
+        "description": "Success",
+        "content": {
+            "application/json": {
+                "examples": {
+                    "odd": {
+                        "summary": "Success",
+                        "value": {'ok': True, 'desc': 'successful send push'}
+                    },
+                }
+            }
+        }
+    },
+}

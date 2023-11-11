@@ -70,6 +70,17 @@ async def create_work_type(db: Depends, name_en: str, price: int, currency: str)
     return data
 
 
+async def msg_to_user(db: Depends, user_id: int, title: str, short_text: str, main_text: str, img_url: str,
+                      push_type: str, push_msg_id: int):
+    """We are create a new Work type for services sessions"""
+    data = await db.fetch(f"INSERT INTO sending "
+                          f"(user_id, title, short_text, main_text, img_url, push_type, push_msg_id) "
+                          f"VALUES ($1, $2, $3, $4, $5, $6, $7) "
+                          f"ON CONFLICT DO NOTHING RETURNING *;", user_id, title, short_text, main_text, img_url,
+                          push_type, push_msg_id)
+    return data
+
+
 async def get_user_id(db: Depends, token_type: str, token: str, device_id: str):
     """Get user_id by token and device id"""
     now = datetime.datetime.now()
@@ -139,6 +150,12 @@ async def update_user_active(db: Depends, user_id: int):
 async def read_data(db: Depends, table: str, id_name: str, id_data, order: str = '', name: str = '*'):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT {name} FROM {table} WHERE {id_name} = $1{order};", id_data)
+    return data
+
+
+async def read_data_without(db: Depends, table: str, id_name: str, id_data, order: str = '', name: str = '*'):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"SELECT {name} FROM {table} WHERE {id_name} != $1{order};", id_data)
     return data
 
 
