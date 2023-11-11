@@ -16,7 +16,7 @@ ip_port = 80 if ip_port is None else ip_port
 ip_server = "127.0.0.1" if ip_server is None else ip_server
 
 
-@app.get(path='/users_count_push', tags=['Push'], responses=send_push_res)
+@app.get(path='/users_count_push', tags=['Admin funcs'], responses=send_push_res)
 async def check_users_push_count(access_token: str, db=Depends(data_b.connection)):
     """
     Get users count for pushing messages\n\n
@@ -33,7 +33,7 @@ async def check_users_push_count(access_token: str, db=Depends(data_b.connection
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.post(path='/sending_push', tags=['Push'], responses=send_push_res)
+@app.post(path='/sending_push', tags=['Admin funcs'], responses=send_push_res)
 async def start_sending_push_msg(access_token: str, title: str, short_text: str, content_type: str,
                                  main_text: str = None, url: str = None,
                                  db=Depends(data_b.connection)):
