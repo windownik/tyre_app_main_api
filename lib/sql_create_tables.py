@@ -161,6 +161,10 @@ async def create_push_logs_table(db):
     await db.execute(f'''CREATE TABLE IF NOT EXISTS push_logs (
  id SERIAL PRIMARY KEY,
  creator_id BIGINT DEFAULT 0,
- push_text TEXT DEFAULT '0',
+ tittle TEXT DEFAULT '0',
+ short_text TEXT DEFAULT '0',
+ content_type TEXT DEFAULT '0',
+ main_text TEXT DEFAULT '0',
+ url TEXT DEFAULT '0',
  create_date BIGINT DEFAULT 0
  )''')

@@ -30,7 +30,7 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
     Admin get users with search
     """
     res = await check_admin(access_token=access_token, db=db)
-    if type(res) != bool:
+    if type(res) != int:
         return res
 
     user_data = await conn.read_users(db=db, )
@@ -71,7 +71,7 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
     Admin get vehicles with search
     """
     res = await check_admin(access_token=access_token, db=db)
-    if type(res) != bool:
+    if type(res) != int:
         return res
 
     vehicle_data = await conn.read_admin_vehicles(db=db)
@@ -122,7 +122,7 @@ async def admin_get_service_sessions(access_token: str, search: str = 0, page: i
     Admin get service_sessions with search
     """
     res = await check_admin(access_token=access_token, db=db)
-    if type(res) != bool:
+    if type(res) != int:
         return res
 
     ss_data = await conn.read_admin_ss(db=db)
@@ -184,7 +184,7 @@ async def check_admin(access_token: str, db: Depends):
         return JSONResponse(content={"ok": False,
                                      'description': "Not enough rights"},
                             status_code=500)
-    return True
+    return user_id
 
 
 # abcd = [1, 2, 3, 4, 4, 5, 5, 6]

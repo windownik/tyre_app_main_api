@@ -81,6 +81,18 @@ async def msg_to_user(db: Depends, user_id: int, title: str, short_text: str, ma
     return data
 
 
+async def msg_to_push_logs(db: Depends, creator_id: int, title: str, short_text: str, main_text: str, img_url: str,
+                           content_type: str):
+    """We are create a new Work type for services sessions"""
+    create_date = datetime.datetime.now()
+    data = await db.fetch(f"INSERT INTO push_logs "
+                          f"(creator_id, title, short_text, main_text, url, content_type, create_date) "
+                          f"VALUES ($1, $2, $3, $4, $5, $6, $7) "
+                          f"ON CONFLICT DO NOTHING RETURNING *;", creator_id, title, short_text, main_text, img_url,
+                          content_type, int(time.mktime(create_date.timetuple())))
+    return data
+
+
 async def get_user_id(db: Depends, token_type: str, token: str, device_id: str):
     """Get user_id by token and device id"""
     now = datetime.datetime.now()
@@ -93,7 +105,7 @@ async def get_user_id(db: Depends, token_type: str, token: str, device_id: str):
     return data
 
 
-async def get_user_by_set(db: Depends, set_id: set,):
+async def get_user_by_set(db: Depends, set_id: set, ):
     """Get user_id by token and device id"""
     sql_id = ""
     for i in set_id:
@@ -159,21 +171,21 @@ async def read_data_without(db: Depends, table: str, id_name: str, id_data, orde
     return data
 
 
-async def read_users(db: Depends,):
+async def read_users(db: Depends, ):
     """Получаем актуальные события"""
-    data = await db.fetch(f"SELECT * FROM users ORDER BY user_id;",)
+    data = await db.fetch(f"SELECT * FROM users ORDER BY user_id;", )
     return data
 
 
 async def read_admin_vehicles(db: Depends):
     """Получаем актуальные события"""
-    data = await db.fetch(f"SELECT * FROM vehicle ORDER BY vehicle_id;",)
+    data = await db.fetch(f"SELECT * FROM vehicle ORDER BY vehicle_id;", )
     return data
 
 
 async def read_admin_ss(db: Depends):
     """Получаем актуальные события"""
-    data = await db.fetch(f"SELECT * FROM service_session ORDER BY session_id DESC;",)
+    data = await db.fetch(f"SELECT * FROM service_session ORDER BY session_id DESC;", )
     return data
 
 
