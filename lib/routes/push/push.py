@@ -38,7 +38,7 @@ async def check_users_push_count(access_token: str, db=Depends(data_b.connection
 
 @app.post(path='/sending_push', tags=['Admin funcs'], responses=send_push_res)
 async def start_sending_push_msg(access_token: str, title: str, short_text: str, content_type: str,
-                                 main_text: str = None, url: str = None,
+                                 main_text: str = "0", url: str = "0",
                                  db=Depends(data_b.connection)):
     """
     Use it route for create massive sending message for users with filter\n\n
@@ -72,7 +72,7 @@ async def start_sending_push_msg(access_token: str, title: str, short_text: str,
 
 
 @app.get(path='/sending_push', tags=['Admin funcs'], responses=send_push_res)
-async def start_sending_push_msg(access_token: str, search: str = 0, page: int = 0, db=Depends(data_b.connection)):
+async def get_sending_push_msg_pages(access_token: str, search: str = 0, page: int = 0, db=Depends(data_b.connection)):
     """
     Use it route for create massive sending message for users with filter\n\n
     access_token: users token\n

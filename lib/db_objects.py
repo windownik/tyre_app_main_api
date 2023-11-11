@@ -156,7 +156,7 @@ class PushLogs(BaseModel):
     short_text: str
     content_type: str
     main_text: str
-    url: str
+    img_url: str
     create_date: int
 
 
