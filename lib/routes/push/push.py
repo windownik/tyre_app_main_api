@@ -119,9 +119,9 @@ async def get_sending_push_msg_pages(access_token: str, search: str = 0, page: i
             list_user.append(user.dict())
 
     return JSONResponse(content={'ok': True,
-                                 'push_log': push_log_list,
                                  "all_push_log_count": len(push_data),
                                  "search_push_log_count": len(_push_data),
+                                 'push_log': push_log_list,
                                  "users": list_user,
                                  },
                         headers={'content-type': 'application/json; charset=utf-8'})
