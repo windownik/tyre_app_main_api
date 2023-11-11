@@ -86,7 +86,7 @@ async def get_sending_push_msg_pages(access_token: str, search: str = 0, page: i
     if type(user_id) != int:
         return user_id
 
-    push_data = await conn.read_all(db=db, table="push_logs", order="id DESC")
+    push_data = await conn.read_all(db=db, table="push_logs", order="push_id DESC")
 
     _push_data = []
     for i in push_data:
