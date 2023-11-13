@@ -54,7 +54,7 @@ async def create_work_type(access_token: str, name_en: str, price: int, currency
 
 
 @app.get(path='/all_work_types', tags=['Work types'], responses=get_login_res)
-async def get_all_work_types(access_token: str, db=Depends(data_b.connection)):
+async def get_all_work_types(access_token: str, deleted: bool = False, db=Depends(data_b.connection)):
     """Get all active service_session in service"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
@@ -63,9 +63,11 @@ async def get_all_work_types(access_token: str, db=Depends(data_b.connection)):
     else:
         return JSONResponse(content=res.json(),
                             status_code=status_code)
-
-    work_type_data = await conn.read_data(db=db, table="work_types", order=" ORDER BY work_id", id_name="status",
-                                          id_data="active")
+    if deleted:
+        work_type_data = await conn.read_all(db=db, table="work_types", order="work_id",)
+    else:
+        work_type_data = await conn.read_data(db=db, table="work_types", order=" ORDER BY work_id", id_name="status",
+                                              id_data="active")
 
     work_types_list = []
     for one in work_type_data:
