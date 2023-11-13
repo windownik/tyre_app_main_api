@@ -132,13 +132,13 @@ async def turn_on_of_work_type(access_token: str, work_type_id: int, db=Depends(
                                      },
                             status_code=_status.HTTP_400_BAD_REQUEST)
     status = "deleted"
-    if work_data == "deleted":
+    if work_data[0][4] == "deleted":
         status = "active"
 
     await conn.update_inform(db=db, table="work_types", name='status', data=status, id_name='work_id',
                              id_data=work_type_id)
 
     return JSONResponse(content={"ok": True,
-                                 'description': "Work type was successful delete"
+                                 'description': f"Work type status change to: {status}"
                                  },
                         status_code=_status.HTTP_200_OK)
