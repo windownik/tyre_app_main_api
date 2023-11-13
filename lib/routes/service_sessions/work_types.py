@@ -118,8 +118,8 @@ async def update_work_type(access_token: str, work_type_id: int, name_en: str, p
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.delete(path='/work_type', tags=['Work types'], responses=get_login_res)
-async def delete_work_type(access_token: str, work_type_id: int, db=Depends(data_b.connection)):
+@app.delete(path='/change_status_work_type', tags=['Work types'], responses=get_login_res)
+async def turn_on_of_work_type(access_token: str, work_type_id: int, db=Depends(data_b.connection)):
     """Delete Work types in service by work_type_id"""
     user_id = await check_admin(access_token=access_token, db=db)
     if type(user_id) != int:
@@ -131,8 +131,11 @@ async def delete_work_type(access_token: str, work_type_id: int, db=Depends(data
                                      'description': "Bad work_type_id",
                                      },
                             status_code=_status.HTTP_400_BAD_REQUEST)
+    status = "deleted"
+    if work_data == "deleted":
+        status = "active"
 
-    await conn.update_inform(db=db, table="work_types", name='status', data='deleted', id_name='work_id',
+    await conn.update_inform(db=db, table="work_types", name='status', data=status, id_name='work_id',
                              id_data=work_type_id)
 
     return JSONResponse(content={"ok": True,
