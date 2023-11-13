@@ -139,6 +139,7 @@ async def create_push_for_one_user(access_token: str, title: str, short_text: st
     main_text: main text of message for content type 0\n
     url: url to img in internet for content type 0\n
     """
+
     res = await check_admin(access_token=access_token, db=db)
     if type(res) != int:
         return res
