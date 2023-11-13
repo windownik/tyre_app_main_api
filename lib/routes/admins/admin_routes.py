@@ -65,6 +65,39 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
+@app.put(path='/block_unblock_user', tags=['Admin funcs'], responses=get_login_res)
+async def admin_block_unblock_user(access_token: str, user_id: int, db=Depends(data_b.connection)):
+    """
+    Admin block_unblock user with user_id
+    """
+    res = await check_admin(access_token=access_token, db=db)
+    if type(res) != int:
+        return res
+
+    user_data = await conn.read_data(db=db, table='users', id_name='user_id', id_data=user_id)
+    if not user_data:
+        return JSONResponse(content={"ok": False,
+                                     'description': "Error with login account",
+                                     },
+                            status_code=500)
+
+    if user_data[0]["status"] == "blocked":
+        status = "active"
+    else:
+        status = "blocked"
+        res = requests.get(f'{auth_url}/admin_delete_tokens', params={"access_token": access_token, "user_id": user_id})
+        if res.status_code != 200:
+            return res
+
+    await conn.update_inform(table='users', name="status", data=status, id_name="user_id", id_data=user_id, db=db, )
+
+    return JSONResponse(content={"ok": True,
+                                 "description": f"Users status changed to: {status}"
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
 @app.get(path='/get_all_vehicles', tags=['Admin funcs'], responses=get_login_res)
 async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=Depends(data_b.connection)):
     """
@@ -185,18 +218,3 @@ async def check_admin(access_token: str, db: Depends):
                                      'description': "Not enough rights"},
                             status_code=500)
     return user_id
-
-
-# abcd = [1, 2, 3, 4, 4, 5, 5, 6]
-# a = set()
-# for one in abcd:
-#     a.add(one)
-#
-# sql_id = ""
-#
-# for i in a:
-#     print(i)
-#     sql_id = f"{sql_id} user_id={i} OR"
-# sql_id = sql_id[0: -3]
-# DDD = f"SELECT * FROM users WHERE{sql_id};"
-# print(DDD)
