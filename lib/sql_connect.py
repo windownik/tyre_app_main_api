@@ -89,7 +89,7 @@ async def msg_to_push_logs(db: Depends, creator_id: int, title: str, short_text:
                           f"(creator_id, tittle, short_text, main_text, img_url, content_type, users_ids, create_date) "
                           f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8) "
                           f"ON CONFLICT DO NOTHING RETURNING *;", creator_id, title, short_text, main_text, img_url,
-                          users_ids, content_type, int(time.mktime(create_date.timetuple())))
+                          content_type, users_ids, int(time.mktime(create_date.timetuple())))
     return data
 
 
