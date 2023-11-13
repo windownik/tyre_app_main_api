@@ -157,6 +157,7 @@ class PushLogs(BaseModel):
     content_type: str
     main_text: str
     img_url: str
+    users_ids: str
     create_date: int
 
 

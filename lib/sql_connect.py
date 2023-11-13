@@ -82,14 +82,14 @@ async def msg_to_user(db: Depends, user_id: int, title: str, short_text: str, ma
 
 
 async def msg_to_push_logs(db: Depends, creator_id: int, title: str, short_text: str, main_text: str, img_url: str,
-                           content_type: str):
+                           content_type: str, users_ids: str):
     """We are create a new Work type for services sessions"""
     create_date = datetime.datetime.now()
     data = await db.fetch(f"INSERT INTO push_logs "
-                          f"(creator_id, tittle, short_text, main_text, img_url, content_type, create_date) "
-                          f"VALUES ($1, $2, $3, $4, $5, $6, $7) "
+                          f"(creator_id, tittle, short_text, main_text, img_url, content_type, users_ids, create_date) "
+                          f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8) "
                           f"ON CONFLICT DO NOTHING RETURNING *;", creator_id, title, short_text, main_text, img_url,
-                          content_type, int(time.mktime(create_date.timetuple())))
+                          users_ids, content_type, int(time.mktime(create_date.timetuple())))
     return data
 
 

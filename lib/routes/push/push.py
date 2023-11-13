@@ -61,7 +61,7 @@ async def start_sending_push_msg(access_token: str, title: str, short_text: str,
     users_id = await conn.read_data_without(db=db, name="user_id", table="users", id_name="push_token", id_data="0")
 
     await conn.msg_to_push_logs(db=db, creator_id=user_id, title=title, short_text=short_text, main_text=main_text,
-                                img_url=url, content_type=content_type)
+                                img_url=url, content_type=content_type, users_ids="for_all")
 
     for user in users_id:
         await conn.msg_to_user(db=db, user_id=user[0], title=title, short_text=short_text, main_text=main_text,
@@ -105,7 +105,6 @@ async def get_sending_push_msg_pages(access_token: str, search: str = 0, page: i
     push_log_list = []
     set_users = set()
     for one in new_push_data:
-
         one_push: PushLogs = PushLogs.parse_obj(one)
         set_users.add(one_push.creator_id)
         push_log_list.append(one_push.dict())
@@ -124,4 +123,36 @@ async def get_sending_push_msg_pages(access_token: str, search: str = 0, page: i
                                  'push_log': push_log_list,
                                  "users": list_user,
                                  },
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.post(path='/push_for_user', tags=['Admin funcs'], responses=send_push_res)
+async def create_push_for_one_user(access_token: str, title: str, short_text: str, content_type: str, user_id: int,
+                                   main_text: str = "0", url: str = "0",
+                                   db=Depends(data_b.connection)):
+    """
+    Use it route for create one sending message for user with user_id\n\n
+    access_token: users token\n
+    content_type: can be: text for text message and img for img message\n
+    title: Tittle of message\n
+    short_text: short text of push message\n
+    main_text: main text of message for content type 0\n
+    url: url to img in internet for content type 0\n
+    """
+    res = await check_admin(access_token=access_token, db=db)
+    if type(res) != int:
+        return res
+
+    if content_type != 'text' and content_type != 'img':
+        return JSONResponse(content={"ok": False,
+                                     'description': "bad content_type"},
+                            status_code=_status.HTTP_400_BAD_REQUEST)
+
+    await conn.msg_to_push_logs(db=db, creator_id=res, title=title, short_text=short_text, main_text=main_text,
+                                img_url=url, content_type=content_type, users_ids=str(user_id))
+
+    await conn.msg_to_user(db=db, user_id=user_id, title=title, short_text=short_text, main_text=main_text,
+                           img_url=url, push_type=content_type, push_msg_id=0)
+
+    return JSONResponse(content={'ok': True, 'desc': 'successfully created'},
                         headers={'content-type': 'application/json; charset=utf-8'})

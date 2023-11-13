@@ -48,6 +48,8 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
             new_user_list.append(i)
         elif search in str(i[3]):
             new_user_list.append(i)
+        elif search in str(i[0]):
+            new_user_list.append(i)
 
     crop_user_list = new_user_list[page * on_page: (page + 1) * on_page]
 

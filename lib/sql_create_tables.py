@@ -166,5 +166,6 @@ async def create_push_logs_table(db):
  content_type TEXT DEFAULT '0',
  main_text TEXT DEFAULT '0',
  img_url TEXT DEFAULT '0',
+ users_ids TEXT DEFAULT 'for_all',
  create_date BIGINT DEFAULT 0
  )''')
