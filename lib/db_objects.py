@@ -171,6 +171,9 @@ class ServiceSession(BaseModel):
     status: str
     session_type: str
     session_date: int
+    lat: float
+    long: float
+    address: str
     create_date: int
 
     async def to_json(self, db: Depends, session_work_list: list):

@@ -101,6 +101,9 @@ async def create_service_session_table(db):
  session_type VARCHAR(20) DEFAULT 'now',
  session_date BIGINT DEFAULT 0,
  bolt_key BOOL DEFAULT false,
+ lat DOUBLE PRECISION DEFAULT 0,
+ long DOUBLE PRECISION DEFAULT 0,
+ address TEXT DEFAULT '0',
  create_date BIGINT DEFAULT 0
  )''')
 

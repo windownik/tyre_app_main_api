@@ -24,9 +24,9 @@ auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 @app.post(path='/service_session', tags=['Service session'], responses=get_login_res)
 async def create_service_session(access_token: str, vehicle_id: int, session_type: str, session_date: int,
-                                 work_type_id: str, bolt_key: bool = False, wheel_fr: bool = False,
-                                 wheel_fl: bool = False, wheel_rr: bool = False, wheel_rl: bool = False,
-                                 db=Depends(data_b.connection)):
+                                 work_type_id: str, lat: float, long: float, address: str, bolt_key: bool = False,
+                                 wheel_fr: bool = False, wheel_fl: bool = False, wheel_rr: bool = False,
+                                 wheel_rl: bool = False, db=Depends(data_b.connection)):
     """
     Create service_session with information\n
     service_session string can be: now, schedule
@@ -61,7 +61,7 @@ async def create_service_session(access_token: str, vehicle_id: int, session_typ
                             status_code=_status.HTTP_400_BAD_REQUEST)
     session_data = await conn.create_service_session(db=db, client_id=user_id, vehicle_id=vehicle_id,
                                                      session_type=session_type, bolt_key=bolt_key,
-                                                     session_date=session_date,)
+                                                     session_date=session_date, lat=lat, long=long, address=address)
     service_session: ServiceSession = ServiceSession.parse_obj(session_data[0])
 
     list_ss_work = []
