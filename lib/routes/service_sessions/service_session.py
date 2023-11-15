@@ -29,6 +29,7 @@ async def create_service_session(access_token: str, vehicle_id: int, session_typ
                                  wheel_rl: bool = False, db=Depends(data_b.connection)):
     """
     Create service_session with information\n
+    vehicle_id: id number of vehicle\n
     service_session string can be: now, schedule
     """
     work_type_id = work_type_id.split(',')
