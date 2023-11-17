@@ -171,6 +171,12 @@ async def read_data_without(db: Depends, table: str, id_name: str, id_data, orde
     return data
 
 
+async def read_users_for_push(db: Depends, name: str = '*'):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"SELECT {name} FROM users WHERE push_token != $1 AND get_push = $2;", "0", True)
+    return data
+
+
 async def read_users(db: Depends, ):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT * FROM users ORDER BY user_id;", )

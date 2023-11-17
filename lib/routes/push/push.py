@@ -29,7 +29,7 @@ async def check_users_push_count(access_token: str, db=Depends(data_b.connection
     if type(res) != int:
         return res
 
-    users_id = await conn.read_data_without(db=db, table="users", id_name="push_token", id_data="0")
+    users_id = await conn.read_users_for_push(db=db,)
 
     return JSONResponse(content={'ok': True,
                                  "all_users_count": len(users_id)},
@@ -58,7 +58,7 @@ async def start_sending_push_msg(access_token: str, title: str, short_text: str,
                                      'description': "bad content_type"},
                             status_code=_status.HTTP_400_BAD_REQUEST)
 
-    users_id = await conn.read_data_without(db=db, name="user_id", table="users", id_name="push_token", id_data="0")
+    users_id = await conn.read_users_for_push(db=db, name="user_id",)
 
     await conn.msg_to_push_logs(db=db, creator_id=user_id, title=title, short_text=short_text, main_text=main_text,
                                 img_url=url, content_type=content_type, users_ids="for_all")
