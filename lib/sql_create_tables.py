@@ -74,7 +74,7 @@ async def create_contractor_table(db):
  money BIGINT DEFAULT 0,
  currency VARCHAR(20) DEFAULT 'GBP',
  status VARCHAR(20) DEFAULT 'active',
- createdate BIGINT
+ create_date BIGINT
  )''')
 
 
@@ -85,7 +85,7 @@ async def create_user_in_contractor_table(db):
  user_id BIGINT DEFAULT 0,
  status VARCHAR(20) DEFAULT 'active',
  delete_date BIGINT DEFAULT 0,
- createdate BIGINT DEFAULT 0
+ create_date BIGINT DEFAULT 0
  )''')
 
 
