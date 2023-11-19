@@ -108,13 +108,13 @@ class Contractor(BaseModel):
     contractor_id: int
     owner_id: int
     co_name: str
-    acc_num: str
-    sort_code: int
-    contact_name: str
+    co_email: str
     address: str
-    postcode: int
-    lat: float
-    long: float
+    acc_num: str
+    vat_number: str
+    sort_code: int
+    post_code: int
+    beneficiary_name: str
     money: int
     currency: str
     status: str

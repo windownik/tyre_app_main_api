@@ -5,3 +5,4 @@ from lib.routes import system
 from lib.routes.push import push
 from lib.routes.service_sessions import service_session, review, work_types, payments
 from lib.routes.pro import auth
+from lib.routes.contractor import contractor

@@ -62,6 +62,18 @@ async def create_ss_work(db: Depends, session_id: int, work_type_id: int, name_e
     return data
 
 
+async def create_contractor(db: Depends, owner_id: int, co_name: str, co_email: str, address: str, acc_num: str,
+                            vat_number: str, sort_code: int, post_code: int, beneficiary_name: str,):
+    """We are create a new service session"""
+    create_date = datetime.datetime.now()
+    data = await db.fetch(f"INSERT INTO contractor (owner_id, co_name, co_email, address, "
+                          f"acc_num, vat_number, sort_code, post_code, beneficiary_name, create_date) "
+                          f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) "
+                          f"ON CONFLICT DO NOTHING RETURNING *;", owner_id, co_name, co_email, address, acc_num,
+                          vat_number, sort_code, post_code, beneficiary_name, int(time.mktime(create_date.timetuple())))
+    return data
+
+
 async def create_review(db: Depends, session_id: int, client_id: int, text: str, score: int):
     """We are create a new review for service session"""
     create_date = datetime.datetime.now()

@@ -1,0 +1,52 @@
+import os
+import requests
+
+import starlette.status as _status
+from fastapi import Depends
+from starlette.responses import JSONResponse
+from lib.db_objects import Vehicle, User, ServiceSession, Contractor
+
+from lib import sql_connect as conn
+from lib.response_examples import *
+from lib.routes.admins.admin_routes import check_admin
+from lib.sql_create_tables import data_b, app
+
+ip_server = os.environ.get("IP_SERVER")
+ip_port = os.environ.get("PORT_SERVER")
+
+ip_port = 80 if ip_port is None else ip_port
+ip_server = "127.0.0.1" if ip_server is None else ip_server
+
+ip_auth_server = os.environ.get("IP_AUTH_SERVER")
+ip_auth_port = os.environ.get("PORT_AUTH_SERVER")
+
+auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
+
+on_page = 20
+
+
+@app.post(path='/contractor', tags=['Admin contractor'], responses=get_login_res)
+async def admin_create_contractor(access_token: str, owner_id: int, co_name: str, co_email: str, address: str,
+                                  acc_num: str, vat_number: str, sort_code: int, post_code: int, beneficiary_name: str,
+                                  db=Depends(data_b.connection)):
+    """
+    Admin create new contractor
+    """
+    res = await check_admin(access_token=access_token, db=db)
+    if type(res) != int:
+        return res
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    if res.status_code != 200:
+        return JSONResponse(content="User with owner_id not found",
+                            status_code=_status.HTTP_400_BAD_REQUEST)
+
+    contr_data = await conn.create_contractor(db=db, owner_id=owner_id, co_name=co_name, co_email=co_email,
+                                              address=address, acc_num=acc_num, vat_number=vat_number,
+                                              post_code=post_code, sort_code=sort_code,
+                                              beneficiary_name=beneficiary_name)
+    contractor: Contractor = Contractor.parse_obj(contr_data[0])
+    return JSONResponse(content={"ok": True,
+                                 'contractor': contractor.dict(),
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
