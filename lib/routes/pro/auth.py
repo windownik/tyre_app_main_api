@@ -48,3 +48,37 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.post(path='/create_worker_account', tags=['Auth Worker'], responses=post_create_account_res)
+async def create_account_user(login: str, password: str, surname: str, contractor_id: int,
+                              db=Depends(data_b.connection)):
+    """Create new worker account in service with login, password, name and surname"""
+    params = {
+        "login": login,
+        "password": password,
+    }
+    res = requests.post(f'{auth_url}/create_account_login', params=params)
+    status_code = res.status_code
+    if status_code == 200:
+        user_id = res.json()['user_id']
+    else:
+        return JSONResponse(content=res.json(),
+                            status_code=status_code)
+
+    user_data = await conn.save_worker(db=db, user_id=user_id, name=login, surname=surname)
+    if not user_data:
+        return JSONResponse(content={"ok": False,
+                                     'description': "Error with create account",
+                                     },
+                            status_code=500)
+    user: User = User.parse_obj(user_data[0])
+    return JSONResponse(content={"ok": True,
+                                 'user': user.dict(),
+                                 'access_token': res.json()['access_token'],
+                                 'refresh_token': res.json()['refresh_token']
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+

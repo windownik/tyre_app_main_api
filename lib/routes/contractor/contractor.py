@@ -4,7 +4,7 @@ import requests
 import starlette.status as _status
 from fastapi import Depends
 from starlette.responses import JSONResponse
-from lib.db_objects import Vehicle, User, ServiceSession, Contractor
+from lib.db_objects import Contractor
 
 from lib import sql_connect as conn
 from lib.response_examples import *
@@ -45,8 +45,67 @@ async def admin_create_contractor(access_token: str, owner_id: int, co_name: str
                                               post_code=post_code, sort_code=sort_code,
                                               beneficiary_name=beneficiary_name)
     contractor: Contractor = Contractor.parse_obj(contr_data[0])
+
+    await conn.save_user_to_contractor(db=db, user_id=owner_id, contractor_id=contractor.contractor_id)
+
     return JSONResponse(content={"ok": True,
                                  'contractor': contractor.dict(),
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.get(path='/contractor', tags=['for all'], responses=get_login_res)
+async def admin_get_contractor(access_token: str, contractor_id: int, worker_id: int = 0,
+                               db=Depends(data_b.connection)):
+    """
+    Admin get contractor by contractor_id or get all user's contractors with user_id
+    """
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    if res.status_code == 200:
+        user_id = res.json()['user_id']
+    else:
+        return res
+
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    if res.status_code != 200:
+        return JSONResponse(content="User with owner_id not found",
+                            status_code=_status.HTTP_400_BAD_REQUEST)
+    if user_id == 0:
+        contr_data = await conn.read_data(db=db, table='contractor', id_data=contractor_id, id_name="contractor_id")
+    else:
+        contr_data = await conn.get_contractors_by_user_id(db=db, worker_id=worker_id)
+    co_list = []
+    for one in contr_data:
+        contractor: Contractor = Contractor.parse_obj(one)
+        co_list.append(contractor.dict())
+    return JSONResponse(content={"ok": True,
+                                 'contractor_list': co_list,
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.delete(path='/contractor', tags=['for all'], responses=get_login_res)
+async def delete_or_activate_contractor(access_token: str, contractor_id: int, status: bool, db=Depends(data_b.connection)):
+    """
+    Admin delete or activate contractor by contractor_id
+    """
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    if res.status_code != 200:
+        return res
+
+    contr_data = await conn.read_data(db=db, table='contractor', id_data=contractor_id, id_name="contractor_id")
+    if not contr_data:
+        return JSONResponse(content="Contractor with contractor_id not found",
+                            status_code=_status.HTTP_400_BAD_REQUEST)
+
+    new_status = "deleted" if status else "active"
+    await conn.update_inform(db=db, table="contractor", name="status", data=new_status, id_data=contractor_id,
+                             id_name="contractor_id")
+
+    return JSONResponse(content={"ok": True,
+                                 'description': f"Contractor status changed to {new_status}",
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})

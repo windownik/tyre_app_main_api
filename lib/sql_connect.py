@@ -74,6 +74,16 @@ async def create_contractor(db: Depends, owner_id: int, co_name: str, co_email: 
     return data
 
 
+async def save_user_to_contractor(db: Depends, user_id: int, contractor_id: int):
+    """We are create a new service session"""
+    create_date = datetime.datetime.now()
+    data = await db.fetch(f"INSERT INTO user_in_contractor (contractor_id, user_id, create_date) "
+                          f"VALUES ($1, $2, $3) "
+                          f"ON CONFLICT DO NOTHING RETURNING *;", user_id, contractor_id,
+                          int(time.mktime(create_date.timetuple())))
+    return data
+
+
 async def create_review(db: Depends, session_id: int, client_id: int, text: str, score: int):
     """We are create a new review for service session"""
     create_date = datetime.datetime.now()
@@ -157,6 +167,24 @@ async def update_vehicle(db: Depends, vehicle_id: int,
                           f"rear_rim_diameter=$4, rear_aspect_ratio=$5, rear_section_width=$6 "
                           f"WHERE vehicle_id=$7;", front_rim_diameter, front_aspect_ratio,
                           front_section_width, rear_rim_diameter, rear_aspect_ratio, rear_section_width, vehicle_id)
+    return data
+
+
+async def get_contractors_by_user_id(db: Depends, worker_id: int):
+    """Get user_id by token and device id"""
+    data = await db.fetch(f"SELECT contractor.contractor_id, contractor.owner_id, "
+                          f"contractor.co_name, contractor.co_email, "
+                          f"contractor.address, contractor.acc_num, "
+                          f"contractor.vat_number, contractor.sort_code, "
+                          f"contractor.post_code, contractor.beneficiary_name, "
+                          f"contractor.money, contractor.currency, "
+                          f"contractor.status, contractor.create_date "
+                          f"FROM contractor JOIN user_in_contractor "
+                          f"ON contractor.contractor_id = user_in_contractor.contractor_id "
+                          f"WHERE user_in_contractor.user_id = $1 "
+                          f"AND user_in_contractor.status = $2 "
+                          f"AND contractor.status = $3;",
+                          worker_id, "active",  "active")
     return data
 
 
