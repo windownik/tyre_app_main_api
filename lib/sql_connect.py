@@ -67,7 +67,7 @@ async def create_contractor(db: Depends, owner_id: int, co_name: str, co_email: 
     """We are create a new service session"""
     create_date = datetime.datetime.now()
     data = await db.fetch(f"INSERT INTO contractor (owner_id, co_name, co_email, address, "
-                          f"acc_num, vat_number, sort_code, post_code, beneficiary_name, create_date) "
+                          f"acc_num, vat_number, sort_code, post_code, beneficiary_name, createdate) "
                           f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) "
                           f"ON CONFLICT DO NOTHING RETURNING *;", owner_id, co_name, co_email, address, acc_num,
                           vat_number, sort_code, post_code, beneficiary_name, int(time.mktime(create_date.timetuple())))

@@ -118,7 +118,7 @@ class Contractor(BaseModel):
     money: int
     currency: str
     status: str
-    create_date: int
+    createdate: int
 
 
 class Review(BaseModel):
