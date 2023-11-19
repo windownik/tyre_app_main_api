@@ -94,10 +94,10 @@ async def create_account_user(phone: int, device_id: str, device_name: str, name
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.post(path='/create_worker_account', tags=['Auth'], responses=post_create_account_res)
-async def create_account_user(login: str, password: str, name: str, surname: str,
+@app.post(path='/create_worker_account', tags=['Auth Worker'], responses=post_create_account_res)
+async def create_account_user(login: str, password: str, surname: str,
                               db=Depends(data_b.connection)):
-    """Create new account in service with phone number, device_id and device_name"""
+    """Create new worker account in service with login, password, name and surname"""
     params = {
         "login": login,
         "password": password,
@@ -110,7 +110,7 @@ async def create_account_user(login: str, password: str, name: str, surname: str
         return JSONResponse(content=res.json(),
                             status_code=status_code)
 
-    user_data = await conn.save_worker(db=db, user_id=user_id, name=name, surname=surname)
+    user_data = await conn.save_worker(db=db, user_id=user_id, name=login, surname=surname)
     if not user_data:
         return JSONResponse(content={"ok": False,
                                      'description': "Error with create account",
