@@ -14,6 +14,16 @@ async def save_user(db: Depends, user_id: int, name: str, surname: str, phone: i
     return data
 
 
+async def save_worker(db: Depends, user_id: int, name: str, surname: str):
+    """Save main users information"""
+    create_date = datetime.datetime.now()
+    data = await db.fetch(f"INSERT INTO users (user_id, name, surname, user_type, last_active, createdate) "
+                          f"VALUES ($1, $2, $3, $4, $5, $6) "
+                          f"ON CONFLICT DO NOTHING RETURNING *;", user_id, name, surname, "worker",
+                          int(time.mktime(create_date.timetuple())), int(time.mktime(create_date.timetuple())))
+    return data
+
+
 async def create_vehicle(db: Depends, reg_num: str, owner_id: int, make: str, model: str, year: int,
                          front_rim_diameter: int, front_aspect_ratio: int, front_section_width: int,
                          rear_rim_diameter: int, rear_aspect_ratio: int, rear_section_width: int, bolt_key: bool):

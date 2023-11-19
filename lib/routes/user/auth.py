@@ -94,6 +94,38 @@ async def create_account_user(phone: int, device_id: str, device_name: str, name
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
+@app.post(path='/create_worker_account', tags=['Auth'], responses=post_create_account_res)
+async def create_account_user(login: str, password: str, name: str, surname: str,
+                              db=Depends(data_b.connection)):
+    """Create new account in service with phone number, device_id and device_name"""
+    params = {
+        "login": login,
+        "password": password,
+    }
+    res = requests.post(f'{auth_url}/create_account_login', params=params)
+    status_code = res.status_code
+    if status_code == 200:
+        user_id = res.json()['user_id']
+    else:
+        return JSONResponse(content=res.json(),
+                            status_code=status_code)
+
+    user_data = await conn.save_worker(db=db, user_id=user_id, name=name, surname=surname)
+    if not user_data:
+        return JSONResponse(content={"ok": False,
+                                     'description': "Error with create account",
+                                     },
+                            status_code=500)
+    user: User = User.parse_obj(user_data[0])
+    return JSONResponse(content={"ok": True,
+                                 'user': user.dict(),
+                                 'access_token': res.json()['access_token'],
+                                 'refresh_token': res.json()['refresh_token']
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
 @app.put(path='/push_token', tags=['Auth'], responses=get_login_res)
 async def update_push_token(access_token: str, push_token: str, db=Depends(data_b.connection)):
     """Get user in service by access token"""
