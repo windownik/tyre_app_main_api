@@ -8,6 +8,7 @@ from starlette.responses import JSONResponse
 from lib import sql_connect as conn
 from lib.db_objects import User
 from lib.response_examples import *
+from lib.routes.admins.admin_routes import check_admin
 from lib.sql_create_tables import data_b, app
 
 
@@ -51,9 +52,13 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
 
 
 @app.post(path='/create_worker_account', tags=['Auth Worker'], responses=post_create_account_res)
-async def create_account_user(login: str, password: str, surname: str, contractor_id: int,
+async def create_account_user(access_token: str, login: str, password: str, surname: str, contractor_id: int,
                               db=Depends(data_b.connection)):
     """Create new worker account in service with login, password, name and surname"""
+    res = await check_admin(access_token=access_token, db=db)
+    if type(res) != int:
+        return res
+
     params = {
         "login": login,
         "password": password,
