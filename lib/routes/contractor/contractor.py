@@ -146,3 +146,30 @@ async def delete_or_activate_contractor(access_token: str, contractor_id: int, s
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.put(path='/contractor', tags=['Admin contractor'], responses=get_login_res)
+async def admin_update_contractor(access_token: str, contractor_id: int, co_name: str, co_email: str, address: str,
+                                  acc_num: str, vat_number: str, sort_code: int, post_code: int, beneficiary_name: str,
+                                  db=Depends(data_b.connection)):
+    """
+    Admin create new contractor
+    """
+    res = await check_admin(access_token=access_token, db=db)
+    if type(res) != int:
+        return res
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    if res.status_code != 200:
+        return JSONResponse(content="User with owner_id not found",
+                            status_code=_status.HTTP_400_BAD_REQUEST)
+
+    await conn.update_contractor(db=db, contractor_id=contractor_id, co_name=co_name, co_email=co_email,
+                                 address=address, acc_num=acc_num, vat_number=vat_number,
+                                 post_code=post_code, sort_code=sort_code,
+                                 beneficiary_name=beneficiary_name)
+
+    return JSONResponse(content={"ok": True,
+                                 'description': "Contractor information successful updated.",
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
