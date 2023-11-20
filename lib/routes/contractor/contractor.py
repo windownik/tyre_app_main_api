@@ -56,7 +56,7 @@ async def admin_create_contractor(access_token: str, owner_id: int, co_name: str
 
 
 @app.get(path='/all_contractors', tags=['Admin contractor'], responses=get_login_res)
-async def admin_get_all_contractors(access_token: str, search: str = 0, page: int = 0, db=Depends(data_b.connection)):
+async def admin_get_all_contractors(access_token: str, search: str = "0", page: int = 0, db=Depends(data_b.connection)):
     """
     Admin get all contractors in service with all status with search
     """
@@ -137,7 +137,7 @@ async def delete_or_activate_contractor(access_token: str, contractor_id: int, s
         return JSONResponse(content="Contractor with contractor_id not found",
                             status_code=_status.HTTP_400_BAD_REQUEST)
 
-    new_status = "deleted" if status else "active"
+    new_status = "active" if status else "deleted"
     await conn.update_inform(db=db, table="contractor", name="status", data=new_status, id_data=contractor_id,
                              id_name="contractor_id")
 
