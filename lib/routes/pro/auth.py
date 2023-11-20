@@ -81,9 +81,27 @@ async def create_account_user(access_token: str, login: str, password: str, surn
 
     user: User = User.parse_obj(user_data[0])
     return JSONResponse(content={"ok": True,
-                                 'user': user.dict(),
-                                 'access_token': res.json()['access_token'],
-                                 'refresh_token': res.json()['refresh_token']
+                                 'worker': user.dict(),
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.get(path='/check_login', tags=['Auth Worker'], responses=post_create_account_res)
+async def create_account_user(access_token: str, login: str, db=Depends(data_b.connection)):
+    """Create new worker account in service with login, password, name and surname"""
+    res = await check_admin(access_token=access_token, db=db)
+    if type(res) != int:
+        return res
+
+    login_data = await conn.read_data(db=db, table="auth", name="login", id_name="login", id_data=login)
+    if login_data:
+        return JSONResponse(content={"ok": False,
+                                     'description': "I have the same login in services",
+                                     },
+                            status_code=_status.HTTP_400_BAD_REQUEST)
+    return JSONResponse(content={"ok": True,
+                                 'description': "Login is free for account",
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
