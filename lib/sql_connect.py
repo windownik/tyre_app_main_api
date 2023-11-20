@@ -40,7 +40,7 @@ async def create_vehicle(db: Depends, reg_num: str, owner_id: int, make: str, mo
 
 
 async def create_service_session(db: Depends, client_id: int, vehicle_id: int, session_type: str, bolt_key: bool,
-                                 session_date: int, lat: float, long: float, address: str,):
+                                 session_date: int, lat: float, long: float, address: str, ):
     """We are create a new service session"""
     create_date = datetime.datetime.now()
     data = await db.fetch(f"INSERT INTO service_session (client_id, vehicle_id, session_type, session_date, bolt_key, "
@@ -63,7 +63,7 @@ async def create_ss_work(db: Depends, session_id: int, work_type_id: int, name_e
 
 
 async def create_contractor(db: Depends, owner_id: int, co_name: str, co_email: str, address: str, acc_num: str,
-                            vat_number: str, sort_code: int, post_code: int, beneficiary_name: str,):
+                            vat_number: str, sort_code: int, post_code: int, beneficiary_name: str, ):
     """We are create a new service session"""
     create_date = datetime.datetime.now()
     data = await db.fetch(f"INSERT INTO contractor (owner_id, co_name, co_email, address, "
@@ -71,16 +71,6 @@ async def create_contractor(db: Depends, owner_id: int, co_name: str, co_email: 
                           f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) "
                           f"ON CONFLICT DO NOTHING RETURNING *;", owner_id, co_name, co_email, address, acc_num,
                           vat_number, sort_code, post_code, beneficiary_name, int(time.mktime(create_date.timetuple())))
-    return data
-
-
-async def update_contractor(db: Depends, contractor_id: int, co_name: str, co_email: str, address: str, acc_num: str,
-                            vat_number: str, sort_code: int, post_code: int, beneficiary_name: str,):
-    """We are create a new service session"""
-    data = await db.fetch(f"UPDATE contractor SET co_name=$1, co_email=$2, address=$3, "
-                          f"acc_num=$4, vat_number=$5, sort_code=$6, post_code=$7, beneficiary_name=$8 "
-                          f"WHERE contractor_id = $9;", co_name, co_email, address, acc_num,
-                          vat_number, sort_code, post_code, beneficiary_name, contractor_id)
     return data
 
 
@@ -194,8 +184,17 @@ async def get_contractors_by_user_id(db: Depends, worker_id: int):
                           f"WHERE user_in_contractor.user_id = $1 "
                           f"AND user_in_contractor.status = $2 "
                           f"AND contractor.status = $3;",
-                          worker_id, "active",  "active")
+                          worker_id, "active", "active")
     return data
+
+
+async def update_contractor(db: Depends, contractor_id: int, co_name: str, co_email: str, address: str, acc_num: str,
+                            vat_number: str, sort_code: int, post_code: int, beneficiary_name: str, ):
+    """We are create a new service session"""
+    await db.fetch(f"UPDATE contractor SET co_name=$1, co_email=$2, address=$3, "
+                   f"acc_num=$4, vat_number=$5, sort_code=$6, post_code=$7, beneficiary_name=$8 "
+                   f"WHERE contractor_id = $9;", co_name, co_email, address, acc_num,
+                   vat_number, sort_code, post_code, beneficiary_name, contractor_id)
 
 
 # Обновляем информацию
