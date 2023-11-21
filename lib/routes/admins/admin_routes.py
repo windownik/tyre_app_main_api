@@ -68,7 +68,7 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
 
 
 @app.get(path='/admin_workers', tags=['Admin funcs'], responses=get_login_res)
-async def admin_get_workers(access_token: str, search: str = 0, page: int = 0, db=Depends(data_b.connection)):
+async def admin_get_workers(access_token: str, search: str = '0', page: int = 0, db=Depends(data_b.connection)):
     """
     Admin get workers with search
     """
