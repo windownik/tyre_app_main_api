@@ -19,6 +19,21 @@ class User(BaseModel):
     createdate: int
 
 
+class Worker(BaseModel):
+    user_id: int
+    name: str
+    surname: str
+    email: str
+    user_type: str
+    status: str
+    lat: float
+    long: float
+    get_push: bool
+    get_email: bool
+    last_active: int
+    createdate: int
+
+
 class Vehicle(BaseModel):
     vehicle_id: int
     reg_num: str

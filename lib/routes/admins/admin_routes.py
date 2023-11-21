@@ -4,7 +4,7 @@ import requests
 import starlette.status as _status
 from fastapi import Depends
 from starlette.responses import JSONResponse
-from lib.db_objects import Vehicle, User, ServiceSession
+from lib.db_objects import Vehicle, User, ServiceSession, Worker
 
 from lib import sql_connect as conn
 from lib.response_examples import *
@@ -98,7 +98,7 @@ async def admin_get_workers(access_token: str, search: str = '0', page: int = 0,
 
     list_user = []
     for one in crop_user_list:
-        user: User = User.parse_obj(one)
+        user: Worker = Worker.parse_obj(one)
         list_user.append(user.dict())
 
     return JSONResponse(content={"ok": True,
