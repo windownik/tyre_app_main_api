@@ -21,6 +21,8 @@ class User(BaseModel):
 
 class Worker(BaseModel):
     user_id: int
+    contractor_id: int
+    co_name: str
     name: str
     surname: str
     email: str

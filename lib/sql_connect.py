@@ -244,7 +244,11 @@ async def read_users(db: Depends, ):
 
 async def read_workers(db: Depends, ):
     """Получаем актуальные события"""
-    data = await db.fetch(f"SELECT * FROM users WHERE user_type = 'worker' ORDER BY user_id;", )
+    data = await db.fetch(f"SELECT users.*, user_in_contractor.contractor_id, contractor.co_name "
+                          f"FROM users JOIN user_in_contractor "
+                          f"ON users.user_id = user_in_contractor.user_id JOIN contractor "
+                          f"ON user_in_contractor.contractor_id = contractor.contractor_id "
+                          f"WHERE users.user_type = 'worker' ORDER BY users.user_id;", )
     return data
 
 
