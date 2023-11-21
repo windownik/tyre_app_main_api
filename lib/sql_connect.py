@@ -189,7 +189,7 @@ async def get_contractors_by_user_id(db: Depends, worker_id: int):
 
 
 async def update_contractor(db: Depends, contractor_id: int, co_name: str, co_email: str, address: str, acc_num: str,
-                            vat_number: str, sort_code: int, post_code: int, beneficiary_name: str, ):
+                            vat_number: str, sort_code: str, post_code: str, beneficiary_name: str, ):
     """We are create a new service session"""
     await db.fetch(f"UPDATE contractor SET co_name=$1, co_email=$2, address=$3, "
                    f"acc_num=$4, vat_number=$5, sort_code=$6, post_code=$7, beneficiary_name=$8 "
