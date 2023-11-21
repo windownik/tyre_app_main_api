@@ -79,9 +79,8 @@ async def create_account_user(access_token: str, login: str, password: str, surn
                             status_code=500)
     await conn.save_user_to_contractor(db=db, user_id=user_data[0]["user_id"], contractor_id=contractor_id)
 
-    user: User = User.parse_obj(user_data[0])
     return JSONResponse(content={"ok": True,
-                                 'worker': user.dict(),
+                                 'description': "Worker created successful",
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
