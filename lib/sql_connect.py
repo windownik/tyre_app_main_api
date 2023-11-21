@@ -63,7 +63,7 @@ async def create_ss_work(db: Depends, session_id: int, work_type_id: int, name_e
 
 
 async def create_contractor(db: Depends, owner_id: int, co_name: str, co_email: str, address: str, acc_num: str,
-                            vat_number: str, sort_code: int, post_code: int, beneficiary_name: str, ):
+                            vat_number: str, sort_code: str, post_code: str, beneficiary_name: str, ):
     """We are create a new service session"""
     create_date = datetime.datetime.now()
     data = await db.fetch(f"INSERT INTO contractor (owner_id, co_name, co_email, address, "

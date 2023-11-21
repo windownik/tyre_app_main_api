@@ -27,7 +27,7 @@ on_page = 20
 
 @app.post(path='/contractor', tags=['Admin contractor'], responses=get_login_res)
 async def admin_create_contractor(access_token: str, owner_id: int, co_name: str, co_email: str, address: str,
-                                  acc_num: str, vat_number: str, sort_code: int, post_code: int, beneficiary_name: str,
+                                  acc_num: str, vat_number: str, sort_code: str, post_code: str, beneficiary_name: str,
                                   db=Depends(data_b.connection)):
     """
     Admin create new contractor

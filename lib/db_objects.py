@@ -129,8 +129,8 @@ class Contractor(BaseModel):
     address: str
     acc_num: str
     vat_number: str
-    sort_code: int
-    post_code: int
+    sort_code: str
+    post_code: str
     beneficiary_name: str
     money: int
     currency: str
