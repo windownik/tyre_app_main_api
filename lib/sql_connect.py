@@ -79,7 +79,7 @@ async def save_user_to_contractor(db: Depends, user_id: int, contractor_id: int)
     create_date = datetime.datetime.now()
     data = await db.fetch(f"INSERT INTO user_in_contractor (contractor_id, user_id, createdate) "
                           f"VALUES ($1, $2, $3) "
-                          f"ON CONFLICT DO NOTHING RETURNING *;", user_id, contractor_id,
+                          f"ON CONFLICT DO NOTHING RETURNING *;", contractor_id, user_id,
                           int(time.mktime(create_date.timetuple())))
     return data
 
