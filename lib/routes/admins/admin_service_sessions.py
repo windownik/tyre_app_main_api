@@ -87,12 +87,24 @@ async def admin_get_contractors_or_worker_ss(access_token: str, contractor_id: i
 
     crop_co_list = ss_data[page * on_page: (page + 1) * on_page]
     co_list = []
+    set_users = set()
     for one in crop_co_list:
-        contractor: ServiceSession = ServiceSession.parse_obj(one)
-        co_list.append(await contractor.to_json(db=db, session_work_list=[]))
+        ss: ServiceSession = ServiceSession.parse_obj(one)
+        set_users.add(ss.client_id)
+        set_users.add(ss.worker_id)
+        co_list.append(await ss.to_json(db=db, session_work_list=[]))
+
+    list_user = []
+    if len(set_users) != 0:
+        crop_user_list = await conn.get_user_by_set(db=db, set_id=set_users)
+
+        for one in crop_user_list:
+            user: User = User.parse_obj(one)
+            list_user.append(user.dict())
     return JSONResponse(content={"ok": True,
                                  'ss_list': co_list,
                                  "pages": ceil(len(ss_data) / on_page),
+                                 "users": list_user,
                                  "all_ss_count": len(ss_data)
                                  },
                         status_code=_status.HTTP_200_OK,

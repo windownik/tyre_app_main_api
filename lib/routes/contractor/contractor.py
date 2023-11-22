@@ -149,7 +149,7 @@ async def admin_update_contractor(access_token: str, contractor_id: int, co_name
 
 
 @app.get(path='/contractor', tags=['For all'], responses=get_login_res)
-async def user_get_contractor(access_token: str, contractor_id: int, worker_id: int = 0,
+async def user_get_contractor(access_token: str, contractor_id: int = 0, worker_id: int = 0,
                               db=Depends(data_b.connection)):
     """
     Admin get contractor by contractor_id or get all user's contractors with user_id
