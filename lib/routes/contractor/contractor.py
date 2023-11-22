@@ -93,36 +93,7 @@ async def admin_get_all_contractors(access_token: str, search: str = "0", page: 
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.get(path='/contractor', tags=['For all'], responses=get_login_res)
-async def admin_get_contractor(access_token: str, contractor_id: int, worker_id: int = 0,
-                               db=Depends(data_b.connection)):
-    """
-    Admin get contractor by contractor_id or get all user's contractors with user_id
-    """
-    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
-    if res.status_code != 200:
-        return res
-
-    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
-    if res.status_code != 200:
-        return JSONResponse(content="User with owner_id not found",
-                            status_code=_status.HTTP_400_BAD_REQUEST)
-    if worker_id == 0:
-        co_data = await conn.read_data(db=db, table='contractor', id_data=contractor_id, id_name="contractor_id")
-    else:
-        co_data = await conn.get_contractors_by_user_id(db=db, worker_id=worker_id)
-    co_list = []
-    for one in co_data:
-        contractor: Contractor = Contractor.parse_obj(one)
-        co_list.append(contractor.dict())
-    return JSONResponse(content={"ok": True,
-                                 'contractor_list': co_list,
-                                 },
-                        status_code=_status.HTTP_200_OK,
-                        headers={'content-type': 'application/json; charset=utf-8'})
-
-
-@app.delete(path='/contractor', tags=['for all'], responses=get_login_res)
+@app.delete(path='/contractor', tags=['Admin contractor'], responses=get_login_res)
 async def delete_or_activate_contractor(access_token: str, contractor_id: int, status: bool,
                                         db=Depends(data_b.connection)):
     """
@@ -170,6 +141,31 @@ async def admin_update_contractor(access_token: str, contractor_id: int, co_name
 
     return JSONResponse(content={"ok": True,
                                  'description': "Contractor information successful updated.",
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.get(path='/contractor', tags=['For all'], responses=get_login_res)
+async def user_get_contractor(access_token: str, contractor_id: int, worker_id: int = 0,
+                              db=Depends(data_b.connection)):
+    """
+    Admin get contractor by contractor_id or get all user's contractors with user_id
+    """
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    if res.status_code != 200:
+        return res
+
+    if worker_id == 0:
+        co_data = await conn.read_data(db=db, table='contractor', id_data=contractor_id, id_name="contractor_id")
+    else:
+        co_data = await conn.get_contractors_by_user_id(db=db, worker_id=worker_id)
+    co_list = []
+    for one in co_data:
+        contractor: Contractor = Contractor.parse_obj(one)
+        co_list.append(contractor.dict())
+    return JSONResponse(content={"ok": True,
+                                 'contractor_list': co_list,
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})

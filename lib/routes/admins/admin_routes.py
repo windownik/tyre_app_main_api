@@ -24,7 +24,7 @@ auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 on_page = 20
 
 
-@app.get(path='/admin_users', tags=['Admin funcs'], responses=get_login_res)
+@app.get(path='/admin_users', tags=['Admin Users'], responses=get_login_res)
 async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=Depends(data_b.connection)):
     """
     Admin get users with search
@@ -67,7 +67,7 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.get(path='/admin_workers', tags=['Admin funcs'], responses=get_login_res)
+@app.get(path='/admin_workers', tags=['Admin workers'], responses=get_login_res)
 async def admin_get_workers(access_token: str, search: str = '0', page: int = 0, db=Depends(data_b.connection)):
     """
     Admin get workers with search
@@ -110,7 +110,7 @@ async def admin_get_workers(access_token: str, search: str = '0', page: int = 0,
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.put(path='/block_unblock_user', tags=['Admin funcs'], responses=get_login_res)
+@app.put(path='/block_unblock_user', tags=['Admin Users'], responses=get_login_res)
 async def admin_block_unblock_user(access_token: str, user_id: int, db=Depends(data_b.connection)):
     """
     Admin block_unblock user with user_id
@@ -143,7 +143,7 @@ async def admin_block_unblock_user(access_token: str, user_id: int, db=Depends(d
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.get(path='/get_all_vehicles', tags=['Admin funcs'], responses=get_login_res)
+@app.get(path='/get_all_vehicles', tags=['Admin Vehicles'], responses=get_login_res)
 async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=Depends(data_b.connection)):
     """
     Admin get vehicles with search
@@ -189,57 +189,6 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
                                  "pages": len(new_vehicle_list) // on_page + 1,
                                  "users": list_user,
                                  "all_vehicles_count": len(vehicle_data)
-                                 },
-                        status_code=_status.HTTP_200_OK,
-                        headers={'content-type': 'application/json; charset=utf-8'})
-
-
-@app.get(path='/get_all_ss', tags=['Admin funcs'], responses=get_login_res)
-async def admin_get_service_sessions(access_token: str, search: str = 0, page: int = 0, db=Depends(data_b.connection)):
-    """
-    Admin get service_sessions with search
-    """
-    res = await check_admin(access_token=access_token, db=db)
-    if type(res) != int:
-        return res
-
-    ss_data = await conn.read_admin_ss(db=db)
-
-    new_ss_list = []
-    for i in ss_data:
-        if search == "0":
-            new_ss_list.append(i)
-            continue
-        if search in i[1]:
-            new_ss_list.append(i)
-        elif search in i[3]:
-            new_ss_list.append(i)
-        elif search in i[4]:
-            new_ss_list.append(i)
-
-    crop_user_list = new_ss_list[page * on_page: (page + 1) * on_page]
-
-    list_ss = []
-    set_users = set()
-    for one in crop_user_list:
-        ss: ServiceSession = ServiceSession.parse_obj(one)
-        set_users.add(ss.client_id)
-        set_users.add(ss.worker_id)
-        list_ss.append(await ss.to_json(db=db, session_work_list=[]))
-
-    list_user = []
-    if len(set_users) != 0:
-        crop_user_list = await conn.get_user_by_set(db=db, set_id=set_users)
-
-        for one in crop_user_list:
-            user: User = User.parse_obj(one)
-            list_user.append(user.dict())
-
-    return JSONResponse(content={"ok": True,
-                                 'list_sessions': list_ss,
-                                 "pages": len(new_ss_list) // on_page + 1,
-                                 "users": list_user,
-                                 "all_sessions_count": len(ss_data)
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})

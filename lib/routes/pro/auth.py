@@ -51,7 +51,7 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.post(path='/create_worker_account', tags=['Auth Worker'], responses=post_create_account_res)
+@app.post(path='/create_worker_account', tags=['Admin Worker'], responses=post_create_account_res)
 async def create_account_user(access_token: str, login: str, password: str, surname: str, contractor_id: int,
                               db=Depends(data_b.connection)):
     """Create new worker account in service with login, password, name and surname"""
@@ -86,9 +86,9 @@ async def create_account_user(access_token: str, login: str, password: str, surn
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.get(path='/check_login', tags=['Auth Worker'], responses=post_create_account_res)
-async def create_account_user(access_token: str, login: str, db=Depends(data_b.connection)):
-    """Create new worker account in service with login, password, name and surname"""
+@app.get(path='/check_login', tags=['Admin Worker'], responses=post_create_account_res)
+async def admin_check_new_worker_login(access_token: str, login: str, db=Depends(data_b.connection)):
+    """Admin should check new worker login before create it."""
     res = await check_admin(access_token=access_token, db=db)
     if type(res) != int:
         return res
