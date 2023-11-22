@@ -11,7 +11,6 @@ from lib.response_examples import *
 from lib.routes.admins.admin_routes import check_admin
 from lib.sql_create_tables import data_b, app
 
-
 ip_server = os.environ.get("IP_SERVER")
 ip_port = os.environ.get("PORT_SERVER")
 
@@ -23,11 +22,10 @@ ip_auth_port = os.environ.get("PORT_AUTH_SERVER")
 
 auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
-
 on_page = 20
 
 
-@app.get(path='/admin_workers', tags=['Admin workers'], responses=get_login_res)
+@app.get(path='/admin_workers', tags=['Admin worker'], responses=get_login_res)
 async def admin_get_workers(access_token: str, search: str = '0', page: int = 0, db=Depends(data_b.connection)):
     """
     Admin get workers with search
@@ -70,9 +68,9 @@ async def admin_get_workers(access_token: str, search: str = '0', page: int = 0,
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.post(path='/create_worker_account', tags=['Admin Worker'], responses=post_create_account_res)
-async def create_account_user(access_token: str, login: str, password: str, surname: str, contractor_id: int,
-                              db=Depends(data_b.connection)):
+@app.post(path='/worker', tags=['Admin Worker'], responses=post_create_account_res)
+async def create_worker_account(access_token: str, login: str, password: str, surname: str, contractor_id: int,
+                                db=Depends(data_b.connection)):
     """Create new worker account in service with login, password, name and surname"""
     res = await check_admin(access_token=access_token, db=db)
     if type(res) != int:
@@ -104,7 +102,7 @@ async def create_account_user(access_token: str, login: str, password: str, surn
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.get(path='/check_login', tags=['Admin Worker'], responses=post_create_account_res)
+@app.get(path='/check_worker_login', tags=['Admin Worker'], responses=post_create_account_res)
 async def admin_check_new_worker_login(access_token: str, login: str, db=Depends(data_b.connection)):
     """Admin should check new worker login before create it."""
     res = await check_admin(access_token=access_token, db=db)
