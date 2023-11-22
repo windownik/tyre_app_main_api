@@ -1,4 +1,4 @@
-
+from math import ceil
 
 import starlette.status as _status
 from fastapi import Depends
@@ -59,6 +59,41 @@ async def admin_get_service_sessions(access_token: str, search: str = 0, page: i
                                  "pages": len(new_ss_list) // on_page + 1,
                                  "users": list_user,
                                  "all_sessions_count": len(ss_data)
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.get(path='/contractor_ss', tags=['Admin service sessions'], responses=get_login_res)
+async def admin_get_contractors_or_worker_ss(access_token: str, contractor_id: int = 0, worker_id: int = 0,
+                                             page: int = 0, db=Depends(data_b.connection)):
+    """
+    Admin get all contractors services sessions
+    """
+    res = await check_admin(access_token=access_token, db=db)
+    if type(res) != int:
+        return res
+    if contractor_id == 0 and worker_id == 0:
+        return JSONResponse(content={"ok": False,
+                                     'description':
+                                         "Error with contractor_id and worker_id. One of these must not equal 0",
+                                     }, status_code=400)
+    elif contractor_id != 0:
+        ss_data = await conn.read_data(db=db, table='service_session', id_name="contractor_id", id_data=contractor_id,
+                                       order=" ORDER BY session_id DESC")
+    else:
+        ss_data = await conn.read_data(db=db, table='service_session', id_name="worker_id", id_data=worker_id,
+                                       order=" ORDER BY session_id DESC")
+
+    crop_co_list = ss_data[page * on_page: (page + 1) * on_page]
+    co_list = []
+    for one in crop_co_list:
+        contractor: ServiceSession = ServiceSession.parse_obj(one)
+        co_list.append(await contractor.to_json(db=db, session_work_list=[]))
+    return JSONResponse(content={"ok": True,
+                                 'ss_list': co_list,
+                                 "pages": ceil(len(ss_data) / on_page),
+                                 "all_ss_count": len(ss_data)
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
