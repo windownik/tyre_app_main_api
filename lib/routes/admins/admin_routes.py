@@ -67,51 +67,8 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.get(path='/admin_workers', tags=['Admin workers'], responses=get_login_res)
-async def admin_get_workers(access_token: str, search: str = '0', page: int = 0, db=Depends(data_b.connection)):
-    """
-    Admin get workers with search
-    """
-    res = await check_admin(access_token=access_token, db=db)
-    if type(res) != int:
-        return res
-
-    user_data = await conn.read_workers(db=db, )
-
-    new_user_list = []
-    for i in user_data:
-        if search == "0":
-            new_user_list.append(i)
-            continue
-        if search in i[1]:
-            new_user_list.append(i)
-        elif search in i[2]:
-            new_user_list.append(i)
-        elif search in i[4]:
-            new_user_list.append(i)
-        elif search in str(i[3]):
-            new_user_list.append(i)
-        elif search in str(i[0]):
-            new_user_list.append(i)
-
-    crop_user_list = new_user_list[page * on_page: (page + 1) * on_page]
-
-    list_user = []
-    for one in crop_user_list:
-        user: Worker = Worker.parse_obj(one)
-        list_user.append(user.dict())
-
-    return JSONResponse(content={"ok": True,
-                                 'list_users': list_user,
-                                 "pages": len(new_user_list) // on_page + 1,
-                                 "all_users_count": len(user_data)
-                                 },
-                        status_code=_status.HTTP_200_OK,
-                        headers={'content-type': 'application/json; charset=utf-8'})
-
-
 @app.put(path='/block_unblock_user', tags=['Admin Users'], responses=get_login_res)
-async def admin_block_unblock_user(access_token: str, user_id: int, db=Depends(data_b.connection)):
+async def admin_block_unblock_user_or_worker(access_token: str, user_id: int, db=Depends(data_b.connection)):
     """
     Admin block_unblock user with user_id
     """

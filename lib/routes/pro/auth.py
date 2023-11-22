@@ -8,7 +8,6 @@ from starlette.responses import JSONResponse
 from lib import sql_connect as conn
 from lib.db_objects import User
 from lib.response_examples import *
-from lib.routes.admins.admin_routes import check_admin
 from lib.sql_create_tables import data_b, app
 
 
@@ -49,60 +48,4 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
-
-
-@app.post(path='/create_worker_account', tags=['Admin Worker'], responses=post_create_account_res)
-async def create_account_user(access_token: str, login: str, password: str, surname: str, contractor_id: int,
-                              db=Depends(data_b.connection)):
-    """Create new worker account in service with login, password, name and surname"""
-    res = await check_admin(access_token=access_token, db=db)
-    if type(res) != int:
-        return res
-
-    params = {
-        "login": login,
-        "password": password,
-    }
-    res = requests.post(f'{auth_url}/create_account_login', params=params)
-    status_code = res.status_code
-    if status_code == 200:
-        user_id = res.json()['user_id']
-    else:
-        return JSONResponse(content=res.json(),
-                            status_code=status_code)
-
-    user_data = await conn.save_worker(db=db, user_id=user_id, name=login, surname=surname)
-    if not user_data:
-        return JSONResponse(content={"ok": False,
-                                     'description': "Error with create account",
-                                     },
-                            status_code=500)
-    await conn.save_user_to_contractor(db=db, user_id=user_data[0]["user_id"], contractor_id=contractor_id)
-
-    return JSONResponse(content={"ok": True,
-                                 'description': "Worker created successful",
-                                 },
-                        status_code=_status.HTTP_200_OK,
-                        headers={'content-type': 'application/json; charset=utf-8'})
-
-
-@app.get(path='/check_login', tags=['Admin Worker'], responses=post_create_account_res)
-async def admin_check_new_worker_login(access_token: str, login: str, db=Depends(data_b.connection)):
-    """Admin should check new worker login before create it."""
-    res = await check_admin(access_token=access_token, db=db)
-    if type(res) != int:
-        return res
-
-    login_data = await conn.read_data(db=db, table="auth", name="login", id_name="login", id_data=login)
-    if login_data:
-        return JSONResponse(content={"ok": False,
-                                     'description': "I have the same login in services",
-                                     },
-                            status_code=_status.HTTP_400_BAD_REQUEST)
-    return JSONResponse(content={"ok": True,
-                                 'description': "Login is free for account",
-                                 },
-                        status_code=_status.HTTP_200_OK,
-                        headers={'content-type': 'application/json; charset=utf-8'})
-
 
