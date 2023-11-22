@@ -1,4 +1,6 @@
 import os
+from math import ceil
+
 import requests
 
 import starlette.status as _status
@@ -165,7 +167,7 @@ async def admin_get_contractors_ss(access_token: str, contractor_id: int, page: 
         co_list.append(await contractor.to_json(db=db, session_work_list=[]))
     return JSONResponse(content={"ok": True,
                                  'ss_list': co_list,
-                                 "pages": round(len(ss_data) / on_page),
+                                 "pages": ceil(len(ss_data) / on_page),
                                  "all_ss_count": len(ss_data)
                                  },
                         status_code=_status.HTTP_200_OK,
