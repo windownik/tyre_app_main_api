@@ -238,7 +238,11 @@ async def read_users_for_push(db: Depends, name: str = '*'):
 
 async def read_users(db: Depends, ):
     """Получаем актуальные события"""
-    data = await db.fetch(f"SELECT * FROM users WHERE user_type = 'admin' OR user_type = 'user' ORDER BY user_id;", )
+    data = await db.fetch(f"SELECT * FROM users "
+                          f"WHERE user_type = 'admin' "
+                          f"OR user_type = 'user' "
+                          f"OR user_type = 'client' "
+                          f"ORDER BY user_id;", )
     return data
 
 
