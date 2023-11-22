@@ -148,32 +148,6 @@ async def admin_update_contractor(access_token: str, contractor_id: int, co_name
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.get(path='/contractor_ss', tags=['Admin contractor'], responses=get_login_res)
-async def admin_get_contractors_ss(access_token: str, contractor_id: int, page: int = 0,
-                                   db=Depends(data_b.connection)):
-    """
-    Admin get all contractors services sessions
-    """
-    res = await check_admin(access_token=access_token, db=db)
-    if type(res) != int:
-        return res
-    ss_data = await conn.read_data(db=db, table='service_session', id_name="contractor_id", id_data=contractor_id,
-                                   order=" ORDER BY session_id DESC")
-
-    crop_co_list = ss_data[page * on_page: (page + 1) * on_page]
-    co_list = []
-    for one in crop_co_list:
-        contractor: ServiceSession = ServiceSession.parse_obj(one)
-        co_list.append(await contractor.to_json(db=db, session_work_list=[]))
-    return JSONResponse(content={"ok": True,
-                                 'ss_list': co_list,
-                                 "pages": ceil(len(ss_data) / on_page),
-                                 "all_ss_count": len(ss_data)
-                                 },
-                        status_code=_status.HTTP_200_OK,
-                        headers={'content-type': 'application/json; charset=utf-8'})
-
-
 @app.get(path='/contractor', tags=['For all'], responses=get_login_res)
 async def user_get_contractor(access_token: str, contractor_id: int, worker_id: int = 0,
                               db=Depends(data_b.connection)):
