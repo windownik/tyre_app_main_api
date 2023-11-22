@@ -36,28 +36,16 @@ async def admin_get_service_sessions(access_token: str, search: str = 0, page: i
         elif search in i[4]:
             new_ss_list.append(i)
 
-    crop_user_list = new_ss_list[page * on_page: (page + 1) * on_page]
+    crop_ss_list = new_ss_list[page * on_page: (page + 1) * on_page]
 
-    list_ss = []
-    set_users = set()
-    for one in crop_user_list:
-        ss: ServiceSession = ServiceSession.parse_obj(one)
-        set_users.add(ss.client_id)
-        list_ss.append(await ss.to_json(db=db, session_work_list=[]))
-
-    list_user = []
-    if len(set_users) != 0:
-        crop_user_list = await conn.get_user_by_set(db=db, set_id=set_users)
-
-        for one in crop_user_list:
-            user: User = User.parse_obj(one)
-            list_user.append(user.dict())
+    ss_list, list_user, list_worker = await get_ss_users_workers(db=db, ss_data=crop_ss_list)
 
     return JSONResponse(content={"ok": True,
-                                 'list_sessions': list_ss,
-                                 "pages": len(new_ss_list) // on_page + 1,
+                                 'ss_list': ss_list,
+                                 "pages": ceil(len(ss_data) / on_page),
                                  "users": list_user,
-                                 "all_sessions_count": len(ss_data)
+                                 "workers": list_worker,
+                                 "all_ss_count": len(ss_data)
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
@@ -84,12 +72,28 @@ async def admin_get_contractors_or_worker_ss(access_token: str, contractor_id: i
         ss_data = await conn.read_data(db=db, table='service_session', id_name="worker_id", id_data=worker_id,
                                        order=" ORDER BY session_id DESC")
 
-    crop_co_list = ss_data[page * on_page: (page + 1) * on_page]
+    crop_ss_list = ss_data[page * on_page: (page + 1) * on_page]
+    ss_list, list_user, list_worker = await get_ss_users_workers(db=db, ss_data=crop_ss_list)
+
+    return JSONResponse(content={"ok": True,
+                                 'ss_list': ss_list,
+                                 "pages": ceil(len(ss_data) / on_page),
+                                 "users": list_user,
+                                 "workers": list_worker,
+                                 "all_ss_count": len(ss_data)
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+async def get_ss_users_workers(db: Depends, ss_data: list[dict]):
     co_list = []
     set_users = set()
-    for one in crop_co_list:
+    set_workers = set()
+    for one in ss_data:
         ss: ServiceSession = ServiceSession.parse_obj(one)
         set_users.add(ss.client_id)
+        set_workers.add(ss.worker_id)
         co_list.append(await ss.to_json(db=db, session_work_list=[]))
 
     list_user = []
@@ -99,11 +103,14 @@ async def admin_get_contractors_or_worker_ss(access_token: str, contractor_id: i
         for one in crop_user_list:
             user: User = User.parse_obj(one)
             list_user.append(user.dict())
-    return JSONResponse(content={"ok": True,
-                                 'ss_list': co_list,
-                                 "pages": ceil(len(ss_data) / on_page),
-                                 "users": list_user,
-                                 "all_ss_count": len(ss_data)
-                                 },
-                        status_code=_status.HTTP_200_OK,
-                        headers={'content-type': 'application/json; charset=utf-8'})
+
+    list_workers = []
+    if len(set_workers) != 0:
+        crop_user_list = await conn.get_workers_by_set(db=db, set_id=set_workers)
+
+        for one in crop_user_list:
+            user: User = User.parse_obj(one)
+            list_user.append(user.dict())
+
+    return co_list, list_user, list_workers
+
