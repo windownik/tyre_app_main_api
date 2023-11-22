@@ -43,7 +43,6 @@ async def admin_get_service_sessions(access_token: str, search: str = 0, page: i
     for one in crop_user_list:
         ss: ServiceSession = ServiceSession.parse_obj(one)
         set_users.add(ss.client_id)
-        set_users.add(ss.worker_id)
         list_ss.append(await ss.to_json(db=db, session_work_list=[]))
 
     list_user = []
@@ -91,7 +90,6 @@ async def admin_get_contractors_or_worker_ss(access_token: str, contractor_id: i
     for one in crop_co_list:
         ss: ServiceSession = ServiceSession.parse_obj(one)
         set_users.add(ss.client_id)
-        set_users.add(ss.worker_id)
         co_list.append(await ss.to_json(db=db, session_work_list=[]))
 
     list_user = []
