@@ -4,7 +4,7 @@ import requests
 import starlette.status as _status
 from fastapi import Depends
 from starlette.responses import JSONResponse
-from lib.db_objects import Contractor
+from lib.db_objects import Contractor, ServiceSession
 
 from lib import sql_connect as conn
 from lib.response_examples import *
@@ -161,8 +161,8 @@ async def admin_get_contractors_ss(access_token: str, contractor_id: int, page: 
     crop_co_list = ss_data[page * on_page: (page + 1) * on_page]
     co_list = []
     for one in crop_co_list:
-        contractor: Contractor = Contractor.parse_obj(one)
-        co_list.append(contractor.dict())
+        contractor: ServiceSession = ServiceSession.parse_obj(one)
+        co_list.append(await contractor.to_json(db=db, session_work_list=[]))
     return JSONResponse(content={"ok": True,
                                  'ss_list': co_list,
                                  "pages": round(len(ss_data) / on_page),
