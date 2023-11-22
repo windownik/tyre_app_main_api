@@ -68,6 +68,29 @@ async def admin_get_workers(access_token: str, search: str = '0', page: int = 0,
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
+@app.get(path='/contractor_workers', tags=['Admin worker'], responses=get_login_res)
+async def admin_get_contractors_workers(access_token: str, contractor_id: int, db=Depends(data_b.connection)):
+    """
+    Admin get all contractor's workers
+    """
+    res = await check_admin(access_token=access_token, db=db)
+    if type(res) != int:
+        return res
+
+    user_data = await conn.read_contractors_workers(db=db, contractor_id=contractor_id)
+
+    list_user = []
+    for one in user_data:
+        user: Worker = Worker.parse_obj(one)
+        list_user.append(user.dict())
+
+    return JSONResponse(content={"ok": True,
+                                 'list_workers': list_user,
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
 @app.post(path='/worker', tags=['Admin Worker'], responses=post_create_account_res)
 async def create_worker_account(access_token: str, login: str, password: str, surname: str, contractor_id: int,
                                 db=Depends(data_b.connection)):

@@ -252,6 +252,16 @@ async def read_workers(db: Depends, ):
     return data
 
 
+async def read_contractors_workers(db: Depends, contractor_id: int):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"SELECT users.*, user_in_contractor.contractor_id, contractor.co_name "
+                          f"FROM users JOIN user_in_contractor "
+                          f"ON users.user_id = user_in_contractor.user_id JOIN contractor "
+                          f"ON user_in_contractor.contractor_id = contractor.contractor_id "
+                          f"WHERE user_in_contractor.contractor_id = $1 ORDER BY users.user_id;", contractor_id)
+    return data
+
+
 async def read_admin_vehicles(db: Depends):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT * FROM vehicle ORDER BY vehicle_id;", )
