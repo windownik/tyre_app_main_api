@@ -109,8 +109,8 @@ async def get_ss_users_workers(db: Depends, ss_data: list[dict]):
         crop_user_list = await conn.get_workers_by_set(db=db, set_id=set_workers)
 
         for one in crop_user_list:
-            user: Worker = Worker.parse_obj(one)
-            list_user.append(user.dict())
+            worker: Worker = Worker.parse_obj(one)
+            list_workers.append(worker.dict())
 
     return co_list, list_user, list_workers
 
