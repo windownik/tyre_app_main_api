@@ -304,7 +304,7 @@ async def read_workers_contractors(db: Depends, worker_id: int):
     """Получаем актуальные события"""
     data = await db.fetch(f"""SELECT contractor.* FROM contractor JOIN user_in_contractor ON 
                             contractor.contractor_id = user_in_contractor.contractor_id 
-                            WHERE user_in_contractor.user_id = 2 
+                            WHERE user_in_contractor.user_id = $1 
                             AND contractor.status = 'active';
                             """, worker_id)
     return data
