@@ -6,7 +6,7 @@ from fastapi import Depends
 from starlette.responses import JSONResponse
 
 from lib import sql_connect as conn
-from lib.db_objects import User
+from lib.db_objects import User, Worker
 from lib.response_examples import *
 from lib.sql_create_tables import data_b, app
 
@@ -33,16 +33,16 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
     else:
         return JSONResponse(content=res.json(),
                             status_code=status_code)
-    user_data = await conn.read_data(db=db, table='users', id_name='user_id', id_data=user_id)
+    user_data = await conn.get_workers_by_set(db=db, set_id=set(user_id))
     if not user_data:
         return JSONResponse(content={"ok": False,
                                      'description': "Error with login account",
                                      },
                             status_code=500)
-    user: User = User.parse_obj(user_data[0])
+    worker: Worker = Worker.parse_obj(user_data[0])
 
     return JSONResponse(content={"ok": True,
-                                 'user': user.dict(),
+                                 'worker': worker.dict(),
                                  # "vehicles": vehicles,
                                  # "service_sessions": services_sessions
                                  },
