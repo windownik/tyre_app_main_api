@@ -10,7 +10,6 @@ from lib.db_objects import Worker, ServiceSession, Contractor
 from lib.response_examples import *
 from lib.sql_create_tables import data_b, app
 
-
 ip_server = os.environ.get("IP_SERVER")
 ip_port = os.environ.get("PORT_SERVER")
 
@@ -47,16 +46,14 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
         active_ss: ServiceSession = ServiceSession.parse_obj(one)
         list_active_ss.append(active_ss.dict())
 
-    contractor = None
     contractor_data = await conn.read_workers_contractors(db=db, worker_id=worker.user_id)
+    res = {"ok": True,
+           'worker': worker.dict(),
+           "active_ss": list_active_ss,}
     if contractor_data:
         contractor: Contractor = Contractor.parse_obj(contractor_data[0])
+        res["contractor"] = contractor.dict()
 
-    return JSONResponse(content={"ok": True,
-                                 'worker': worker.dict(),
-                                 "active_ss": list_active_ss,
-                                 "contractor": contractor.dict() if contractor is not None else None
-                                 },
+    return JSONResponse(content=res,
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
-
