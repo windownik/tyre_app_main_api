@@ -33,7 +33,7 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
     else:
         return JSONResponse(content=res.json(),
                             status_code=status_code)
-    user_data = await conn.get_workers_by_set(db=db, set_id=set(user_id))
+    user_data = await conn.get_workers_by_set(db=db, set_id={user_id})
     if not user_data:
         return JSONResponse(content={"ok": False,
                                      'description': "Error with login account",
