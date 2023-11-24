@@ -292,6 +292,24 @@ async def read_admin_ss(db: Depends):
     return data
 
 
+async def read_workers_ss(db: Depends, worker_id: int):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"SELECT * FROM service_session WHERE worker_id = $1 "
+                          f"AND (status = 'delivery' OR status = 'work') "
+                          f"ORDER BY session_id DESC;", worker_id)
+    return data
+
+
+async def read_workers_contractors(db: Depends, worker_id: int):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"""SELECT contractor.* FROM contractor JOIN user_in_contractor ON 
+                            contractor.contractor_id = user_in_contractor.contractor_id 
+                            WHERE user_in_contractor.user_id = 2 
+                            AND contractor.status = 'active';
+                            """, worker_id)
+    return data
+
+
 async def read_review(db: Depends, session_id: int, ):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT * FROM review WHERE session_id = $1 AND status = 'active' ORDER BY session_id;",

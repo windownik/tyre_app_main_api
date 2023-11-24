@@ -41,7 +41,10 @@ async def admin_create_contractor(access_token: str, owner_id: int, co_name: str
     if res.status_code != 200:
         return JSONResponse(content="User with owner_id not found",
                             status_code=_status.HTTP_400_BAD_REQUEST)
-
+    con_data = await conn.read_workers_contractors(db=db, worker_id=owner_id)
+    if con_data:
+        return JSONResponse(content="Limit Exception. One contractor for one user",
+                            status_code=_status.HTTP_400_BAD_REQUEST)
     contr_data = await conn.create_contractor(db=db, owner_id=owner_id, co_name=co_name, co_email=co_email,
                                               address=address, acc_num=acc_num, vat_number=vat_number,
                                               post_code=post_code, sort_code=sort_code,
