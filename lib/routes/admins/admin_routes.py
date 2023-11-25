@@ -182,9 +182,8 @@ async def check_con_owner_or_admin(access_token: str, co_id: int, db: Depends):
                             status_code=status_code)
 
     user_data = await conn.read_data(db=db, table='users', id_name='user_id', id_data=user_id)
-    user: User = User.parse_obj(user_data[0])
 
-    if user.user_type != 'admin':
+    if user_data[0]["user_type"] != 'admin':
         data = await conn.read_data(db=db, table="contractor", name="owner_id", id_name="contractor_id", id_data=co_id)
         if data[0][0] != user_id:
             return JSONResponse(content={"ok": False,
