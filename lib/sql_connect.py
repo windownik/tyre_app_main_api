@@ -17,7 +17,7 @@ async def save_user(db: Depends, user_id: int, name: str, surname: str, phone: i
 async def save_worker(db: Depends, user_id: int, login: str, worker_name: str, contractor_id: int):
     """Save main users information"""
     create_date = datetime.datetime.now()
-    data = await db.fetch(f"INSERT INTO workers (user_id, contractor_id, login, surname, last_active, createdate) "
+    data = await db.fetch(f"INSERT INTO workers (user_id, contractor_id, login, worker_name, last_active, createdate) "
                           f"VALUES ($1, $2, $3, $4, $5, $6) "
                           f"ON CONFLICT DO NOTHING RETURNING *;", user_id, contractor_id, login, worker_name,
                           int(time.mktime(create_date.timetuple())), int(time.mktime(create_date.timetuple())))

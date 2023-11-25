@@ -52,7 +52,7 @@ async def admin_create_contractor(access_token: str, login: str, worker_name: st
     contractor: Contractor = Contractor.parse_obj(contr_data[0])
 
     params = {
-        "user_id": owner_id,
+        "owner_id": owner_id,
         "login": login,
         "password": password,
     }
