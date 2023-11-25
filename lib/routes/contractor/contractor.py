@@ -1,12 +1,11 @@
 import os
-from math import ceil
 
 import requests
 
 import starlette.status as _status
 from fastapi import Depends
 from starlette.responses import JSONResponse
-from lib.db_objects import Contractor, ServiceSession
+from lib.db_objects import Contractor
 
 from lib import sql_connect as conn
 from lib.response_examples import *
@@ -28,9 +27,10 @@ on_page = 20
 
 
 @app.post(path='/contractor', tags=['Admin contractor'], responses=get_login_res)
-async def admin_create_contractor(access_token: str, owner_id: int, co_name: str, co_email: str, address: str,
-                                  acc_num: str, vat_number: str, sort_code: str, post_code: str, beneficiary_name: str,
-                                  db=Depends(data_b.connection)):
+async def admin_create_contractor(access_token: str, login: str, worker_name: str, password: str, owner_id: int,
+                                  co_name: str,
+                                  co_email: str, address: str, acc_num: str, vat_number: str, sort_code: str,
+                                  post_code: str, beneficiary_name: str, db=Depends(data_b.connection)):
     """
     Admin create new contractor
     """
@@ -51,7 +51,21 @@ async def admin_create_contractor(access_token: str, owner_id: int, co_name: str
                                               beneficiary_name=beneficiary_name)
     contractor: Contractor = Contractor.parse_obj(contr_data[0])
 
-    await conn.save_user_to_contractor(db=db, user_id=owner_id, contractor_id=contractor.contractor_id)
+    params = {
+        "user_id": owner_id,
+        "login": login,
+        "password": password,
+    }
+    res = requests.post(f'{auth_url}/create_account_login', params=params)
+    status_code = res.status_code
+    if status_code == 200:
+        user_id = res.json()['user_id']
+    else:
+        return JSONResponse(content=res.json(),
+                            status_code=status_code)
+
+    await conn.save_worker(db=db, user_id=user_id, login=login, worker_name=worker_name,
+                           contractor_id=contractor.contractor_id)
 
     return JSONResponse(content={"ok": True,
                                  'contractor': contractor.dict(),

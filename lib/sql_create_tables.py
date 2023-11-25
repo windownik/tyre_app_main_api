@@ -39,6 +39,23 @@ async def create_user_table(db):
  )''')
 
 
+async def create_worker_table(db):
+    await db.execute(f'''CREATE TABLE IF NOT EXISTS workers (
+ user_id BIGINT PRIMARY KEY,
+ contractor_id BIGINT DEFAULT 0,
+ login VARCHAR(100) DEFAULT '0',
+ worker_name VARCHAR(100) DEFAULT '0',
+ user_type VARCHAR(20) DEFAULT 'worker',
+ status VARCHAR(20) DEFAULT 'active',
+ lat DOUBLE PRECISION DEFAULT 0,
+ long DOUBLE PRECISION DEFAULT 0,
+ get_push BOOL DEFAULT true,
+ push_token TEXT DEFAULT '0',
+ last_active BIGINT DEFAULT 0,
+ createdate BIGINT
+ )''')
+
+
 async def create_vehicle_table(db):
     await db.execute(f'''CREATE TABLE IF NOT EXISTS vehicle (
  vehicle_id SERIAL PRIMARY KEY,

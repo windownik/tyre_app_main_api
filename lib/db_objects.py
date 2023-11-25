@@ -23,15 +23,13 @@ class Worker(BaseModel):
     user_id: int
     contractor_id: int
     co_name: str
-    name: str
-    surname: str
-    email: str
+    login: str
+    worker_name: str
     user_type: str
     status: str
     lat: float
     long: float
     get_push: bool
-    get_email: bool
     last_active: int
     createdate: int
 

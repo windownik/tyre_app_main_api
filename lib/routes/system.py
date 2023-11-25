@@ -10,6 +10,7 @@ async def initialization(connect):
     await connect.execute("SELECT 1")
     await conn.create_user_table(db=connect)
     await conn.create_photo_table(db=connect)
+    await conn.create_worker_table(db=connect)
     await conn.create_review_table(db=connect)
     await conn.create_vehicle_table(db=connect)
     await conn.create_push_logs_table(db=connect)

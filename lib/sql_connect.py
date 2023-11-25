@@ -14,12 +14,12 @@ async def save_user(db: Depends, user_id: int, name: str, surname: str, phone: i
     return data
 
 
-async def save_worker(db: Depends, user_id: int, name: str, surname: str):
+async def save_worker(db: Depends, user_id: int, login: str, worker_name: str, contractor_id: int):
     """Save main users information"""
     create_date = datetime.datetime.now()
-    data = await db.fetch(f"INSERT INTO users (user_id, name, surname, user_type, last_active, createdate) "
+    data = await db.fetch(f"INSERT INTO workers (user_id, contractor_id, login, surname, last_active, createdate) "
                           f"VALUES ($1, $2, $3, $4, $5, $6) "
-                          f"ON CONFLICT DO NOTHING RETURNING *;", user_id, name, surname, "worker",
+                          f"ON CONFLICT DO NOTHING RETURNING *;", user_id, contractor_id, login, worker_name,
                           int(time.mktime(create_date.timetuple())), int(time.mktime(create_date.timetuple())))
     return data
 
@@ -248,21 +248,19 @@ async def read_users(db: Depends, ):
 
 async def read_workers(db: Depends, ):
     """Получаем актуальные события"""
-    data = await db.fetch(f"SELECT users.*, user_in_contractor.contractor_id, contractor.co_name "
-                          f"FROM users JOIN user_in_contractor "
-                          f"ON users.user_id = user_in_contractor.user_id JOIN contractor "
-                          f"ON user_in_contractor.contractor_id = contractor.contractor_id "
-                          f"WHERE users.user_type = 'worker' ORDER BY users.user_id;", )
+    data = await db.fetch(f"SELECT workers.*, contractor.co_name "
+                          f"FROM workers JOIN contractor "
+                          f"ON workers.contractor_id = contractor.contractor_id "
+                          f"ORDER BY workers.user_id;", )
     return data
 
 
 async def read_contractors_workers(db: Depends, contractor_id: int):
     """Получаем актуальные события"""
-    data = await db.fetch(f"SELECT users.*, user_in_contractor.contractor_id, contractor.co_name "
-                          f"FROM users JOIN user_in_contractor "
-                          f"ON users.user_id = user_in_contractor.user_id JOIN contractor "
-                          f"ON user_in_contractor.contractor_id = contractor.contractor_id "
-                          f"WHERE user_in_contractor.contractor_id = $1 ORDER BY users.user_id;", contractor_id)
+    data = await db.fetch(f"SELECT workers.*, contractor.co_name "
+                          f"FROM workers JOIN contractor "
+                          f"ON workers.contractor_id = contractor.contractor_id "
+                          f"WHERE workers.contractor_id = $1 ORDER BY workers.user_id;", contractor_id)
     return data
 
 

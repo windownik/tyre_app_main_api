@@ -79,20 +79,20 @@ async def admin_get_contractors_workers(access_token: str, contractor_id: int, d
 
     user_data = await conn.read_contractors_workers(db=db, contractor_id=contractor_id)
 
-    list_user = []
+    list_worker = []
     for one in user_data:
-        user: Worker = Worker.parse_obj(one)
-        list_user.append(user.dict())
+        worker: Worker = Worker.parse_obj(one)
+        list_worker.append(worker.dict())
 
     return JSONResponse(content={"ok": True,
-                                 'list_workers': list_user,
+                                 'list_workers': list_worker,
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
 @app.post(path='/worker', tags=['Admin Worker'], responses=post_create_account_res)
-async def create_worker_account(access_token: str, login: str, password: str, surname: str, contractor_id: int,
+async def create_worker_account(access_token: str, login: str, password: str, worker_name: str, contractor_id: int,
                                 db=Depends(data_b.connection)):
     """Create new worker account in service with login, password, name and surname"""
     res = await check_admin(access_token=access_token, db=db)
@@ -111,12 +111,12 @@ async def create_worker_account(access_token: str, login: str, password: str, su
         return JSONResponse(content=res.json(),
                             status_code=status_code)
 
-    user_data = await conn.save_worker(db=db, user_id=user_id, name=login, surname=surname)
+    user_data = await conn.save_worker(db=db, user_id=user_id, login=login, worker_name=worker_name,
+                                       contractor_id=contractor_id)
     if not user_data:
         return JSONResponse(content={"ok": False,
                                      'description': "Error with create account",
                                      }, status_code=400)
-    await conn.save_user_to_contractor(db=db, user_id=user_data[0]["user_id"], contractor_id=contractor_id)
 
     return JSONResponse(content={"ok": True,
                                  'description': "Worker created successful",
@@ -158,7 +158,8 @@ async def update_worker_name(access_token: str, name: str, worker_id: int, db=De
                                      'description': "Bad worker_id",
                                      }, status_code=400)
 
-    await conn.update_inform(db=db, table="users", name="surname", data=name, id_name="user_id", id_data=worker_id)
+    await conn.update_inform(db=db, table="workers", name="worker_name", data=name, id_name="user_id",
+                             id_data=worker_id)
 
     return JSONResponse(content={"ok": True,
                                  'description': "Worker name successful updated",
