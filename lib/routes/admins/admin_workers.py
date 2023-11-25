@@ -8,7 +8,7 @@ from lib.db_objects import Worker
 
 from lib import sql_connect as conn
 from lib.response_examples import *
-from lib.routes.admins.admin_routes import check_admin
+from lib.routes.admins.admin_routes import check_admin, check_con_owner_or_admin
 from lib.sql_create_tables import data_b, app
 
 ip_server = os.environ.get("IP_SERVER")
@@ -73,7 +73,7 @@ async def admin_get_contractors_workers(access_token: str, contractor_id: int, d
     """
     Admin get all contractor's workers
     """
-    res = await check_admin(access_token=access_token, db=db)
+    res = await check_con_owner_or_admin(access_token=access_token, co_id=contractor_id, db=db)
     if type(res) != int:
         return res
 

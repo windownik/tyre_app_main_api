@@ -4,7 +4,7 @@ import requests
 import starlette.status as _status
 from fastapi import Depends
 from starlette.responses import JSONResponse
-from lib.db_objects import Vehicle, User
+from lib.db_objects import Vehicle, User, Contractor
 
 from lib import sql_connect as conn
 from lib.response_examples import *
@@ -168,4 +168,26 @@ async def check_admin(access_token: str, db: Depends):
         return JSONResponse(content={"ok": False,
                                      'description': "Not enough rights"},
                             status_code=500)
+    return user_id
+
+
+async def check_con_owner_or_admin(access_token: str, co_id: int, db: Depends):
+    """Check services access token for admin"""
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    status_code = res.status_code
+    if status_code == 200:
+        user_id = res.json()['user_id']
+    else:
+        return JSONResponse(content=res.json(),
+                            status_code=status_code)
+
+    user_data = await conn.read_data(db=db, table='users', id_name='user_id', id_data=user_id)
+    user: User = User.parse_obj(user_data[0])
+
+    if user.user_type != 'admin':
+        data = await conn.read_data(db=db, table="contractor", name="owner_id", id_name="contractor_id", id_data=co_id)
+        if data[0][0] != user_id:
+            return JSONResponse(content={"ok": False,
+                                         'description': "Not enough rights"},
+                                status_code=500)
     return user_id
