@@ -152,7 +152,7 @@ async def update_worker_name(access_token: str, name: str, worker_id: int, db=De
     if type(res) != int:
         return res
 
-    user_data = await conn.read_data(db=db, table='users', id_name='user_id', id_data=worker_id)
+    user_data = await conn.read_data(db=db, table='workers', id_name='user_id', id_data=worker_id)
     if not user_data:
         return JSONResponse(content={"ok": False,
                                      'description': "Bad worker_id",
