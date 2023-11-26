@@ -44,7 +44,8 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
     list_active_ss = []
     for one in workers_ss:
         active_ss: ServiceSession = ServiceSession.parse_obj(one)
-        list_active_ss.append(active_ss.dict())
+
+        list_active_ss.append(await active_ss.to_json(db=db, session_work_list=[]))
 
     contractor_data = await conn.read_data(db=db, table="contractor", id_name="owner_id", id_data=worker.user_id)
     res = {"ok": True,
