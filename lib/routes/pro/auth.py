@@ -46,10 +46,10 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
         active_ss: ServiceSession = ServiceSession.parse_obj(one)
         list_active_ss.append(active_ss.dict())
 
-    contractor_data = await conn.read_workers_contractors(db=db, worker_id=worker.user_id)
+    contractor_data = await conn.read_data(db=db, table="contractor", id_name="owner_id", id_data=worker.user_id)
     res = {"ok": True,
            'worker': worker.dict(),
-           "active_ss": list_active_ss,}
+           "active_ss": list_active_ss}
     if contractor_data:
         contractor: Contractor = Contractor.parse_obj(contractor_data[0])
         res["contractor"] = contractor.dict()
