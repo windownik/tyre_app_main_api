@@ -268,12 +268,11 @@ async def get_workers_by_set(db: Depends, set_id: set, ):
     """Get user_id by token and device id"""
     sql_id = ""
     for i in set_id:
-        sql_id = f"{sql_id} users.user_id={i} OR"
+        sql_id = f"{sql_id} workers.user_id={i} OR"
     sql_id = sql_id[0: -3]
-    data = await db.fetch(f"SELECT users.*, user_in_contractor.contractor_id, contractor.co_name "
-                          f"FROM users JOIN user_in_contractor "
-                          f"ON users.user_id = user_in_contractor.user_id JOIN contractor "
-                          f"ON user_in_contractor.contractor_id = contractor.contractor_id "
+    data = await db.fetch(f"SELECT workers.*, contractor.co_name "
+                          f"FROM workers JOIN contractor "
+                          f"ON workers.contractor_id = contractor.contractor_id "
                           f"WHERE{sql_id};")
     return data
 
