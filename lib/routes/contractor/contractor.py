@@ -28,9 +28,8 @@ on_page = 20
 
 @app.post(path='/contractor', tags=['Admin contractor'], responses=get_login_res)
 async def admin_create_contractor(access_token: str, login: str, worker_name: str, password: str, owner_id: int,
-                                  co_name: str,
-                                  co_email: str, address: str, acc_num: str, vat_number: str, sort_code: str,
-                                  post_code: str, beneficiary_name: str, db=Depends(data_b.connection)):
+                                  co_name: str, co_email: str, address: str, acc_num: str, vat_number: str,
+                                  sort_code: str, post_code: str, beneficiary_name: str, db=Depends(data_b.connection)):
     """
     Admin create new contractor
     """
@@ -41,7 +40,7 @@ async def admin_create_contractor(access_token: str, login: str, worker_name: st
     if res.status_code != 200:
         return JSONResponse(content="User with owner_id not found",
                             status_code=_status.HTTP_400_BAD_REQUEST)
-    con_data = await conn.read_workers_contractors(db=db, worker_id=owner_id)
+    con_data = await conn.read_data(db=db, table="contractor", id_name="owner_id", id_data=owner_id)
     if con_data:
         return JSONResponse(content="Limit Exception. One contractor for one user",
                             status_code=_status.HTTP_400_BAD_REQUEST)
