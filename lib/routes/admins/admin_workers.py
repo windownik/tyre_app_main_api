@@ -147,7 +147,7 @@ async def admin_check_new_worker_login(access_token: str, login: str, db=Depends
 
 @app.put(path='/worker', tags=['Admin Worker'], responses=get_user_res)
 async def update_worker_name(access_token: str, name: str, worker_id: int, db=Depends(data_b.connection)):
-    """Update user information"""
+    """Update worker's name for worker with worker_id"""
     res = await check_admin(access_token=access_token, db=db)
     if type(res) != int:
         return res
@@ -163,6 +163,29 @@ async def update_worker_name(access_token: str, name: str, worker_id: int, db=De
 
     return JSONResponse(content={"ok": True,
                                  'description': "Worker name successful updated",
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.delete(path='/worker', tags=['Admin Worker'], responses=get_user_res)
+async def update_workers_status(access_token: str, active: bool, worker_id: int, db=Depends(data_b.connection)):
+    """Delete or activate worker with worker_id"""
+    res = await check_admin(access_token=access_token, db=db)
+    if type(res) != int:
+        return res
+
+    user_data = await conn.read_data(db=db, table='workers', id_name='user_id', id_data=worker_id)
+    if not user_data:
+        return JSONResponse(content={"ok": False,
+                                     'description': "Bad worker_id",
+                                     }, status_code=400)
+
+    status = "active" if active else "deleted"
+    await conn.update_inform(db=db, table="workers", name="status", data=status, id_name="user_id", id_data=worker_id)
+
+    return JSONResponse(content={"ok": True,
+                                 'description': f"Worker's status successful updated to {status}",
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
