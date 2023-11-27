@@ -8,6 +8,8 @@ from starlette.responses import JSONResponse
 from lib import sql_connect as conn
 from lib.response_examples import *
 from lib.sql_create_tables import data_b, app
+import stripe
+
 
 
 ip_server = os.environ.get("IP_SERVER")
@@ -20,10 +22,15 @@ ip_auth_server = os.environ.get("IP_AUTH_SERVER")
 ip_auth_port = os.environ.get("PORT_AUTH_SERVER")
 
 auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
-stripe_secret = os.environ.get("STRIPE_SECRET")
+
+str_secret = os.environ.get("STRIPE_SECRET")
+
+# str_secret = "sk_test_51O2alEFxYpxLheef0ZI9Vo0a4FVY1iDuTMRmooyQzS9X2h2B9GkjyRL31RRYQoOM5ItSv0cqLyrIxdlvsDd8IRM3004cnfmqXI"
+
+stripe.api_key = str_secret
 
 
-@app.post(path='/payment', tags=['User'], responses=get_user_res)
+@app.post(path='/payment', tags=['Payment'], responses=get_user_res)
 async def create_new_payment(access_token: str, list_items: list, db=Depends(data_b.connection)):
     """Update user information"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
@@ -40,7 +47,7 @@ async def create_new_payment(access_token: str, list_items: list, db=Depends(dat
                                      'description': "Error with login account",
                                      },status_code=400)
 
-    payment_intent = create_payment_stripe(10)
+    payment_intent = create_payment_stripe(1000)
     return JSONResponse(content={"ok": True,
                                  "payment_intent": payment_intent,
                                  'list_items': str(list_items),
@@ -50,15 +57,10 @@ async def create_new_payment(access_token: str, list_items: list, db=Depends(dat
 
 
 def create_payment_stripe(amount: int) -> str:
-    url = "https://api.stripe.com/v1/payment_intents"
-    params = {
-        "amount": amount,
-        "currency": "GBP"
-    }
-    headers = {
-        "Authorization": f"Bearer {stripe_secret}",
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
-    req = requests.post(url=url, headers=headers, params=params)
-    print(amount)
-    return req.json()["client_secret"]
+    res = stripe.PaymentIntent.create(
+        amount=amount,
+        currency="usd",
+        automatic_payment_methods={"enabled": True},
+    )
+    return res.client_secret
+
