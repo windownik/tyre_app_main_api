@@ -103,13 +103,13 @@ async def create_work_type(db: Depends, name_en: str, price: int, currency: str)
 
 
 async def msg_to_user(db: Depends, user_id: int, title: str, short_text: str, main_text: str, img_url: str,
-                      push_type: str, push_msg_id: int):
+                      push_type: str, push_msg_id: int, app_type: str):
     """We are create a new Work type for services sessions"""
     data = await db.fetch(f"INSERT INTO sending "
-                          f"(user_id, title, short_text, main_text, img_url, push_type, push_msg_id) "
+                          f"(user_id, title, short_text, main_text, img_url, push_type, push_msg_id, app_type) "
                           f"VALUES ($1, $2, $3, $4, $5, $6, $7) "
                           f"ON CONFLICT DO NOTHING RETURNING *;", user_id, title, short_text, main_text, img_url,
-                          push_type, push_msg_id)
+                          push_type, push_msg_id, app_type)
     return data
 
 
@@ -233,6 +233,12 @@ async def read_data_without(db: Depends, table: str, id_name: str, id_data, orde
 async def read_users_for_push(db: Depends, name: str = '*'):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT {name} FROM users WHERE push_token != $1 AND get_push = $2;", "0", True)
+    return data
+
+
+async def read_workers_for_push(db: Depends, name: str = '*'):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"SELECT {name} FROM workers WHERE push_token != $1 AND get_push = $2;", "0", True)
     return data
 
 

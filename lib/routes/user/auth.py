@@ -119,8 +119,8 @@ async def update_push_token(access_token: str, push_token: str, db=Depends(data_
 
 
 @app.put(path='/push_token_pro', tags=['Auth'], responses=get_login_res)
-async def update_push_token(access_token: str, push_token: str, db=Depends(data_b.connection)):
-    """Get user in service by access token"""
+async def update_push_token_for_pro(access_token: str, push_token: str, db=Depends(data_b.connection)):
+    """Use it route for updating push token for workers"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
     if status_code == 200:

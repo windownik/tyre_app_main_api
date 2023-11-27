@@ -30,14 +30,17 @@ async def check_users_push_count(access_token: str, db=Depends(data_b.connection
         return res
 
     users_id = await conn.read_users_for_push(db=db,)
+    workers_id = await conn.read_workers_for_push(db=db, )
 
     return JSONResponse(content={'ok': True,
-                                 "all_users_count": len(users_id)},
+                                 "all_users_count": len(users_id),
+                                 "all_workers_count": len(workers_id),
+                                 },
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
 @app.post(path='/sending_push', tags=['Admin funcs'], responses=send_push_res)
-async def start_sending_push_msg(access_token: str, title: str, short_text: str, content_type: str,
+async def start_sending_push_msg(access_token: str, title: str, short_text: str, content_type: str, user_type: str,
                                  main_text: str = "0", url: str = "0",
                                  db=Depends(data_b.connection)):
     """
@@ -47,7 +50,8 @@ async def start_sending_push_msg(access_token: str, title: str, short_text: str,
     title: Tittle of message\n
     short_text: short text of push message\n
     main_text: main text of message for content type 0\n
-    url: url to img in internet for content type 0\n
+    url: url to img in internet for content type 0\n,
+    user_type: can be 'for_all', 'workers', 'clients'
     """
     user_id = await check_admin(access_token=access_token, db=db)
     if type(user_id) != int:
@@ -58,14 +62,25 @@ async def start_sending_push_msg(access_token: str, title: str, short_text: str,
                                      'description': "bad content_type"},
                             status_code=_status.HTTP_400_BAD_REQUEST)
 
-    users_id = await conn.read_users_for_push(db=db, name="user_id",)
+    workers_id = []
+    if user_type == 'clients':
+        users_id = await conn.read_users_for_push(db=db, name="user_id",)
+
+    elif user_type == 'workers':
+        users_id = await conn.read_workers_for_push(db=db, name="user_id",)
+    else:
+        users_id = await conn.read_users_for_push(db=db, name="user_id", )
+        workers_id = await conn.read_workers_for_push(db=db, name="user_id",)
 
     await conn.msg_to_push_logs(db=db, creator_id=user_id, title=title, short_text=short_text, main_text=main_text,
-                                img_url=url, content_type=content_type, users_ids="for_all")
+                                img_url=url, content_type=content_type, users_ids=user_type)
 
     for user in users_id:
         await conn.msg_to_user(db=db, user_id=user[0], title=title, short_text=short_text, main_text=main_text,
-                               img_url=url, push_type=content_type, push_msg_id=0)
+                               img_url=url, push_type=content_type, push_msg_id=0, app_type='simple')
+    for user in workers_id:
+        await conn.msg_to_user(db=db, user_id=user[0], title=title, short_text=short_text, main_text=main_text,
+                               img_url=url, push_type=content_type, push_msg_id=0, app_type='pro')
 
     return JSONResponse(content={'ok': True, 'desc': 'successfully created'},
                         headers={'content-type': 'application/json; charset=utf-8'})
