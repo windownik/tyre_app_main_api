@@ -25,8 +25,6 @@ auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 str_secret = os.environ.get("STRIPE_SECRET")
 
-# str_secret = "sk_test_51O2alEFxYpxLheef0ZI9Vo0a4FVY1iDuTMRmooyQzS9X2h2B9GkjyRL31RRYQoOM5ItSv0cqLyrIxdlvsDd8IRM3004cnfmqXI"
-
 stripe.api_key = str_secret
 
 
@@ -45,10 +43,11 @@ async def create_new_payment(access_token: str, list_items: list, db=Depends(dat
     if not user_data:
         return JSONResponse(content={"ok": False,
                                      'description': "Error with login account",
-                                     },status_code=400)
-
-    payment_intent = create_payment_stripe(1000)
+                                     }, status_code=400)
+    amount = 1000
+    payment_intent = create_payment_stripe(amount)
     return JSONResponse(content={"ok": True,
+                                 "amount": amount,
                                  "payment_intent": payment_intent,
                                  'list_items': str(list_items),
                                  },
