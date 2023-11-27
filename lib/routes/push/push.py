@@ -61,13 +61,17 @@ async def start_sending_push_msg(access_token: str, title: str, short_text: str,
         return JSONResponse(content={"ok": False,
                                      'description': "bad content_type"},
                             status_code=_status.HTTP_400_BAD_REQUEST)
-
+    if user_type not in ('for_all', 'workers', 'clients'):
+        return JSONResponse(content={"ok": False,
+                                     'description': "bad user_type"},
+                            status_code=_status.HTTP_400_BAD_REQUEST)
     workers_id = []
+    users_id = []
     if user_type == 'clients':
         users_id = await conn.read_users_for_push(db=db, name="user_id",)
 
     elif user_type == 'workers':
-        users_id = await conn.read_workers_for_push(db=db, name="user_id",)
+        workers_id = await conn.read_workers_for_push(db=db, name="user_id",)
     else:
         users_id = await conn.read_users_for_push(db=db, name="user_id", )
         workers_id = await conn.read_workers_for_push(db=db, name="user_id",)
