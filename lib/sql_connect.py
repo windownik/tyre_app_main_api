@@ -106,7 +106,7 @@ async def msg_to_user(db: Depends, user_id: int, title: str, short_text: str, ma
                       push_type: str, push_msg_id: int, app_type: str):
     """We are create a new Work type for services sessions"""
     data = await db.fetch(f"INSERT INTO sending "
-                          f"(user_id, tittle, short_text, main_text, img_url, push_type, push_msg_id, app_type) "
+                          f"(user_id, title, short_text, main_text, img_url, push_type, push_msg_id, app_type) "
                           f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8) "
                           f"ON CONFLICT DO NOTHING RETURNING *;", user_id, title, short_text, main_text, img_url,
                           push_type, push_msg_id, app_type)
