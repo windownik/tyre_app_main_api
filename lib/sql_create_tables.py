@@ -189,3 +189,17 @@ async def create_push_logs_table(db):
  users_ids TEXT DEFAULT 'for_all',
  create_date BIGINT DEFAULT 0
  )''')
+
+
+async def create_payments_table(db):
+    await db.execute(f'''CREATE TABLE IF NOT EXISTS payments (
+ pay_id SERIAL PRIMARY KEY,
+ user_id BIGINT DEFAULT 0,
+ session_id BIGINT DEFAULT 0,
+ session_work_id BIGINT DEFAULT 0,
+ worker_id BIGINT DEFAULT 0,
+ contractor_id BIGINT DEFAULT 0,
+ status TEXT DEFAULT 'create',
+ pay_date BIGINT DEFAULT 0,
+ create_date BIGINT DEFAULT 0
+ )''')
