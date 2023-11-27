@@ -172,7 +172,7 @@ async def create_push_for_one_user(access_token: str, title: str, short_text: st
                                 img_url=url, content_type=content_type, users_ids=str(user_id))
 
     await conn.msg_to_user(db=db, user_id=user_id, title=title, short_text=short_text, main_text=main_text,
-                           img_url=url, push_type=content_type, push_msg_id=0)
+                           img_url=url, push_type=content_type, push_msg_id=0, app_type='simple')
 
     return JSONResponse(content={'ok': True, 'desc': 'successfully created'},
                         headers={'content-type': 'application/json; charset=utf-8'})
