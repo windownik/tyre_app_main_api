@@ -154,6 +154,7 @@ class WorkType(BaseModel):
 
 
 class SessionWork(BaseModel):
+    sw_id: int
     work_type_id: int
     name_en: str
     price: int

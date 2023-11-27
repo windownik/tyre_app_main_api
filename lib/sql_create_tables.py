@@ -163,7 +163,7 @@ async def create_work_types_table(db):
 
 async def create_session_works_table(db):
     await db.execute(f'''CREATE TABLE IF NOT EXISTS session_works (
- id SERIAL PRIMARY KEY,
+ sw_id SERIAL PRIMARY KEY,
  session_id BIGINT DEFAULT 0,
  work_type_id BIGINT DEFAULT 0,
  name_en TEXT DEFAULT '0',
