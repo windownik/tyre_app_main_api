@@ -11,7 +11,6 @@ from lib.sql_create_tables import data_b, app
 import stripe
 
 
-
 ip_server = os.environ.get("IP_SERVER")
 ip_port = os.environ.get("PORT_SERVER")
 
@@ -29,7 +28,7 @@ stripe.api_key = str_secret
 
 
 @app.post(path='/payment', tags=['Payment'], responses=get_user_res)
-async def create_new_payment(access_token: str, list_items: list, db=Depends(data_b.connection)):
+async def create_new_payment(access_token: str, session_id: int, list_items: list, db=Depends(data_b.connection)):
     """Update user information"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
