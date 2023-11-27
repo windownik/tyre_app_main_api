@@ -125,6 +125,19 @@ async def msg_to_push_logs(db: Depends, creator_id: int, title: str, short_text:
     return data
 
 
+async def create_payment(db: Depends, user_id: int, session_id: int, session_work_id: list, amount: int, currency: str):
+    """We are create a new service session"""
+    create_date = datetime.datetime.now()
+    sw_id_list = ""
+    for one in session_work_id:
+        sw_id_list = f"{sw_id_list},{one}"
+    data = await db.fetch(f"INSERT INTO payment (user_id, session_id, session_work_id, amount, currency, create_date) "
+                          f"VALUES ($1, $2, $3, $4, $5, $6) "
+                          f"ON CONFLICT DO NOTHING RETURNING *;", user_id, session_id, sw_id_list[1:], amount,
+                          currency, int(time.mktime(create_date.timetuple())))
+    return data
+
+
 async def get_user_id(db: Depends, token_type: str, token: str, device_id: str):
     """Get user_id by token and device id"""
     now = datetime.datetime.now()
@@ -280,6 +293,16 @@ async def get_workers_by_set(db: Depends, set_id: set, ):
                           f"FROM workers JOIN contractor "
                           f"ON workers.contractor_id = contractor.contractor_id "
                           f"WHERE{sql_id};")
+    return data
+
+
+async def get_ss_work_list_by_set(db: Depends, ss_work_id: list[int], ):
+    """Get services_session_works by token and device id"""
+    sql_id = ""
+    for i in ss_work_id:
+        sql_id = f"{sql_id} sw_id={i} OR"
+    sql_id = sql_id[0: -3]
+    data = await db.fetch(f"SELECT * FROM session_works WHERE{sql_id};")
     return data
 
 

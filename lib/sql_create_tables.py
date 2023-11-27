@@ -196,9 +196,11 @@ async def create_payments_table(db):
  pay_id SERIAL PRIMARY KEY,
  user_id BIGINT DEFAULT 0,
  session_id BIGINT DEFAULT 0,
- session_work_id BIGINT DEFAULT 0,
+ session_work_id TEXT DEFAULT '0',
  worker_id BIGINT DEFAULT 0,
  contractor_id BIGINT DEFAULT 0,
+ amount BIGINT DEFAULT 0,
+ currency TEXT DEFAULT 'GBP',
  status TEXT DEFAULT 'create',
  pay_date BIGINT DEFAULT 0,
  create_date BIGINT DEFAULT 0

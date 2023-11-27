@@ -6,6 +6,7 @@ from fastapi import Depends
 from starlette.responses import JSONResponse
 
 from lib import sql_connect as conn
+from lib.db_objects import Payment
 from lib.response_examples import *
 from lib.sql_create_tables import data_b, app
 import stripe
@@ -28,7 +29,8 @@ stripe.api_key = str_secret
 
 
 @app.post(path='/payment', tags=['Payment'], responses=get_user_res)
-async def create_new_payment(access_token: str, session_id: int, list_items: list, db=Depends(data_b.connection)):
+async def create_new_payment(access_token: str, session_id: int, sw_id_list: list, currency: str = "GBP",
+                             db=Depends(data_b.connection)):
     """Update user information"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
@@ -43,12 +45,19 @@ async def create_new_payment(access_token: str, session_id: int, list_items: lis
         return JSONResponse(content={"ok": False,
                                      'description': "Error with login account",
                                      }, status_code=400)
-    amount = 1000
+
+    ss_work_data = await conn.get_ss_work_list_by_set(ss_work_id=sw_id_list, db=db)
+    amount = 0
+    for one in ss_work_data:
+        amount += one["price"]
+
     payment_intent = create_payment_stripe(amount)
+    pay_data = await conn.create_payment(db=db, user_id=user_id, session_id=session_id, amount=amount,
+                                         session_work_id=sw_id_list,currency=currency)
+    payment: Payment = Payment.parse_obj(pay_data[0])
     return JSONResponse(content={"ok": True,
-                                 "amount": amount,
+                                 "payment": payment.dict(),
                                  "payment_intent": payment_intent,
-                                 'list_items': str(list_items),
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
