@@ -31,7 +31,7 @@ stripe.api_key = str_secret
 @app.post(path='/payment', tags=['Payment'], responses=get_user_res)
 async def create_new_payment(access_token: str, session_id: int, sw_id_list: list, currency: str = "GBP",
                              db=Depends(data_b.connection)):
-    """Update user information"""
+    """Create new payment for session. Amount calculated from every price of service session work (sw_id_list) """
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
     if status_code == 200:
@@ -53,11 +53,58 @@ async def create_new_payment(access_token: str, session_id: int, sw_id_list: lis
 
     payment_intent = create_payment_stripe(amount)
     pay_data = await conn.create_payment(db=db, user_id=user_id, session_id=session_id, amount=amount,
-                                         session_work_id=sw_id_list,currency=currency)
+                                         session_work_id=sw_id_list,currency=currency, intent=payment_intent)
     payment: Payment = Payment.parse_obj(pay_data[0])
     return JSONResponse(content={"ok": True,
                                  "payment": payment.dict(),
-                                 "payment_intent": payment_intent,
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.get(path='/payment', tags=['Payment'], responses=get_user_res)
+async def get_payments_list(access_token: str, payment_id: int = 0, session_id: int = 0, db=Depends(data_b.connection)):
+    """Get """
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    status_code = res.status_code
+    if status_code != 200:
+        return JSONResponse(content=res.json(),
+                            status_code=status_code)
+
+    if session_id != 0:
+        pay_data = await conn.read_data(db=db, id_name="session_id", id_data=session_id, table='payments')
+    elif payment_id != 0:
+        pay_data = await conn.read_data(db=db, id_name="pay_id", id_data=payment_id, table='payments')
+    else:
+        return JSONResponse(content={
+            "ok": False,
+            "description": "Wrong session_id and payment_id. Only one of them should be 0",
+        },
+                            status_code=_status.HTTP_400_BAD_REQUEST)
+
+    pay_list = []
+    for one in pay_data:
+        payment: Payment = Payment.parse_obj(one)
+        pay_list.append(payment.dict())
+    return JSONResponse(content={"ok": True,
+                                 "payment_list": pay_list,
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.get(path='/payment_status', tags=['Payment'], responses=get_user_res)
+async def get_payments_list(access_token: str, payment_id: int = 0, db=Depends(data_b.connection)):
+    """Get """
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    status_code = res.status_code
+    if status_code != 200:
+        return JSONResponse(content=res.json(),
+                            status_code=status_code)
+    pay_data = await conn.read_data(db=db, id_name="pay_id", id_data=payment_id, table='payments')
+    res = stripe.PaymentIntent.confirm(pay_data[0]["intent"])
+    return JSONResponse(content={"ok": True,
+                                 "status": res.status,
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})

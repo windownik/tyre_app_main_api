@@ -125,16 +125,17 @@ async def msg_to_push_logs(db: Depends, creator_id: int, title: str, short_text:
     return data
 
 
-async def create_payment(db: Depends, user_id: int, session_id: int, session_work_id: list, amount: int, currency: str):
-    """We are create a new service session"""
+async def create_payment(db: Depends, user_id: int, session_id: int, session_work_id: list, intent: str, amount: int,
+                         currency: str):
+    """We create a new payment"""
     create_date = datetime.datetime.now()
     sw_id_list = ""
     for one in session_work_id:
         sw_id_list = f"{sw_id_list},{one}"
-    data = await db.fetch(f"INSERT INTO payments (user_id, session_id, session_work_id, amount, currency, create_date) "
-                          f"VALUES ($1, $2, $3, $4, $5, $6) "
+    data = await db.fetch(f"INSERT INTO payments (user_id, session_id, session_work_id, amount, currency, intent, "
+                          f"create_date) VALUES ($1, $2, $3, $4, $5, $6, $7) "
                           f"ON CONFLICT DO NOTHING RETURNING *;", user_id, session_id, sw_id_list[1:], amount,
-                          currency, int(time.mktime(create_date.timetuple())))
+                          currency, intent, int(time.mktime(create_date.timetuple())))
     return data
 
 

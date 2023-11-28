@@ -202,6 +202,7 @@ async def create_payments_table(db):
  amount BIGINT DEFAULT 0,
  currency TEXT DEFAULT 'GBP',
  status TEXT DEFAULT 'create',
+ intent TEXT DEFAULT '0',
  pay_date BIGINT DEFAULT 0,
  create_date BIGINT DEFAULT 0
  )''')
