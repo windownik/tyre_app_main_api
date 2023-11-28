@@ -370,6 +370,20 @@ async def read_all(db: Depends, table: str, order: str):
     return data
 
 
+async def read_all_offset(db: Depends, table: str, order: str, limit: int, offset: int,):
+    """Получаем актуальные данные"""
+    data = await db.fetch(f"SELECT * FROM {table} ORDER BY {order} LIMIT {limit} OFFSET {offset};", )
+    return data
+
+
+async def read_data_offset(db: Depends, table: str, order: str, limit: int, offset: int, id_name: str,
+                           id_data: str | int):
+    """Получаем актуальные данные"""
+    data = await db.fetch(f"SELECT * FROM {table} WHERE {id_name} = $1 ORDER BY {order} "
+                          f"LIMIT {limit} OFFSET {offset};", id_data)
+    return data
+
+
 # Удаляем токены
 async def delete_old_tokens(db: Depends):
     now = datetime.datetime.now()

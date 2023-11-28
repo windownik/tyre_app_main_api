@@ -26,7 +26,6 @@ ip_auth_port = os.environ.get("PORT_AUTH_SERVER")
 auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 str_secret = os.environ.get("STRIPE_SECRET")
-# str_secret = "sk_test_51O2alEFxYpxLheef0ZI9Vo0a4FVY1iDuTMRmooyQzS9X2h2B9GkjyRL31RRYQoOM5ItSv0cqLyrIxdlvsDd8IRM3004cnfmqXI"
 
 stripe.api_key = str_secret
 
