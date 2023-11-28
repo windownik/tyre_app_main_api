@@ -219,7 +219,7 @@ class Payment(BaseModel):
     pay_id: int
     user_id: int
     session_id: int
-    session_work_id: int
+    session_work_id: str
     worker_id: int
     contractor_id: int
     amount: int
