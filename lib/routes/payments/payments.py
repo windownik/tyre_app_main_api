@@ -11,7 +11,6 @@ from lib.response_examples import *
 from lib.sql_create_tables import data_b, app
 import stripe
 
-
 ip_server = os.environ.get("IP_SERVER")
 ip_port = os.environ.get("PORT_SERVER")
 
@@ -24,11 +23,12 @@ ip_auth_port = os.environ.get("PORT_AUTH_SERVER")
 auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 str_secret = os.environ.get("STRIPE_SECRET")
+# str_secret = "sk_test_51O2alEFxYpxLheef0ZI9Vo0a4FVY1iDuTMRmooyQzS9X2h2B9GkjyRL31RRYQoOM5ItSv0cqLyrIxdlvsDd8IRM3004cnfmqXI"
 
 stripe.api_key = str_secret
 
 
-@app.post(path='/payment', tags=['Payment'], responses=get_user_res)
+@app.post(path='/payment', tags=['Payment'], responses=create_payment_res)
 async def create_new_payment(access_token: str, session_id: int, sw_id_list: list, currency: str = "GBP",
                              db=Depends(data_b.connection)):
     """Create new payment for session. Amount calculated from every price of service session work (sw_id_list) """
@@ -51,9 +51,11 @@ async def create_new_payment(access_token: str, session_id: int, sw_id_list: lis
     for one in ss_work_data:
         amount += one["price"]
 
-    payment_intent = create_payment_stripe(amount)
+    pay = create_payment_stripe(amount)
     pay_data = await conn.create_payment(db=db, user_id=user_id, session_id=session_id, amount=amount,
-                                         session_work_id=sw_id_list,currency=currency, intent=payment_intent)
+                                         session_work_id=sw_id_list, currency=currency, intent=pay.client_secret,
+                                         pay_id=pay.id)
+
     payment: Payment = Payment.parse_obj(pay_data[0])
     return JSONResponse(content={"ok": True,
                                  "payment": payment.dict(),
@@ -80,7 +82,7 @@ async def get_payments_list(access_token: str, payment_id: int = 0, session_id: 
             "ok": False,
             "description": "Wrong session_id and payment_id. Only one of them should be 0",
         },
-                            status_code=_status.HTTP_400_BAD_REQUEST)
+            status_code=_status.HTTP_400_BAD_REQUEST)
 
     pay_list = []
     for one in pay_data:
@@ -102,7 +104,7 @@ async def get_payments_list(access_token: str, payment_id: int = 0, db=Depends(d
         return JSONResponse(content=res.json(),
                             status_code=status_code)
     pay_data = await conn.read_data(db=db, id_name="pay_id", id_data=payment_id, table='payments')
-    res = stripe.PaymentIntent.confirm(pay_data[0]["intent"])
+    res = stripe.PaymentIntent.retrieve(pay_data[0]["stripe_id"])
     return JSONResponse(content={"ok": True,
                                  "status": res.status,
                                  },
@@ -110,11 +112,12 @@ async def get_payments_list(access_token: str, payment_id: int = 0, db=Depends(d
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-def create_payment_stripe(amount: int) -> str:
+def create_payment_stripe(amount: int, ):
     res = stripe.PaymentIntent.create(
         amount=amount,
-        currency="usd",
+        currency="gbp",
         automatic_payment_methods={"enabled": True},
     )
-    return res.client_secret
+    return res
+
 

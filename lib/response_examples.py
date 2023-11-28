@@ -377,3 +377,30 @@ send_push_res = {
         }
     },
 }
+
+create_payment_res = {
+    200: {
+        "description": "Success",
+        "content": {
+            "application/json": {
+                "examples": {
+                    "odd": {
+                        "summary": "Success",
+                        "value": {'ok': True, "payment": {
+                            "pay_id": 1,
+                            "user_id": 3,
+                            "session_id": 2,
+                            "session_work_id": 2,
+                            "worker_id": 0,
+                            "contractor_id": 0,
+                            "status": "create",
+                            "intent": "wofn383c93ucn3ucniwuen",
+                            "pay_date": 0,
+                            "create_date": 1701154844
+                        }}
+                    },
+                }
+            }
+        }
+    },
+}

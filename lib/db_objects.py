@@ -222,7 +222,8 @@ class Payment(BaseModel):
     session_work_id: int
     worker_id: int
     contractor_id: int
-    status: str
+    client_secret: str
+    stripe_id: str
     intent: str
     pay_date: int
     create_date: int
