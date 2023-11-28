@@ -297,11 +297,12 @@ async def get_workers_by_set(db: Depends, set_id: set, ):
     return data
 
 
-async def get_ss_work_list_by_set(db: Depends, ss_work_id: list[int], ):
+async def get_ss_work_list_by_set(db: Depends, ss_work_id: list, ):
     """Get services_session_works by token and device id"""
     sql_id = ""
     for i in ss_work_id:
-        sql_id = f"{sql_id} sw_id={i} OR"
+        if i in (1, 2, 3, 4, 5, 6, 7, 8, 9):
+            sql_id = f"{sql_id} sw_id={i} OR"
     sql_id = sql_id[0: -3]
     data = await db.fetch(f"SELECT * FROM session_works WHERE{sql_id};")
     return data
