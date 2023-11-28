@@ -1,4 +1,7 @@
+import datetime
 import os
+import time
+
 import requests
 
 import starlette.status as _status
@@ -105,6 +108,13 @@ async def get_payments_list(access_token: str, payment_id: int = 0, db=Depends(d
                             status_code=status_code)
     pay_data = await conn.read_data(db=db, id_name="pay_id", id_data=payment_id, table='payments')
     res = stripe.PaymentIntent.retrieve(pay_data[0]["stripe_id"])
+    if res.status == "succeeded":
+        await conn.update_inform(db=db, table="payments", name="status", data="paid", id_name="pay_id",
+                                 id_data=payment_id)
+        create_date = datetime.datetime.now()
+        create_date = int(time.mktime(create_date.timetuple()))
+        await conn.update_inform(db=db, table="payments", name="pay_date", data=create_date, id_name="pay_id",
+                                 id_data=payment_id)
     return JSONResponse(content={"ok": True,
                                  "status": res.status,
                                  },
@@ -119,5 +129,3 @@ def create_payment_stripe(amount: int, ):
         automatic_payment_methods={"enabled": True},
     )
     return res
-
-
