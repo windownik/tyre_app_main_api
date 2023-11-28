@@ -29,7 +29,7 @@ stripe.api_key = str_secret
 
 
 @app.post(path='/payment', tags=['Payment'], responses=create_payment_res)
-async def create_new_payment(access_token: str, session_id: int, sw_id_list: list, currency: str = "GBP",
+async def create_new_payment(access_token: str, session_id: int, sw_id_list: str, currency: str = "GBP",
                              db=Depends(data_b.connection)):
     """Create new payment for session. Amount calculated from every price of service session work (sw_id_list) """
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
@@ -45,7 +45,7 @@ async def create_new_payment(access_token: str, session_id: int, sw_id_list: lis
         return JSONResponse(content={"ok": False,
                                      'description': "Error with login account",
                                      }, status_code=400)
-
+    sw_id_list = sw_id_list.split(", ")
     ss_work_data = await conn.get_ss_work_list_by_set(ss_work_id=sw_id_list, db=db)
     amount = 0
     for one in ss_work_data:
