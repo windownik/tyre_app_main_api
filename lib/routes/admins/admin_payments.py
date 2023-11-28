@@ -32,25 +32,23 @@ async def get_payments_list(access_token: str, page: int = 1, contractor_id: int
 
     if contractor_id != 0:
         payments_list = await conn.read_data_offset(table='payments', order="pay_id", limit=on_page,
-                                                    offset=(page + 1) * on_page, db=db, id_name="contractor_id",
+                                                    offset=(page - 1) * on_page, db=db, id_name="contractor_id",
                                                     id_data=contractor_id)
     elif worker_id != 0:
         payments_list = await conn.read_data_offset(table='payments', order="pay_id", limit=on_page,
-                                                    offset=(page + 1) * on_page, db=db, id_name="worker_id",
+                                                    offset=(page - 1) * on_page, db=db, id_name="worker_id",
                                                     id_data=worker_id)
     elif client_id != 0:
         payments_list = await conn.read_data_offset(table='payments', order="pay_id", limit=on_page,
-                                                    offset=(page + 1) * on_page, db=db, id_name="user_id",
+                                                    offset=(page - 1) * on_page, db=db, id_name="user_id",
                                                     id_data=client_id)
     else:
         payments_list = await conn.read_all_offset(table='payments', order="pay_id", limit=on_page,
-                                                   offset=(page + 1) * on_page, db=db)
-
-    crop_user_list = payments_list[page * on_page: (page + 1) * on_page]
+                                                   offset=(page - 1) * on_page, db=db)
 
     list_payments = []
     set_users = set()
-    for one in crop_user_list:
+    for one in payments_list:
         payment: Payment = Payment.parse_obj(one)
         list_payments.append(payment.dict())
 
