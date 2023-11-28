@@ -97,7 +97,7 @@ async def get_payments_list(access_token: str, payment_id: int = 0, session_id: 
 
 @app.get(path='/payment_status', tags=['Payment'], responses=get_user_res)
 async def get_payments_list(access_token: str, payment_id: int = 0, db=Depends(data_b.connection)):
-    """Get """
+    """Get payment_status"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
     if status_code != 200:
