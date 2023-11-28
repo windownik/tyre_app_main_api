@@ -115,6 +115,8 @@ async def get_payments_list(access_token: str, payment_id: int = 0, db=Depends(d
         create_date = int(time.mktime(create_date.timetuple()))
         await conn.update_inform(db=db, table="payments", name="pay_date", data=create_date, id_name="pay_id",
                                  id_data=payment_id)
+        await conn.update_inform(db=db, table="service_session", name="status", data="search", id_name="session_id",
+                                 id_data=pay_data[0]["session_id"])
     return JSONResponse(content={"ok": True,
                                  "status": res.status,
                                  },
