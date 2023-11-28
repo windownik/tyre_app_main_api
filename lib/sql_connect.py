@@ -350,7 +350,8 @@ async def read_review(db: Depends, session_id: int, ):
 
 async def read_service_session(db: Depends, client_id: int, ):
     """Получаем актуальные события"""
-    data = await db.fetch(f"SELECT * FROM service_session WHERE client_id = $1 AND status = 'active' "
+    data = await db.fetch(f"SELECT * FROM service_session WHERE client_id = $1 AND (status = 'active' "
+                          f"OR status = 'search') "
                           f"ORDER BY session_id;",
                           client_id)
     return data
