@@ -303,7 +303,10 @@ async def get_ss_work_list_by_set(db: Depends, ss_work_id: list, ):
     for i in ss_work_id:
         if i.isdigit():
             sql_id = f"{sql_id} sw_id={i} OR"
+
     sql_id = sql_id[0: -3]
+    print(sql_id)
+    print(sql_id)
     data = await db.fetch(f"SELECT * FROM session_works WHERE{sql_id};")
     return data
 
