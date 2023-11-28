@@ -131,7 +131,7 @@ async def create_payment(db: Depends, user_id: int, session_id: int, session_wor
     sw_id_list = ""
     for one in session_work_id:
         sw_id_list = f"{sw_id_list},{one}"
-    data = await db.fetch(f"INSERT INTO payment (user_id, session_id, session_work_id, amount, currency, create_date) "
+    data = await db.fetch(f"INSERT INTO payments (user_id, session_id, session_work_id, amount, currency, create_date) "
                           f"VALUES ($1, $2, $3, $4, $5, $6) "
                           f"ON CONFLICT DO NOTHING RETURNING *;", user_id, session_id, sw_id_list[1:], amount,
                           currency, int(time.mktime(create_date.timetuple())))
