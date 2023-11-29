@@ -47,15 +47,15 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
 
         list_active_ss.append(await active_ss.to_json(db=db, session_work_list=[]))
 
-    contractor_data = await conn.read_data(db=db, table="contractor", id_name="owner_id", id_data=worker.user_id)
-    res = {"ok": True,
-           'worker': worker.dict(),
-           "active_ss": list_active_ss}
-    if contractor_data:
-        contractor: Contractor = Contractor.parse_obj(contractor_data[0])
-        res["contractor"] = contractor.dict()
+    contractor_data = await conn.read_data(db=db, table="contractor", id_name="contractor_id",
+                                           id_data=worker.contractor_id)
+    contractor: Contractor = Contractor.parse_obj(contractor_data[0])
 
-    return JSONResponse(content=res,
+    return JSONResponse(content={"ok": True,
+                                 'worker': worker.dict(),
+                                 "active_ss": list_active_ss,
+                                 "contractor": contractor.dict()
+                                 },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
 
