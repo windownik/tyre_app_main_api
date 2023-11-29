@@ -58,3 +58,12 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
     return JSONResponse(content=res,
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
+
+
+async def check_owner_pro(db: Depends, worker_id: int, contractor_id) -> bool:
+    """check worker for ownership of contractor with contractor_id"""
+    conn_data = await conn.read_data(table="contractor", id_name="contractor_id", id_data=contractor_id, db=db)
+    for one in conn_data:
+        if one["owner_id"] == worker_id:
+            return True
+    return False
