@@ -23,7 +23,7 @@ ip_auth_port = os.environ.get("PORT_AUTH_SERVER")
 auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 
-@app.get(path='/service_session_pro', tags=['Service session'], responses=get_login_res)
+@app.get(path='/service_session_pro', tags=['Pro Service session'], responses=get_login_res)
 async def get_all_service_session_for_pro(access_token: str, contractor_id: int = 0, db=Depends(data_b.connection)):
     """Get service_session by service_session_id"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
