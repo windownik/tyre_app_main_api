@@ -8,7 +8,7 @@ from lib.response_examples import *
 from lib.routes.admins.admin_routes import check_admin, on_page
 from lib.sql_create_tables import data_b, app
 from lib import sql_connect as conn
-from lib.db_objects import Payment, User
+from lib.db_objects import Payment, User, Worker
 
 ip_server = os.environ.get("IP_SERVER")
 ip_port = os.environ.get("PORT_SERVER")
@@ -52,11 +52,12 @@ async def get_payments_list(access_token: str, page: int = 1, contractor_id: int
 
     list_payments = []
     set_users = set()
+    set_workers = set()
     for one in payments_list:
         payment: Payment = Payment.parse_obj(one)
         list_payments.append(payment.dict())
 
-        set_users.add(payment.worker_id)
+        set_workers.add(payment.worker_id)
         set_users.add(payment.user_id)
 
     list_user = []
@@ -67,9 +68,18 @@ async def get_payments_list(access_token: str, page: int = 1, contractor_id: int
             user: User = User.parse_obj(one)
             list_user.append(user.dict())
 
+    list_workers = []
+    if len(set_workers) != 0:
+        crop_user_list = await conn.get_workers_by_set(db=db, set_id=set_workers)
+
+        for one in crop_user_list:
+            worker: Worker = Worker.parse_obj(one)
+            list_workers.append(worker.dict())
+
     return JSONResponse(content={"ok": True,
                                  "payment_list": list_payments,
-                                 "users": list_user
+                                 "users": list_user,
+                                 "workers": list_workers
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
