@@ -244,4 +244,5 @@ class Withdrawal(BaseModel):
     sort_code: str
     post_code: str
     beneficiary_name: str
+    confirm_date: int
     create_date: int
