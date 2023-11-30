@@ -420,13 +420,13 @@ async def read_service_session_archive(db: Depends, contractor_id: int, worker_i
 
 async def count_service_session_archive(db: Depends, contractor_id: int, worker_id: int,):
     """Get all sessions with filters"""
-    sql = "contractor_id"
-    if worker_id != 0:
+    sql = "worker_id"
+    if contractor_id != 0:
         sql = "contractor_id"
-        contractor_id = worker_id
+        worker_id = contractor_id
 
     data = await db.fetch(f"SELECT COUNT(*) FROM service_session WHERE {sql} = $1;",
-                          contractor_id,)
+                          worker_id,)
     return data
 
 
