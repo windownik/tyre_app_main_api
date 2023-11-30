@@ -384,6 +384,16 @@ async def read_data_offset(db: Depends, table: str, order: str, limit: int, offs
     return data
 
 
+async def read_worker_payments(db: Depends, worker_id: int):
+    """Read workers payments with date filter"""
+    data = await db.fetch(f"SELECT payments.* FROM payments JOIN service_session "
+                          f"ON payments.session_id = service_session.session_id "
+                          f"WHERE service_session.status = 'success' "
+                          f"AND payments.worker_id = $1 AND payments.withdrawal_id = 0"
+                          f"ORDER BY payments.pay_id;", worker_id)
+    return data
+
+
 # Удаляем токены
 async def delete_old_tokens(db: Depends):
     now = datetime.datetime.now()
