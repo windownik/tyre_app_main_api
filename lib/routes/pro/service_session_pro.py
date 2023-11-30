@@ -25,8 +25,9 @@ auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
 
 @app.get(path='/service_session_pro', tags=['Pro Service session'], responses=get_login_res)
-async def get_all_service_session_for_pro(access_token: str, contractor_id: int = 0, db=Depends(data_b.connection)):
-    """Get service_session by service_session_id"""
+async def get_all_service_session_for_pro(access_token: str, contractor_id: int = 0, worker_id: int = 0,
+                                          db=Depends(data_b.connection)):
+    """Get all service sessions in contractor or made by worker. This route only for contractor's owners"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
     if status_code == 200:
@@ -41,7 +42,8 @@ async def get_all_service_session_for_pro(access_token: str, contractor_id: int 
                                 status_code=_status.HTTP_400_BAD_REQUEST)
         service_data = await conn.owner_read_ss(db=db, id_name='contractor_id', id_data=contractor_id)
     else:
-        service_data = await conn.owner_read_ss(db=db, id_name='worker_id', id_data=user_id)
+        service_data = await conn.owner_read_ss(db=db, id_name='worker_id',
+                                                id_data=user_id if worker_id == 0 else worker_id)
 
     list_s_s = []
     for one in service_data:
@@ -79,7 +81,8 @@ async def get_all_service_session_for_pro(access_token: str, contractor_id: int 
 
 
 @app.get(path='/pro_ss_archive', tags=['Pro Service session'], responses=get_login_res)
-async def get_all_service_session_in_archive(access_token: str, page: int = 1, contractor_id: int = 0, db=Depends(data_b.connection)):
+async def get_all_service_session_in_archive(access_token: str, page: int = 1, contractor_id: int = 0,
+                                             db=Depends(data_b.connection)):
     """Get worker's or contractors service sessions for archive"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
@@ -91,10 +94,11 @@ async def get_all_service_session_in_archive(access_token: str, page: int = 1, c
     if contractor_id != 0:
         check = await check_owner_pro(db=db, worker_id=user_id, contractor_id=contractor_id)
         if not check:
-            return JSONResponse(content="Haven't enough rights",
+            return JSONResponse(content={"ok": False, "description": "Haven't enough rights"},
                                 status_code=_status.HTTP_400_BAD_REQUEST)
 
-    ss_all = await conn.read_service_session_archive(db=db, worker_id=user_id, offset=(page-1)*on_page, limit=on_page,
+    ss_all = await conn.read_service_session_archive(db=db, worker_id=user_id, offset=(page - 1) * on_page,
+                                                     limit=on_page,
                                                      contractor_id=contractor_id)
     total_count = await conn.count_service_session_archive(db=db, worker_id=user_id, contractor_id=contractor_id)
     ss_list_all = []
@@ -105,6 +109,43 @@ async def get_all_service_session_in_archive(access_token: str, page: int = 1, c
     return JSONResponse(content={"ok": True,
                                  "total_count": total_count[0][0],
                                  "list_service_session": ss_list_all,
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.put(path='/pro_session_status', tags=['Pro Service session'], responses=get_login_res)
+async def worker_work_in_service_session(access_token: str, session_id: int,
+                                         start_work: bool = False,
+                                         finish_work: bool = False,
+                                         in_service_work: bool = False,
+                                         db=Depends(data_b.connection)):
+    """Worker update status of service session"""
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    status_code = res.status_code
+    if status_code != 200:
+        return JSONResponse(content=res.json(),
+                            status_code=status_code)
+    ss_data = await conn.read_data(db=db, table="service_session", id_data=session_id, id_name="session_id")
+    if not ss_data:
+        return JSONResponse(content={"ok": False, "description": "Bad session_id"},
+                            status_code=_status.HTTP_400_BAD_REQUEST)
+
+    if start_work and not finish_work and not in_service_work:
+        status = "in work"
+    elif not start_work and finish_work and not in_service_work:
+        status = "success"
+    elif not start_work and not finish_work and in_service_work:
+        status = "in_service"
+    else:
+        return JSONResponse(content={"ok": False, "description": "Bad start_work and finish_work and in_service_work "
+                                                                 "flags"},
+                            status_code=_status.HTTP_400_BAD_REQUEST)
+
+    await conn.update_inform(db=db, table="service_session", id_name="session_id", id_data=session_id, name='status',
+                             data=status)
+    return JSONResponse(content={"ok": True,
+                                 "description": "Successful updating"
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})

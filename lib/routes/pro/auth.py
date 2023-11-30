@@ -40,7 +40,7 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
                             status_code=500)
     worker: Worker = Worker.parse_obj(user_data[0])
 
-    workers_ss = await conn.read_workers_ss(db=db, worker_id=worker.user_id)
+    workers_ss = await conn.owner_read_ss(db=db, id_data=worker.user_id, id_name="worker_id")
     list_active_ss = []
     for one in workers_ss:
         active_ss: ServiceSession = ServiceSession.parse_obj(one)
