@@ -8,6 +8,7 @@ from lib.db_objects import ServiceSession, Payment
 
 from lib import sql_connect as conn
 from lib.response_examples import *
+from lib.routes.admins.admin_routes import on_page
 from lib.routes.pro.auth import check_owner_pro
 from lib.sql_create_tables import data_b, app
 
@@ -38,9 +39,11 @@ async def get_all_service_session_for_pro(access_token: str, contractor_id: int 
         if not check:
             return JSONResponse(content="Haven't enough rights",
                                 status_code=_status.HTTP_400_BAD_REQUEST)
-        service_data = await conn.read_data(db=db, table='service_session', id_name='contractor_id', id_data=contractor_id)
+        service_data = await conn.read_data(db=db, table='service_session', id_name='contractor_id',
+                                            id_data=contractor_id, order=" ORDER BY session_id DESC")
     else:
-        service_data = await conn.read_data(db=db, table='service_session', id_name='worker_id', id_data=user_id)
+        service_data = await conn.read_data(db=db, table='service_session', id_name='worker_id', id_data=user_id,
+                                            order=" ORDER BY session_id DESC")
 
     list_s_s = []
     for one in service_data:
@@ -64,10 +67,7 @@ async def get_all_service_session_for_pro(access_token: str, contractor_id: int 
     else:
         return JSONResponse(content=res.json(),
                             status_code=status_code)
-    if contractor_id != 0:
-        pay_data_all = await conn.read_worker_payments(db=db, worker_id=user_id)
-    else:
-        pay_data_all = await conn.read_worker_payments(db=db, worker_id=user_id)
+    pay_data_all = await conn.read_worker_payments(db=db, worker_id=user_id, contractor_id=contractor_id)
     pay_list_all = []
     for one in pay_data_all:
         payment: Payment = Payment.parse_obj(one)
@@ -80,3 +80,33 @@ async def get_all_service_session_for_pro(access_token: str, contractor_id: int 
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
+@app.get(path='/pro_ss_archive', tags=['Pro Service session'], responses=get_login_res)
+async def get_all_service_session_in_archive(access_token: str, page: int = 1, contractor_id: int = 0, db=Depends(data_b.connection)):
+    """Get worker's or contractors service sessions for archive"""
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    status_code = res.status_code
+    if status_code == 200:
+        user_id = res.json()['user_id']
+    else:
+        return JSONResponse(content=res.json(),
+                            status_code=status_code)
+    if contractor_id != 0:
+        check = await check_owner_pro(db=db, worker_id=user_id, contractor_id=contractor_id)
+        if not check:
+            return JSONResponse(content="Haven't enough rights",
+                                status_code=_status.HTTP_400_BAD_REQUEST)
+
+    ss_all = await conn.read_service_session_archive(db=db, worker_id=user_id, offset=(page-1)*on_page, limit=on_page,
+                                                     contractor_id=contractor_id)
+    total_count = await conn.count_service_session_archive(db=db, worker_id=user_id, contractor_id=contractor_id)
+    ss_list_all = []
+    for one in ss_all:
+        session: ServiceSession = ServiceSession.parse_obj(one)
+        ss_list_all.append(await session.to_json(db=db, session_work_list=[]))
+
+    return JSONResponse(content={"ok": True,
+                                 "total_count": total_count[0][0],
+                                 "list_service_session": ss_list_all,
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})

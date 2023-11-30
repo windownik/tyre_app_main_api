@@ -386,11 +386,40 @@ async def read_data_offset(db: Depends, table: str, order: str, limit: int, offs
 
 async def read_worker_payments(db: Depends, worker_id: int, contractor_id: int = 0):
     """Read workers payments with date filter"""
+    sql = "worker_id"
+    if contractor_id != 0:
+        sql = "contractor_id"
+        worker_id = contractor_id
     data = await db.fetch(f"SELECT payments.* FROM payments JOIN service_session "
                           f"ON payments.session_id = service_session.session_id "
                           f"WHERE service_session.status = 'success' "
-                          f"AND payments.worker_id = $1 AND payments.withdrawal_id = 0"
+                          f"AND payments.{sql} = $1 AND payments.withdrawal_id = 0"
                           f"ORDER BY payments.pay_id;", worker_id)
+    return data
+
+
+async def read_service_session_archive(db: Depends, contractor_id: int, worker_id: int, offset: int, limit: int,):
+    """Get all sessions with filters"""
+    sql = "worker_id"
+    if contractor_id != 0:
+        sql = "contractor_id"
+        worker_id = contractor_id
+
+    data = await db.fetch(f"SELECT * FROM service_session WHERE {sql} = $1 "
+                          f"ORDER BY session_id DESC OFFSET $2 LIMIT $3;",
+                          worker_id, offset, limit)
+    return data
+
+
+async def count_service_session_archive(db: Depends, contractor_id: int, worker_id: int,):
+    """Get all sessions with filters"""
+    sql = "contractor_id"
+    if worker_id != 0:
+        sql = "contractor_id"
+        contractor_id = worker_id
+
+    data = await db.fetch(f"SELECT COUNT(*) FROM service_session WHERE {sql} = $1;",
+                          contractor_id,)
     return data
 
 
