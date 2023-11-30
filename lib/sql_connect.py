@@ -257,7 +257,7 @@ async def read_workers_for_push(db: Depends, name: str = '*'):
 
 
 async def owner_read_ss(db: Depends, id_name: str, id_data):
-    """Получаем актуальные события"""
+    """Get all active workers sessions with filter """
     data = await db.fetch(f"SELECT * FROM service_session WHERE {id_name} = $1 "
                           f"AND (status = 'delivery' OR status = 'in work') ORDER BY session_id DESC;", id_data)
     return data
@@ -333,7 +333,7 @@ async def read_admin_ss(db: Depends):
 async def read_workers_ss(db: Depends, worker_id: int):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT * FROM service_session WHERE worker_id = $1 "
-                          f"AND (status = 'delivery' OR status = 'work') "
+                          f"AND (status = 'delivery' OR status = 'in work') "
                           f"ORDER BY session_id DESC;", worker_id)
     return data
 
