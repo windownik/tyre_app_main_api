@@ -55,7 +55,7 @@ async def get_all_service_session_for_pro(access_token: str, contractor_id: int 
 
 
 @app.get(path='/pro_payments_statistic', tags=['Pro Service session'], responses=get_login_res)
-async def get_all_service_session_for_pro(access_token: str, db=Depends(data_b.connection)):
+async def get_all_service_session_for_pro(access_token: str, contractor_id: int = 0, db=Depends(data_b.connection)):
     """Get worker's payment statistic all payments without withdrawal"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
@@ -64,15 +64,17 @@ async def get_all_service_session_for_pro(access_token: str, db=Depends(data_b.c
     else:
         return JSONResponse(content=res.json(),
                             status_code=status_code)
-
-    pay_data_all = await conn.read_worker_payments(db=db, worker_id=user_id)
+    if contractor_id != 0:
+        pay_data_all = await conn.read_worker_payments(db=db, worker_id=user_id)
+    else:
+        pay_data_all = await conn.read_worker_payments(db=db, worker_id=user_id)
     pay_list_all = []
     for one in pay_data_all:
         payment: Payment = Payment.parse_obj(one)
         pay_list_all.append(payment.dict())
 
     return JSONResponse(content={"ok": True,
-                                 "payment_list_all": pay_list_all,
+                                 "payment_list": pay_list_all,
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})

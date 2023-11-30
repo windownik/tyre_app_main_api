@@ -384,7 +384,7 @@ async def read_data_offset(db: Depends, table: str, order: str, limit: int, offs
     return data
 
 
-async def read_worker_payments(db: Depends, worker_id: int):
+async def read_worker_payments(db: Depends, worker_id: int, contractor_id: int = 0):
     """Read workers payments with date filter"""
     data = await db.fetch(f"SELECT payments.* FROM payments JOIN service_session "
                           f"ON payments.session_id = service_session.session_id "
