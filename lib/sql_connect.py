@@ -256,6 +256,13 @@ async def read_workers_for_push(db: Depends, name: str = '*'):
     return data
 
 
+async def owner_read_ss(db: Depends, id_name: str, id_data):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"SELECT * FROM service_session WHERE {id_name} = $1 "
+                          f"AND (status = 'delivery' OR status = 'in work') ORDER BY session_id DESC;", id_data)
+    return data
+
+
 async def read_users(db: Depends, ):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT * FROM users "

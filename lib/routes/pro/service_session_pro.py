@@ -39,11 +39,9 @@ async def get_all_service_session_for_pro(access_token: str, contractor_id: int 
         if not check:
             return JSONResponse(content="Haven't enough rights",
                                 status_code=_status.HTTP_400_BAD_REQUEST)
-        service_data = await conn.read_data(db=db, table='service_session', id_name='contractor_id',
-                                            id_data=contractor_id, order=" ORDER BY session_id DESC")
+        service_data = await conn.owner_read_ss(db=db, id_name='contractor_id', id_data=contractor_id)
     else:
-        service_data = await conn.read_data(db=db, table='service_session', id_name='worker_id', id_data=user_id,
-                                            order=" ORDER BY session_id DESC")
+        service_data = await conn.owner_read_ss(db=db, id_name='worker_id', id_data=user_id)
 
     list_s_s = []
     for one in service_data:
