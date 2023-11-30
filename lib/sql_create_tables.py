@@ -200,10 +200,28 @@ async def create_payments_table(db):
  worker_id BIGINT DEFAULT 0,
  contractor_id BIGINT DEFAULT 0,
  amount BIGINT DEFAULT 0,
- currency TEXT DEFAULT 'GBP',
+ currency VARCHAR(20) DEFAULT 'GBP',
  status TEXT DEFAULT 'create',
  client_secret TEXT DEFAULT '0',
  stripe_id TEXT DEFAULT '0',
+ withdrawal_id BIGINT DEFAULT 0,
  pay_date BIGINT DEFAULT 0,
  create_date BIGINT DEFAULT 0
+ )''')
+
+
+async def create_withdrawal_table(db):
+    await db.execute(f'''CREATE TABLE IF NOT EXISTS withdrawal (
+ withdrawal_id SERIAL PRIMARY KEY,
+ pay_id BIGINT DEFAULT 0,
+ contractor_id BIGINT DEFAULT 0,
+ admin_user_id BIGINT DEFAULT 0,
+ amount BIGINT DEFAULT 0,
+ currency VARCHAR(20) DEFAULT 'GBP',
+ acc_num TEXT DEFAULT '0',
+ vat_number TEXT DEFAULT '0',
+ sort_code TEXT DEFAULT '0',
+ post_code TEXT DEFAULT '0',
+ beneficiary_name TEXT DEFAULT '0',
+ create_date BIGINT
  )''')

@@ -227,5 +227,21 @@ class Payment(BaseModel):
     status: str
     client_secret: str
     stripe_id: str
+    withdrawal_id: int
     pay_date: int
+    create_date: int
+
+
+class Withdrawal(BaseModel):
+    withdrawal_id: int
+    pay_id: int
+    contractor_id: int
+    admin_user_id: int
+    amount: int
+    currency: str
+    acc_num: str
+    vat_number: str
+    sort_code: str
+    post_code: str
+    beneficiary_name: str
     create_date: int
