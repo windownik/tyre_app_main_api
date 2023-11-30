@@ -190,6 +190,7 @@ class ServiceSession(BaseModel):
     lat: float
     long: float
     address: str
+    bolt_key: bool
     create_date: int
 
     async def to_json(self, db: Depends, session_work_list: list):
