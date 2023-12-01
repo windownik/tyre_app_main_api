@@ -219,7 +219,7 @@ async def create_withdrawal_table(db):
  admin_user_id BIGINT DEFAULT 0,
  amount BIGINT DEFAULT 0,
  currency VARCHAR(20) DEFAULT 'GBP',
- confirm_date BIGINT,
+ confirm_date BIGINT DEFAULT 0,
  create_date BIGINT
  )''')
 

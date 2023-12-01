@@ -241,7 +241,6 @@ class Withdrawal(BaseModel):
     admin_user_id: int
     amount: int
     currency: str
-    acc_num: str
     confirm_date: int
     create_date: int
 
