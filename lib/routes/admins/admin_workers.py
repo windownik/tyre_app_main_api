@@ -102,6 +102,7 @@ async def create_worker_account(access_token: str, login: str, password: str, wo
     params = {
         "login": login,
         "password": password,
+        "app_name": "tyre_app_pro"
     }
     res = requests.post(f'{auth_url}/create_account_login', params=params)
     status_code = res.status_code

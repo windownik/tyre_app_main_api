@@ -69,6 +69,7 @@ async def create_account_user(phone: int, device_id: str, device_name: str, name
         "phone": phone,
         "device_id": device_id,
         "device_name": device_name,
+        "app_name": 'tyre_app'
     }
     res = requests.post(f'{auth_url}/create_account', params=params)
     status_code = res.status_code

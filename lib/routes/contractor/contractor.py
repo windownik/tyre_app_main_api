@@ -117,8 +117,8 @@ async def delete_or_activate_contractor(access_token: str, contractor_id: int, s
     """
     Admin delete or activate contractor by contractor_id
     """
-    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
-    if res.status_code != 200:
+    res = await check_admin(access_token=access_token, db=db)
+    if type(res) != int:
         return res
 
     contr_data = await conn.read_data(db=db, table='contractor', id_data=contractor_id, id_name="contractor_id")
