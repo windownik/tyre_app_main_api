@@ -38,8 +38,7 @@ async def create_new_payment(access_token: str, contractor_id: int, db=Depends(d
     if not payments_data:
         return JSONResponse(content={"ok": False, "description": "Haven't payments for withdrawal", }, status_code=400)
 
-    co_data = await conn.read_data(db=db, table="contractor", name="owner_id", id_name="contractor_id",
-                                   id_data=contractor_id)
+    co_data = await conn.read_data(db=db, table="contractor", id_name="contractor_id", id_data=contractor_id)
     co: Contractor = Contractor.parse_obj(co_data[0])
 
     wi_data = await conn.create_withdrawal_invoice(db=db, contractor_id=contractor_id, user_id=user_id,
