@@ -144,7 +144,7 @@ async def create_withdrawal_invoice(db: Depends, contractor_id: int, user_id: in
     """We create a new payment"""
     create_date = datetime.datetime.now()
     data = await db.fetch(f"INSERT INTO withdrawal_invoice (user_id, contractor_id, acc_num, vat_number, sort_code, "
-                          f"post_code, beneficiary_name, create_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8,) "
+                          f"post_code, beneficiary_name, create_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) "
                           f"ON CONFLICT DO NOTHING RETURNING *;", user_id, contractor_id, acc_num, vat_number,
                           sort_code, post_code, beneficiary_name, int(time.mktime(create_date.timetuple())))
     return data
