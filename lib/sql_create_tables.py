@@ -214,10 +214,22 @@ async def create_withdrawal_table(db):
     await db.execute(f'''CREATE TABLE IF NOT EXISTS withdrawal (
  withdrawal_id SERIAL PRIMARY KEY,
  pay_id BIGINT DEFAULT 0,
+ wi_id BIGINT DEFAULT 0,
  contractor_id BIGINT DEFAULT 0,
  admin_user_id BIGINT DEFAULT 0,
  amount BIGINT DEFAULT 0,
  currency VARCHAR(20) DEFAULT 'GBP',
+ confirm_date BIGINT,
+ create_date BIGINT
+ )''')
+
+
+async def create_withdrawal_invoice_table(db):
+    await db.execute(f'''CREATE TABLE IF NOT EXISTS withdrawal_invoice (
+ wi_id SERIAL PRIMARY KEY,
+ user_id BIGINT DEFAULT 0,
+ contractor_id BIGINT DEFAULT 0,
+ admin_user_id BIGINT DEFAULT 0,
  acc_num TEXT DEFAULT '0',
  vat_number TEXT DEFAULT '0',
  sort_code TEXT DEFAULT '0',

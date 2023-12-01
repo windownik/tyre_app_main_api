@@ -139,6 +139,27 @@ async def create_payment(db: Depends, user_id: int, session_id: int, session_wor
     return data
 
 
+async def create_withdrawal_invoice(db: Depends, contractor_id: int, user_id: int, acc_num: str, vat_number: str,
+                                    sort_code: str, post_code: str, beneficiary_name: str):
+    """We create a new payment"""
+    create_date = datetime.datetime.now()
+    data = await db.fetch(f"INSERT INTO withdrawal_invoice (user_id, contractor_id, acc_num, vat_number, sort_code, "
+                          f"post_code, beneficiary_name, create_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8,) "
+                          f"ON CONFLICT DO NOTHING RETURNING *;", user_id, contractor_id, acc_num, vat_number,
+                          sort_code, post_code, beneficiary_name, int(time.mktime(create_date.timetuple())))
+    return data
+
+
+async def create_withdrawal(db: Depends, wi_id: int, pay_id: int, contractor_id: int, amount: int, currency: str):
+    """We create a new payment"""
+    create_date = datetime.datetime.now()
+    data = await db.fetch(f"INSERT INTO withdrawal (pay_id, wi_id, contractor_id, amount, currency, create_date) "
+                          f"VALUES ($1, $2, $3, $4, $5, $6) "
+                          f"ON CONFLICT DO NOTHING RETURNING *;", pay_id, wi_id, contractor_id, amount,
+                          currency, int(time.mktime(create_date.timetuple())))
+    return data
+
+
 async def get_user_id(db: Depends, token_type: str, token: str, device_id: str):
     """Get user_id by token and device id"""
     now = datetime.datetime.now()
@@ -273,6 +294,15 @@ async def read_users(db: Depends, ):
     return data
 
 
+async def read_payments_for_withdrawal(db: Depends, contractor_id: int):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"SELECT * FROM payments "
+                          f"WHERE contractor_id = $1 "
+                          f"AND status = 'paid' "
+                          f"AND withdrawal_id = 0;", contractor_id)
+    return data
+
+
 async def read_workers(db: Depends, ):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT workers.*, contractor.co_name "
@@ -377,7 +407,7 @@ async def read_all(db: Depends, table: str, order: str):
     return data
 
 
-async def read_all_offset(db: Depends, table: str, order: str, limit: int, offset: int,):
+async def read_all_offset(db: Depends, table: str, order: str, limit: int, offset: int, ):
     """Получаем актуальные данные"""
     data = await db.fetch(f"SELECT * FROM {table} ORDER BY {order} LIMIT {limit} OFFSET {offset};", )
     return data
@@ -405,7 +435,7 @@ async def read_worker_payments(db: Depends, worker_id: int, contractor_id: int =
     return data
 
 
-async def read_service_session_archive(db: Depends, contractor_id: int, worker_id: int, offset: int, limit: int,):
+async def read_service_session_archive(db: Depends, contractor_id: int, worker_id: int, offset: int, limit: int, ):
     """Get all sessions with filters"""
     sql = "worker_id"
     if contractor_id != 0:
@@ -418,7 +448,7 @@ async def read_service_session_archive(db: Depends, contractor_id: int, worker_i
     return data
 
 
-async def count_service_session_archive(db: Depends, contractor_id: int, worker_id: int,):
+async def count_service_session_archive(db: Depends, contractor_id: int, worker_id: int, ):
     """Get all sessions with filters"""
     sql = "worker_id"
     if contractor_id != 0:
@@ -426,7 +456,7 @@ async def count_service_session_archive(db: Depends, contractor_id: int, worker_
         worker_id = contractor_id
 
     data = await db.fetch(f"SELECT COUNT(*) FROM service_session WHERE {sql} = $1;",
-                          worker_id,)
+                          worker_id, )
     return data
 
 

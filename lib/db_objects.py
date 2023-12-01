@@ -236,10 +236,21 @@ class Payment(BaseModel):
 class Withdrawal(BaseModel):
     withdrawal_id: int
     pay_id: int
+    wi_id: int
     contractor_id: int
     admin_user_id: int
     amount: int
     currency: str
+    acc_num: str
+    confirm_date: int
+    create_date: int
+
+
+class WithdrawalInvoice(BaseModel):
+    wi_id: int
+    user_id: int
+    contractor_id: int
+    admin_user_id: int
     acc_num: str
     vat_number: str
     sort_code: str
@@ -247,3 +258,14 @@ class Withdrawal(BaseModel):
     beneficiary_name: str
     confirm_date: int
     create_date: int
+
+    async def to_json(self, db: Depends, ) -> dict:
+        wi_data = await conn.read_data(db=db, id_name="wi_id", id_data=self.wi_id, table="withdrawal")
+        wi_list = []
+        for one in wi_data:
+            withdrawal: Withdrawal = Withdrawal.parse_obj(one)
+            wi_list.append(withdrawal.dict())
+
+        res = self.dict()
+        res["withdrawal_list"] = wi_list
+        return res

@@ -11,6 +11,7 @@ from starlette.responses import JSONResponse
 from lib import sql_connect as conn
 from lib.db_objects import Payment
 from lib.response_examples import *
+from lib.routes.admins.admin_routes import check_con_owner_or_admin
 from lib.sql_create_tables import data_b, app
 import stripe
 
@@ -68,7 +69,7 @@ async def create_new_payment(access_token: str, session_id: int, sw_id_list: str
 
 @app.get(path='/payment', tags=['Payment'], responses=get_user_res)
 async def get_payments_list(access_token: str, payment_id: int = 0, session_id: int = 0, db=Depends(data_b.connection)):
-    """Get """
+    """Get payments by payment_id or all payments for services session"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
     if status_code != 200:
@@ -88,6 +89,26 @@ async def get_payments_list(access_token: str, payment_id: int = 0, session_id: 
 
     pay_list = []
     for one in pay_data:
+        payment: Payment = Payment.parse_obj(one)
+        pay_list.append(payment.dict())
+    return JSONResponse(content={"ok": True,
+                                 "payment_list": pay_list,
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.get(path='/payment_withdrawal', tags=['Payment'], responses=get_user_res)
+async def get_payments_list_ready_for_withdrawal(access_token: str, contractor_id: int, db=Depends(data_b.connection)):
+    """Get payments list in contractor which ready for withdrawal"""
+    res = await check_con_owner_or_admin(access_token=access_token, co_id=contractor_id, db=db)
+    if type(res) != int:
+        return res
+
+    payments_data = await conn.read_payments_for_withdrawal(db=db, contractor_id=contractor_id)
+
+    pay_list = []
+    for one in payments_data:
         payment: Payment = Payment.parse_obj(one)
         pay_list.append(payment.dict())
     return JSONResponse(content={"ok": True,
