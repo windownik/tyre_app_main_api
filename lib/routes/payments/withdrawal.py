@@ -1,13 +1,11 @@
 import os
 
-import requests
-
 import starlette.status as _status
 from fastapi import Depends
 from starlette.responses import JSONResponse
 
 from lib import sql_connect as conn
-from lib.db_objects import Payment, Contractor, WithdrawalInvoice
+from lib.db_objects import Contractor, WithdrawalInvoice
 from lib.response_examples import *
 from lib.routes.admins.admin_routes import check_con_owner_or_admin
 from lib.sql_create_tables import data_b, app
@@ -58,37 +56,6 @@ async def create_new_payment(access_token: str, contractor_id: int, db=Depends(d
 
     return JSONResponse(content={"ok": True,
                                  "wi_invoice": await wi_invoice.to_json(db=db, ),
-                                 },
-                        status_code=_status.HTTP_200_OK,
-                        headers={'content-type': 'application/json; charset=utf-8'})
-
-
-@app.get(path='/payment', tags=['Payment'], responses=get_user_res)
-async def get_payments_list(access_token: str, payment_id: int = 0, session_id: int = 0, db=Depends(data_b.connection)):
-    """Get """
-    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
-    status_code = res.status_code
-    if status_code != 200:
-        return JSONResponse(content=res.json(),
-                            status_code=status_code)
-
-    if session_id != 0:
-        pay_data = await conn.read_data(db=db, id_name="session_id", id_data=session_id, table='payments')
-    elif payment_id != 0:
-        pay_data = await conn.read_data(db=db, id_name="pay_id", id_data=payment_id, table='payments')
-    else:
-        return JSONResponse(content={
-            "ok": False,
-            "description": "Wrong session_id and payment_id. Only one of them should be 0",
-        },
-            status_code=_status.HTTP_400_BAD_REQUEST)
-
-    pay_list = []
-    for one in pay_data:
-        payment: Payment = Payment.parse_obj(one)
-        pay_list.append(payment.dict())
-    return JSONResponse(content={"ok": True,
-                                 "payment_list": pay_list,
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
