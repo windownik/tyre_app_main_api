@@ -235,6 +235,6 @@ async def create_withdrawal_invoice_table(db):
  sort_code TEXT DEFAULT '0',
  post_code TEXT DEFAULT '0',
  beneficiary_name TEXT DEFAULT '0',
- confirm_date BIGINT,
- create_date BIGINT
+ confirm_date BIGINT DEFAULT 0,
+ create_date BIGINT DEFAULT 0
  )''')
