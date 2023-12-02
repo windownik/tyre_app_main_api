@@ -260,11 +260,12 @@ class WithdrawalInvoice(BaseModel):
 
     async def to_json(self, db: Depends, ) -> dict:
         wi_data = await conn.read_data(db=db, id_name="wi_id", id_data=self.wi_id, table="withdrawal")
-        wi_list = []
+        total_amount = 0
+        currency = "GBP"
         for one in wi_data:
-            withdrawal: Withdrawal = Withdrawal.parse_obj(one)
-            wi_list.append(withdrawal.dict())
-
+            total_amount += one["amount"]
+            currency = one["currency"]
         res = self.dict()
-        res["withdrawal_list"] = wi_list
+        res["amount"] = total_amount
+        res["currency"] = currency
         return res
