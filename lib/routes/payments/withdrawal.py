@@ -1,5 +1,6 @@
 import os
 
+import requests
 import starlette.status as _status
 from fastapi import Depends
 from starlette.responses import JSONResponse
@@ -55,6 +56,28 @@ async def create_new_payment(access_token: str, contractor_id: int, db=Depends(d
 
     return JSONResponse(content={"ok": True,
                                  "wi_invoice": await wi_invoice.to_json(db=db, ),
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.get(path='/withdrawal_invoice', tags=['Payment'], responses=create_payment_res)
+async def get_withdrawal_invoice(access_token: str, withdrawal_invoice_id: int, db=Depends(data_b.connection)):
+    """Get withdrawal invoice with withdrawal list"""
+
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    status_code = res.status_code
+    if status_code != 200:
+        return JSONResponse(content=res.json(),
+                            status_code=status_code)
+    wi_data = await conn.read_data(db=db, table="withdrawal_invoice", id_name="wi_id", id_data=withdrawal_invoice_id)
+
+    wi_invoice: WithdrawalInvoice = WithdrawalInvoice.parse_obj(wi_data[0])
+    wi_invoice, wi_list = await wi_invoice.to_json_with_withdrawals(db=db, )
+
+    return JSONResponse(content={"ok": True,
+                                 "wi_invoice": wi_invoice,
+                                 "withdrawal_list": wi_list
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
