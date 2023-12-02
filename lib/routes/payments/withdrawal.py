@@ -72,6 +72,10 @@ async def get_withdrawal_invoice(access_token: str, withdrawal_invoice_id: int, 
                             status_code=status_code)
     wi_data = await conn.read_data(db=db, table="withdrawal_invoice", id_name="wi_id", id_data=withdrawal_invoice_id)
 
+    user_id = await check_con_owner_or_admin(access_token=access_token, co_id=wi_data[0]["contractor_id"], db=db)
+    if type(user_id) != int:
+        return user_id
+
     wi_invoice: WithdrawalInvoice = WithdrawalInvoice.parse_obj(wi_data[0])
     wi_invoice, wi_list = await wi_invoice.to_json_with_withdrawals(db=db, )
 
