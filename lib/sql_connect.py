@@ -315,7 +315,7 @@ async def read_withdrawal_filter(db: Depends, where_data, where_name: str, offse
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT withdrawal.* FROM withdrawal "
                           f"JOIN payments ON withdrawal.pay_id = payments.pay_id "
-                          f"WHERE payments.{where_name} = $1 ORDER BY withdrawal_id DESC LIMIT {limit} OFFSET $2;",
+                          f"WHERE payments.{where_name} = $1 ORDER BY withdrawal_id DESC LIMIT $2 OFFSET $3;",
                           where_data, limit, offset)
     return data
 
