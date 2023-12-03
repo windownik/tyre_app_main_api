@@ -303,11 +303,29 @@ async def read_payments_for_withdrawal(db: Depends, contractor_id: int):
     return data
 
 
-async def read_users_withdrawal(db: Depends, worker_id: int):
+async def read_worker_withdrawal(db: Depends, worker_id: int):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT withdrawal.* FROM withdrawal "
                           f"JOIN payments ON withdrawal.pay_id = payments.pay_id "
                           f"WHERE payments.worker_id = $1;", worker_id)
+    return data
+
+
+async def read_withdrawal_filter(db: Depends, where_data, where_name: str, offset: int, limit: int):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"SELECT withdrawal.* FROM withdrawal "
+                          f"JOIN payments ON withdrawal.pay_id = payments.pay_id "
+                          f"WHERE payments.{where_name} = $1 ORDER BY withdrawal_id DESC LIMIT {limit} OFFSET $2;",
+                          where_data, limit, offset)
+    return data
+
+
+async def read_withdrawal_count(db: Depends, where_data, where_name: str):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"SELECT withdrawal.* FROM withdrawal "
+                          f"JOIN payments ON withdrawal.pay_id = payments.pay_id "
+                          f"WHERE payments.{where_name} = $1;",
+                          where_data)
     return data
 
 
@@ -421,11 +439,23 @@ async def read_all_offset(db: Depends, table: str, order: str, limit: int, offse
     return data
 
 
+async def read_all_count(db: Depends, table: str,):
+    """Получаем актуальные данные"""
+    data = await db.fetch(f"SELECT COUNT(*) FROM {table};",)
+    return data
+
+
 async def read_data_offset(db: Depends, table: str, order: str, limit: int, offset: int, id_name: str,
                            id_data: str | int):
     """Получаем актуальные данные"""
     data = await db.fetch(f"SELECT * FROM {table} WHERE {id_name} = $1 ORDER BY {order} "
                           f"LIMIT {limit} OFFSET {offset};", id_data)
+    return data
+
+
+async def read_data_count(db: Depends, table: str, id_name: str, id_data: str | int):
+    """Получаем актуальные данные"""
+    data = await db.fetch(f"SELECT COUNT(*) FROM {table} WHERE {id_name} = $1;", id_data)
     return data
 
 

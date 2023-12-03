@@ -95,7 +95,7 @@ async def get_withdrawal_invoice(access_token: str, worker_id: int = 0, contract
         user_id = await check_con_owner_or_admin(access_token=access_token, co_id=contractor_id, db=db)
         if type(user_id) != int:
             return user_id
-        wi_data = await conn.read_data(db=db, table="withdrawal_invoice", id_name="contractor_id",
+        wi_data = await conn.read_data(db=db, table="withdrawal", id_name="contractor_id",
                                        id_data=contractor_id)
     else:
         res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
@@ -106,7 +106,7 @@ async def get_withdrawal_invoice(access_token: str, worker_id: int = 0, contract
         if worker_id != 0:
             user_id = worker_id
 
-        wi_data = await conn.read_users_withdrawal(db=db, worker_id=user_id)
+        wi_data = await conn.read_worker_withdrawal(db=db, worker_id=user_id)
 
     wi_list = []
     for one in wi_data:

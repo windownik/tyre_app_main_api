@@ -8,7 +8,7 @@ from lib.response_examples import *
 from lib.routes.admins.admin_routes import check_admin, on_page
 from lib.sql_create_tables import data_b, app
 from lib import sql_connect as conn
-from lib.db_objects import Payment, User, Worker
+from lib.db_objects import Payment, User, Worker, Withdrawal
 
 ip_server = os.environ.get("IP_SERVER")
 ip_port = os.environ.get("PORT_SERVER")
@@ -80,6 +80,56 @@ async def get_payments_list(access_token: str, page: int = 1, contractor_id: int
                                  "payment_list": list_payments,
                                  "users": list_user,
                                  "workers": list_workers
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.get(path='/admin_withdrawal', tags=['Admin payment'], responses=get_user_res)
+async def get_payments_list(access_token: str, page: int = 1, contractor_id: int = 0, worker_id: int = 0,
+                            session_id: int = 0, client_id: int = 0, only_new: bool = False,
+                            db=Depends(data_b.connection)):
+    """Get all withdrawals admin"""
+    res = await check_admin(access_token=access_token, db=db)
+    if type(res) != int:
+        return res
+
+    if contractor_id != 0:
+        wi_data = await conn.read_data_offset(table='withdrawal', order="pay_id DESC", limit=on_page,
+                                              offset=(page - 1) * on_page, db=db, id_name="contractor_id",
+                                              id_data=contractor_id)
+        count = await conn.read_data_count(table='withdrawal', db=db, id_name="contractor_id", id_data=contractor_id)
+
+    elif worker_id != 0:
+        wi_data = await conn.read_withdrawal_filter(where_name='worker_id', limit=on_page,
+                                                    offset=(page - 1) * on_page, db=db, where_data=worker_id)
+        count = await conn.read_withdrawal_count(where_name='session_id', db=db, where_data=session_id)
+
+    elif client_id != 0:
+        wi_data = await conn.read_withdrawal_filter(where_name='user_id', limit=on_page,
+                                                    offset=(page - 1) * on_page, db=db, where_data=client_id)
+        count = await conn.read_withdrawal_count(where_name='session_id', db=db, where_data=session_id)
+    elif session_id != 0:
+        wi_data = await conn.read_withdrawal_filter(where_name='session_id', limit=on_page,
+                                                    offset=(page - 1) * on_page, db=db, where_data=session_id)
+        count = await conn.read_withdrawal_count(where_name='session_id', db=db, where_data=session_id)
+
+    elif only_new:
+        wi_data = await conn.read_data_offset(table='withdrawal', limit=on_page, offset=(page - 1) * on_page, db=db,
+                                              id_name="confirm_date", id_data=0, order="withdrawal_id DESC")
+        count = await conn.read_data_count(table='withdrawal', db=db, id_name="contractor_id", id_data=contractor_id)
+    else:
+        wi_data = await conn.read_all_count(table='withdrawal', db=db)
+        count = await conn.read_data_count(table='withdrawal', db=db, id_name="contractor_id", id_data=contractor_id)
+
+    wi_list = []
+    for one in wi_data:
+        withdrawal: Withdrawal = Withdrawal.parse_obj(one)
+        wi_list.append(withdrawal.dict())
+
+    return JSONResponse(content={"ok": True,
+                                 "withdrawal_list": wi_list,
+                                 "total_count": count[0][0]
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
