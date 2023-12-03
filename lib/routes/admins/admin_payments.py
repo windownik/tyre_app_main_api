@@ -89,7 +89,7 @@ async def get_payments_list(access_token: str, page: int = 1, contractor_id: int
 async def get_payments_list(access_token: str, page: int = 1, contractor_id: int = 0, worker_id: int = 0,
                             session_id: int = 0, client_id: int = 0, only_new: bool = False,
                             db=Depends(data_b.connection)):
-    """Get all withdrawals admin"""
+    """Admin get all withdrawals with few filters"""
     res = await check_admin(access_token=access_token, db=db)
     if type(res) != int:
         return res
@@ -119,7 +119,8 @@ async def get_payments_list(access_token: str, page: int = 1, contractor_id: int
                                               id_name="confirm_date", id_data=0, order="withdrawal_id DESC")
         count = await conn.read_data_count(table='withdrawal', db=db, id_name="contractor_id", id_data=contractor_id)
     else:
-        wi_data = await conn.read_all_count(table='withdrawal', db=db)
+        wi_data = await conn.read_all_offset(table='withdrawal', db=db, limit=on_page, offset=(page - 1) * on_page,
+                                             order="withdrawal_id DESC")
         count = await conn.read_data_count(table='withdrawal', db=db, id_name="contractor_id", id_data=contractor_id)
 
     wi_list = []
