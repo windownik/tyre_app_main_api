@@ -118,3 +118,25 @@ async def get_withdrawal_invoice(access_token: str, worker_id: int = 0, contract
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.get(path='/contractor_withdrawal', tags=['Payment'], responses=create_payment_res)
+async def get_all_withdrawal_invoice(access_token: str, contractor_id: int = 0,
+                                     db=Depends(data_b.connection)):
+    """Get withdrawal invoices of one contractor"""
+    user_id = await check_con_owner_or_admin(access_token=access_token, co_id=contractor_id, db=db)
+    if type(user_id) != int:
+        return user_id
+    wi_data = await conn.read_data(db=db, table="withdrawal_invoice", id_name="contractor_id",
+                                   id_data=contractor_id, order=" ORDER BY wi_id DESC")
+
+    wi_list = []
+    for one in wi_data:
+        withdrawal: WithdrawalInvoice = WithdrawalInvoice.parse_obj(one)
+        wi_list.append(await withdrawal.to_json(db=db))
+
+    return JSONResponse(content={"ok": True,
+                                 "wi_list": wi_list
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
