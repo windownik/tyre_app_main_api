@@ -95,7 +95,7 @@ async def get_payments_list(access_token: str, page: int = 1, contractor_id: int
         return res
 
     if contractor_id != 0:
-        wi_data = await conn.read_data_offset(table='withdrawal', order="pay_id DESC", limit=on_page,
+        wi_data = await conn.read_data_offset(table='withdrawal', order="withdrawal_id DESC", limit=on_page,
                                               offset=(page - 1) * on_page, db=db, id_name="contractor_id",
                                               id_data=contractor_id)
         count = await conn.read_data_count(table='withdrawal', db=db, id_name="contractor_id", id_data=contractor_id)
@@ -129,8 +129,8 @@ async def get_payments_list(access_token: str, page: int = 1, contractor_id: int
         wi_list.append(withdrawal.dict())
 
     return JSONResponse(content={"ok": True,
+                                 "total_count": count[0][0],
                                  "withdrawal_list": wi_list,
-                                 "total_count": count[0][0]
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
