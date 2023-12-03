@@ -103,16 +103,16 @@ async def get_payments_list(access_token: str, page: int = 1, contractor_id: int
     elif worker_id != 0:
         wi_data = await conn.read_withdrawal_filter(where_name='worker_id', limit=on_page,
                                                     offset=(page - 1) * on_page, db=db, where_data=worker_id)
-        count = await conn.read_withdrawal_count(where_name='session_id', db=db, where_data=session_id)
+        count = await conn.read_withdrawal_count(where_name='worker_id', db=db, where_data=worker_id)
 
     elif client_id != 0:
         wi_data = await conn.read_withdrawal_filter(where_name='user_id', limit=on_page,
                                                     offset=(page - 1) * on_page, db=db, where_data=client_id)
-        count = await conn.read_withdrawal_count(where_name='session_id', db=db, where_data=session_id)
+        count = await conn.read_withdrawal_count(where_name='user_id', db=db, where_data=session_id)
     elif session_id != 0:
         wi_data = await conn.read_withdrawal_filter(where_name='session_id', limit=on_page,
                                                     offset=(page - 1) * on_page, db=db, where_data=session_id)
-        count = await conn.read_withdrawal_count(where_name='session_id', db=db, where_data=session_id)
+        count = await conn.read_withdrawal_count(where_name='session_id', db=db, where_data=client_id)
 
     elif only_new:
         wi_data = await conn.read_data_offset(table='withdrawal', limit=on_page, offset=(page - 1) * on_page, db=db,
@@ -127,9 +127,12 @@ async def get_payments_list(access_token: str, page: int = 1, contractor_id: int
     for one in wi_data:
         withdrawal: Withdrawal = Withdrawal.parse_obj(one)
         wi_list.append(withdrawal.dict())
-
+    if count:
+        count_number = count[0][0]
+    else:
+        count_number = 0
     return JSONResponse(content={"ok": True,
-                                 "total_count": count[0][0],
+                                 "total_count": count_number,
                                  "withdrawal_list": wi_list,
                                  },
                         status_code=_status.HTTP_200_OK,
