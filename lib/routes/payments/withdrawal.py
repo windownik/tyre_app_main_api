@@ -6,7 +6,7 @@ from fastapi import Depends
 from starlette.responses import JSONResponse
 
 from lib import sql_connect as conn
-from lib.db_objects import Contractor, WithdrawalInvoice
+from lib.db_objects import Contractor, WithdrawalInvoice, Withdrawal
 from lib.response_examples import *
 from lib.routes.admins.admin_routes import check_con_owner_or_admin
 from lib.sql_create_tables import data_b, app
@@ -81,6 +81,39 @@ async def get_withdrawal_invoice(access_token: str, withdrawal_invoice_id: int, 
 
     return JSONResponse(content={"ok": True,
                                  "wi_invoice": wi_invoice,
+                                 "withdrawal_list": wi_list
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.get(path='/withdrawal_all', tags=['Payment'], responses=create_payment_res)
+async def get_withdrawal_invoice(access_token: str, worker_id: int = 0, contractor_id: int = 0,
+                                 db=Depends(data_b.connection)):
+    """Get withdrawal invoice with withdrawal list"""
+    if contractor_id != 0:
+        user_id = await check_con_owner_or_admin(access_token=access_token, co_id=contractor_id, db=db)
+        if type(user_id) != int:
+            return user_id
+        wi_data = await conn.read_data(db=db, table="withdrawal_invoice", id_name="contractor_id",
+                                       id_data=contractor_id)
+    else:
+        res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+        if res.status_code != 200:
+            return res
+
+        user_id = res.json()['user_id']
+        if worker_id != 0:
+            user_id = worker_id
+
+        wi_data = await conn.read_users_withdrawal(db=db, worker_id=user_id)
+
+    wi_list = []
+    for one in wi_data:
+        withdrawal: Withdrawal = Withdrawal.parse_obj(one)
+        wi_list.append(withdrawal.dict())
+
+    return JSONResponse(content={"ok": True,
                                  "withdrawal_list": wi_list
                                  },
                         status_code=_status.HTTP_200_OK,
