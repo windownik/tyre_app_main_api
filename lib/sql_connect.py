@@ -303,6 +303,14 @@ async def read_payments_for_withdrawal(db: Depends, contractor_id: int):
     return data
 
 
+async def read_withdrawal_invoice_payments(db: Depends, wi_id: int):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"SELECT payments.* FROM payments "
+                          f"JOIN withdrawal ON withdrawal.pay_id = payments.pay_id "
+                          f"WHERE withdrawal.wi_id = $1;", wi_id)
+    return data
+
+
 async def read_worker_withdrawal(db: Depends, worker_id: int):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT withdrawal.* FROM withdrawal "

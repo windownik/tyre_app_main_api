@@ -4,7 +4,7 @@ import requests
 import starlette.status as _status
 from fastapi import Depends
 from starlette.responses import JSONResponse
-from lib.db_objects import User, WorkType
+from lib.db_objects import WorkType
 
 from lib import sql_connect as conn
 from lib.response_examples import *

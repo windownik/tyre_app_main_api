@@ -6,7 +6,7 @@ from fastapi import Depends
 from starlette.responses import JSONResponse
 
 from lib import sql_connect as conn
-from lib.db_objects import Contractor, WithdrawalInvoice, Withdrawal
+from lib.db_objects import Contractor, WithdrawalInvoice, Withdrawal, Payment, User, Worker
 from lib.response_examples import *
 from lib.routes.admins.admin_routes import check_con_owner_or_admin
 from lib.sql_create_tables import data_b, app
@@ -61,7 +61,7 @@ async def create_new_payment(access_token: str, contractor_id: int, db=Depends(d
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.get(path='/withdrawal_invoice', tags=['Payment'], responses=create_payment_res)
+@app.get(path='/wi', tags=['Payment'], responses=create_payment_res)
 async def get_withdrawal_invoice(access_token: str, withdrawal_invoice_id: int, db=Depends(data_b.connection)):
     """Get withdrawal invoice with withdrawal list"""
 
@@ -82,6 +82,50 @@ async def get_withdrawal_invoice(access_token: str, withdrawal_invoice_id: int, 
     return JSONResponse(content={"ok": True,
                                  "wi_invoice": wi_invoice,
                                  "withdrawal_list": wi_list
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.get(path='/payments_of_wi', tags=['Payment'], responses=create_payment_res)
+async def get_all_payments_of_withdrawal_invoice(access_token: str, wi_id: int, db=Depends(data_b.connection)):
+    """Get withdrawal invoice with withdrawal list"""
+
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    status_code = res.status_code
+    if status_code != 200:
+        return JSONResponse(content=res.json(),
+                            status_code=status_code)
+
+    wi_data = await conn.read_withdrawal_invoice_payments(db=db, wi_id=wi_id)
+    pay_list = []
+    set_users = set()
+    set_workers = set()
+    for one in wi_data:
+        payment: Payment = Payment.parse_obj(one)
+        set_users.add(payment.user_id)
+        set_workers.add(payment.worker_id)
+        pay_list.append(payment.dict())
+    list_user = []
+    if len(set_users) != 0:
+        crop_user_list = await conn.get_user_by_set(db=db, set_id=set_users)
+
+        for one in crop_user_list:
+            user: User = User.parse_obj(one)
+            list_user.append(user.dict())
+
+    list_workers = []
+    if len(set_workers) != 0:
+        crop_user_list = await conn.get_workers_by_set(db=db, set_id=set_workers)
+
+        for one in crop_user_list:
+            worker: Worker = Worker.parse_obj(one)
+            list_workers.append(worker.dict())
+
+    return JSONResponse(content={"ok": True,
+                                 "wi_payments_list": pay_list,
+                                 "users": list_user,
+                                 "workers": list_workers,
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
