@@ -9,7 +9,7 @@ from fastapi import Depends
 from starlette.responses import JSONResponse
 
 from lib import sql_connect as conn
-from lib.db_objects import Payment
+from lib.db_objects import Payment, User
 from lib.response_examples import *
 from lib.routes.admins.admin_routes import check_con_owner_or_admin
 from lib.sql_create_tables import data_b, app
@@ -129,11 +129,23 @@ async def get_workers_payments_list(access_token: str, worker_id: int, db=Depend
                                          order=" ORDER BY pay_id DESC")
 
     pay_list = []
+    set_users = set()
     for one in payments_data:
         payment: Payment = Payment.parse_obj(one)
         pay_list.append(payment.dict())
+        set_users.add(payment.user_id)
+
+    list_user = []
+    if len(set_users) != 0:
+        crop_user_list = await conn.get_user_by_set(db=db, set_id=set_users)
+
+        for one in crop_user_list:
+            user: User = User.parse_obj(one)
+            list_user.append(user.dict())
+
     return JSONResponse(content={"ok": True,
                                  "payment_list": pay_list,
+                                 "users": list_user
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
