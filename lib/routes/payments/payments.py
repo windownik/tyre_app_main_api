@@ -118,7 +118,7 @@ async def get_payments_list_ready_for_withdrawal(access_token: str, contractor_i
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.get(path='/payment_withdrawal', tags=['Payment'], responses=get_user_res)
+@app.get(path='/workers_payments', tags=['Payment'], responses=get_user_res)
 async def get_workers_payments_list(access_token: str, worker_id: int, db=Depends(data_b.connection)):
     """Get payments list with worker_id"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
