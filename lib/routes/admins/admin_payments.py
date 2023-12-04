@@ -163,10 +163,6 @@ async def get_payments_list(access_token: str, page: int = 1, only_new: bool = F
         count_number = 0
     else:
         count_number = count[0][0]
-    # print({"ok": True,
-    #        "total_count": count_number,
-    #        "wi_list": wi_list,
-    #        })
     return JSONResponse(content={"ok": True,
                                  "total_count": count_number,
                                  "wi_list": wi_list,
