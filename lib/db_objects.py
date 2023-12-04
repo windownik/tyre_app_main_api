@@ -263,7 +263,7 @@ class WithdrawalInvoice(BaseModel):
                                                      sum_name='amount')
         total_amount = 0
         if total_amount_data:
-            total_amount = total_amount_data[0][0]
+            total_amount = int(total_amount_data[0][0])
         currency = "GBP"
         res = self.dict()
         res["amount"] = total_amount
