@@ -123,7 +123,7 @@ async def get_all_payments_of_withdrawal_invoice(access_token: str, wi_id: int, 
             list_workers.append(worker.dict())
 
     return JSONResponse(content={"ok": True,
-                                 "wi_payments_list": pay_list,
+                                 "payments_list": pay_list,
                                  "users": list_user,
                                  "workers": list_workers,
                                  },
