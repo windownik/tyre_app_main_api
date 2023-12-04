@@ -158,7 +158,7 @@ async def get_payments_list(access_token: str, page: int = 1, only_new: bool = F
     wi_list = []
     for one in wi_data:
         withdrawal: WithdrawalInvoice = WithdrawalInvoice.parse_obj(one)
-        wi_list.append(withdrawal.dict())
+        wi_list.append(await withdrawal.to_json(db=db))
     if not count:
         count_number = 0
     else:

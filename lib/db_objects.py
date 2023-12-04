@@ -259,12 +259,12 @@ class WithdrawalInvoice(BaseModel):
     create_date: int
 
     async def to_json(self, db: Depends, ) -> dict:
-        wi_data = await conn.read_data(db=db, id_name="wi_id", id_data=self.wi_id, table="withdrawal")
+        total_amount_data = await conn.read_data_sum(db=db, id_name="wi_id", id_data=self.wi_id, table="withdrawal",
+                                                     sum_name='amount')
         total_amount = 0
+        if total_amount_data:
+            total_amount = total_amount_data[0][0]
         currency = "GBP"
-        for one in wi_data:
-            total_amount += one["amount"]
-            currency = one["currency"]
         res = self.dict()
         res["amount"] = total_amount
         res["currency"] = currency

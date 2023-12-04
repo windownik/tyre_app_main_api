@@ -467,6 +467,12 @@ async def read_data_count(db: Depends, table: str, id_name: str, id_data: str | 
     return data
 
 
+async def read_data_sum(db: Depends, table: str, id_name: str, id_data: str | int, sum_name: str):
+    """Получаем актуальные данные"""
+    data = await db.fetch(f"SELECT SUM({sum_name}) FROM {table} WHERE {id_name} = $1;", id_data)
+    return data
+
+
 async def read_worker_payments(db: Depends, worker_id: int, contractor_id: int = 0):
     """Read workers payments with date filter"""
     sql = "worker_id"
