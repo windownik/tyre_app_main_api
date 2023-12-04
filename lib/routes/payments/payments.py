@@ -118,6 +118,27 @@ async def get_payments_list_ready_for_withdrawal(access_token: str, contractor_i
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
+@app.get(path='/payment_withdrawal', tags=['Payment'], responses=get_user_res)
+async def get_workers_payments_list(access_token: str, worker_id: int, db=Depends(data_b.connection)):
+    """Get payments list with worker_id"""
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    if res.status_code != 200:
+        return res
+
+    payments_data = await conn.read_data(db=db, id_data=worker_id, id_name="worker_id", table="payments",
+                                         order=" ORDER BY pay_id DESC")
+
+    pay_list = []
+    for one in payments_data:
+        payment: Payment = Payment.parse_obj(one)
+        pay_list.append(payment.dict())
+    return JSONResponse(content={"ok": True,
+                                 "payment_list": pay_list,
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
 @app.get(path='/payment_status', tags=['Payment'], responses=get_user_res)
 async def get_payments_list(access_token: str, payment_id: int = 0, db=Depends(data_b.connection)):
     """Get payment status"""
