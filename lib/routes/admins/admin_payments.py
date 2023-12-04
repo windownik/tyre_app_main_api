@@ -127,10 +127,10 @@ async def get_payments_list(access_token: str, page: int = 1, contractor_id: int
     for one in wi_data:
         withdrawal: Withdrawal = Withdrawal.parse_obj(one)
         wi_list.append(withdrawal.dict())
-    if count:
-        count_number = count[0][0]
-    else:
+    if not count:
         count_number = 0
+    else:
+        count_number = count[0][0]
     return JSONResponse(content={"ok": True,
                                  "total_count": count_number,
                                  "withdrawal_list": wi_list,
