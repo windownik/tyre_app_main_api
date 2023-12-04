@@ -8,7 +8,7 @@ from lib.response_examples import *
 from lib.routes.admins.admin_routes import check_admin, on_page
 from lib.sql_create_tables import data_b, app
 from lib import sql_connect as conn
-from lib.db_objects import Payment, User, Worker, Withdrawal
+from lib.db_objects import Payment, User, Worker, Withdrawal, WithdrawalInvoice
 
 ip_server = os.environ.get("IP_SERVER")
 ip_port = os.environ.get("PORT_SERVER")
@@ -134,6 +134,38 @@ async def get_payments_list(access_token: str, page: int = 1, contractor_id: int
     return JSONResponse(content={"ok": True,
                                  "total_count": count_number,
                                  "withdrawal_list": wi_list,
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.get(path='/admin_withdrawal_invoice', tags=['Admin payment'], responses=get_user_res)
+async def get_payments_list(access_token: str, page: int = 1, only_new: bool = False, db=Depends(data_b.connection)):
+    """Admin get all withdrawals with few filters"""
+    res = await check_admin(access_token=access_token, db=db)
+    if type(res) != int:
+        return res
+
+    if only_new:
+        wi_data = await conn.read_data_offset(table='withdrawal_invoice', limit=on_page, offset=(page - 1) * on_page, db=db,
+                                              id_name="confirm_date", id_data=0, order="wi_id DESC")
+        count = await conn.read_data_count(table='withdrawal_invoice', db=db, id_name="confirm_date", id_data=0)
+    else:
+        wi_data = await conn.read_all_offset(table='withdrawal_invoice', limit=on_page, offset=(page - 1) * on_page,
+                                             order="wi_id DESC", db=db, )
+        count = await conn.read_all_count(table='withdrawal_invoice', db=db,)
+
+    wi_list = []
+    for one in wi_data:
+        withdrawal: WithdrawalInvoice = WithdrawalInvoice.parse_obj(one)
+        wi_list.append(withdrawal.dict())
+    if not count:
+        count_number = 0
+    else:
+        count_number = count[0][0]
+    return JSONResponse(content={"ok": True,
+                                 "total_count": count_number,
+                                 "wi_list": wi_list,
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
