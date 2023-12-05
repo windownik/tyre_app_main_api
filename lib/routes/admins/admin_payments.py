@@ -1,4 +1,6 @@
+import datetime
 import os
+import time
 
 import starlette.status as _status
 from fastapi import Depends
@@ -147,13 +149,14 @@ async def get_payments_list(access_token: str, page: int = 1, only_new: bool = F
         return res
 
     if only_new:
-        wi_data = await conn.read_data_offset(table='withdrawal_invoice', limit=on_page, offset=(page - 1) * on_page, db=db,
+        wi_data = await conn.read_data_offset(table='withdrawal_invoice', limit=on_page, offset=(page - 1) * on_page,
+                                              db=db,
                                               id_name="confirm_date", id_data=0, order="wi_id DESC")
         count = await conn.read_data_count(table='withdrawal_invoice', db=db, id_name="confirm_date", id_data=0)
     else:
         wi_data = await conn.read_all_offset(table='withdrawal_invoice', limit=on_page, offset=(page - 1) * on_page,
                                              order="wi_id DESC", db=db, )
-        count = await conn.read_all_count(table='withdrawal_invoice', db=db,)
+        count = await conn.read_all_count(table='withdrawal_invoice', db=db, )
 
     wi_list = []
     for one in wi_data:
@@ -166,6 +169,52 @@ async def get_payments_list(access_token: str, page: int = 1, only_new: bool = F
     return JSONResponse(content={"ok": True,
                                  "total_count": count_number,
                                  "wi_list": wi_list,
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.update(path='/admin_confirm_withdrawal', tags=['Admin payment'], responses=get_user_res)
+async def get_payments_list(access_token: str, withdrawal_id: int, db=Depends(data_b.connection)):
+    """Admin get all withdrawals with few filters"""
+    res = await check_admin(access_token=access_token, db=db)
+    if type(res) != int:
+        return res
+
+    wi_data = await conn.read_data(table='withdrawal_invoice', db=db, id_name="wi_id", id_data=withdrawal_id)
+
+    if not wi_data:
+        return JSONResponse(content={"ok": False,
+                                     "description": "Bad withdrawal_id",
+                                     },
+                            status_code=_status.HTTP_400_BAD_REQUEST,
+                            headers={'content-type': 'application/json; charset=utf-8'})
+    now = datetime.datetime.now()
+    await conn.update_inform(db=db, table="withdrawal_invoice", name="confirm_date",
+                             data=int(time.mktime(now.timetuple())), id_name="wi_id", id_data=withdrawal_id)
+    await conn.update_inform(db=db, table="withdrawal", name="confirm_date",
+                             data=int(time.mktime(now.timetuple())), id_name="wi_id", id_data=withdrawal_id)
+
+    await conn.update_inform(db=db, table="withdrawal_invoice", name="admin_user_id", data=res, id_name="wi_id",
+                             id_data=withdrawal_id)
+    await conn.update_inform(db=db, table="withdrawal", name="admin_user_id", data=res, id_name="wi_id",
+                             id_data=withdrawal_id)
+
+    amount = await conn.read_data_sum(db=db, id_name="wi_id", id_data=withdrawal_id, table="withdrawal",
+                                                     sum_name='amount')
+    amount = int(amount[0][0]) / 100
+    await conn.msg_to_push_logs(db=db, creator_id=res, title="Successful withdrawal",
+                                short_text=f"Withdrawal of £{amount} confirmed. Thank you for your cooperation.",
+                                main_text="0",
+                                img_url="0", content_type="text", users_ids=str(wi_data[0]["user_id"]))
+
+    await conn.msg_to_user(db=db, user_id=wi_data[0]["user_id"], title="Successful withdrawal",
+                           short_text=f"Withdrawal of £{amount} confirmed. Thank you for your cooperation.",
+                           main_text="0",
+                           img_url="0", push_type="text", push_msg_id=0, app_type='simple')
+
+    return JSONResponse(content={"ok": True,
+                                 "description": "Invoice information was successfully updated.",
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
