@@ -60,6 +60,40 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
+@app.put(path='/update_geo', tags=['Pro'], responses=get_login_res)
+async def login_user(access_token: str, lat: float, lng: float, db=Depends(data_b.connection)):
+    """Get user in service by access token"""
+    worker = await check_worker(db=db, access_token=access_token)
+    if type(worker) != Worker:
+        return worker
+
+    await conn.update_inform(db=db, table="workers", id_name="user_id", id_data=worker.user_id, name="lat", data=lat)
+    await conn.update_inform(db=db, table="workers", id_name="user_id", id_data=worker.user_id, name="long", data=lng)
+    await conn.update_inform(db=db, table="workers", id_name="user_id", id_data=worker.user_id, name="get_push",
+                             data=True)
+    return JSONResponse(content={"ok": True,
+                                 'description': "The geolocation update was successful.",
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.put(path='/stop_work', tags=['Pro'], responses=get_login_res)
+async def login_user(access_token: str, db=Depends(data_b.connection)):
+    """Get user in service by access token"""
+    worker = await check_worker(db=db, access_token=access_token)
+    if type(worker) != Worker:
+        return worker
+
+    await conn.update_inform(db=db, table="workers", id_name="user_id", id_data=worker.user_id, name="get_push",
+                             data=False)
+    return JSONResponse(content={"ok": True,
+                                 'description': "Service stop searching new orders for worker.",
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
 async def check_owner_pro(db: Depends, worker_id: int, contractor_id) -> bool:
     """check worker for ownership of contractor with contractor_id"""
     conn_data = await conn.read_data(table="contractor", id_name="contractor_id", id_data=contractor_id, db=db)
@@ -67,3 +101,21 @@ async def check_owner_pro(db: Depends, worker_id: int, contractor_id) -> bool:
         if one["owner_id"] == worker_id:
             return True
     return False
+
+
+async def check_worker(db: Depends, access_token: str):
+    """check access token and return worker account"""
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    if res.status_code == 200:
+        user_id = res.json()['user_id']
+    else:
+        return res
+
+    user_data = await conn.get_workers_by_set(db=db, set_id={user_id})
+    if not user_data:
+        return JSONResponse(content={"ok": False,
+                                     'description': "Error with login account",
+                                     },
+                            status_code=500)
+    worker: Worker = Worker.parse_obj(user_data[0])
+    return worker

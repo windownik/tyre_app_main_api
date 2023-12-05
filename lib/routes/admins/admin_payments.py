@@ -211,7 +211,7 @@ async def admin_confirm_withdrawal_invoice(access_token: str, withdrawal_id: int
     await conn.msg_to_user(db=db, user_id=wi_data[0]["user_id"], title="Successful withdrawal",
                            short_text=f"Withdrawal of £{amount} confirmed. Thank you for your cooperation.",
                            main_text="0",
-                           img_url="0", push_type="text", push_msg_id=0, app_type='simple')
+                           img_url="0", push_type="text", push_msg_id=0, app_type='pro')
 
     return JSONResponse(content={"ok": True,
                                  "description": "Invoice information was successfully updated.",
