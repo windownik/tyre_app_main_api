@@ -175,8 +175,8 @@ async def get_payments_list(access_token: str, page: int = 1, only_new: bool = F
 
 
 @app.update(path='/admin_confirm_withdrawal', tags=['Admin payment'], responses=get_user_res)
-async def get_payments_list(access_token: str, withdrawal_id: int, db=Depends(data_b.connection)):
-    """Admin get all withdrawals with few filters"""
+async def admin_confirm_withdrawal_invoice(access_token: str, withdrawal_id: int, db=Depends(data_b.connection)):
+    """Admin confirm withdrawal invoice status to confirm"""
     res = await check_admin(access_token=access_token, db=db)
     if type(res) != int:
         return res
