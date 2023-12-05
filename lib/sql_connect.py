@@ -238,6 +238,11 @@ async def update_inform(db: Depends, name: str, data, table: str, id_name: str, 
                    data, id_data)
 
 
+async def update_start_stop_search(db: Depends, lat: float, long: float, get_push: bool, user_id: int):
+    await db.fetch(f"UPDATE users SET lat=$1, long=$2, lat=$3 WHERE user_id=$4;",
+                   lat, long, get_push, user_id)
+
+
 # Обновляем информацию
 async def update_user(db: Depends, name: str, surname: str, email: str, get_push: bool, get_email: bool, user_id: int):
     now = datetime.datetime.now()

@@ -60,35 +60,16 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.put(path='/update_geo', tags=['Pro'], responses=get_login_res)
-async def login_user(access_token: str, lat: float, lng: float, db=Depends(data_b.connection)):
+@app.put(path='/start_stop_work', tags=['Pro'], responses=get_login_res)
+async def login_user(access_token: str, lat: float, lng: float, get_push: bool, db=Depends(data_b.connection)):
     """Get user in service by access token"""
     worker = await check_worker(db=db, access_token=access_token)
     if type(worker) != Worker:
         return worker
 
-    await conn.update_inform(db=db, table="workers", id_name="user_id", id_data=worker.user_id, name="lat", data=lat)
-    await conn.update_inform(db=db, table="workers", id_name="user_id", id_data=worker.user_id, name="long", data=lng)
-    await conn.update_inform(db=db, table="workers", id_name="user_id", id_data=worker.user_id, name="get_push",
-                             data=True)
+    await conn.update_start_stop_search(db=db, lat=lat, long=lng, get_push=get_push, user_id=worker.user_id)
     return JSONResponse(content={"ok": True,
                                  'description': "The geolocation update was successful.",
-                                 },
-                        status_code=_status.HTTP_200_OK,
-                        headers={'content-type': 'application/json; charset=utf-8'})
-
-
-@app.put(path='/stop_work', tags=['Pro'], responses=get_login_res)
-async def login_user(access_token: str, db=Depends(data_b.connection)):
-    """Get user in service by access token"""
-    worker = await check_worker(db=db, access_token=access_token)
-    if type(worker) != Worker:
-        return worker
-
-    await conn.update_inform(db=db, table="workers", id_name="user_id", id_data=worker.user_id, name="get_push",
-                             data=False)
-    return JSONResponse(content={"ok": True,
-                                 'description': "Service stop searching new orders for worker.",
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
