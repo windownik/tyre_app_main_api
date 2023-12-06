@@ -239,8 +239,9 @@ async def update_inform(db: Depends, name: str, data, table: str, id_name: str, 
 
 
 async def update_start_stop_search(db: Depends, lat: float, long: float, get_push: bool, user_id: int):
-    await db.fetch(f"UPDATE workers SET lat=$1, long=$2, get_push=$3 WHERE user_id=$4;",
-                   lat, long, get_push, user_id)
+    date = datetime.datetime.now()
+    await db.fetch(f"UPDATE workers SET lat=$1, long=$2, get_push=$3, last_active=$4 WHERE user_id=$5;",
+                   lat, long, get_push, int(time.mktime(date.timetuple())), user_id)
 
 
 # Обновляем информацию
