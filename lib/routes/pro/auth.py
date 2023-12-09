@@ -61,7 +61,7 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
 
 
 @app.put(path='/start_stop_work', tags=['Pro'], responses=get_login_res)
-async def login_user(access_token: str, lat: float, lng: float, get_push: bool, db=Depends(data_b.connection)):
+async def login_user(access_token: str, lat: float, lng: float, get_push: bool = True, db=Depends(data_b.connection)):
     """Get user in service by access token"""
     worker = await check_worker(db=db, access_token=access_token)
     if type(worker) != Worker:
