@@ -13,7 +13,6 @@ password = 102015 if password is None else password
 host = '127.0.0.1' if host is None else host
 port = 5432 if port is None else port
 db_name = 'tyre_app' if db_name is None else db_name
-secret = 'secret12345' if secret is None else secret
 
 
 # Create new connection with database

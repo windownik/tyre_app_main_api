@@ -1,6 +1,16 @@
+import os
+
+import requests
 from fastapi import Depends
 from pydantic import BaseModel
 from lib import sql_connect as conn
+
+ip_file_server = os.environ.get("IP_FILE_SERVER")
+ip_file_port = os.environ.get("PORT_FILE_SERVER")
+
+file_url = f"http://{ip_file_server}:{ip_file_port}"
+
+
 
 
 class User(BaseModel):
@@ -285,3 +295,63 @@ class WithdrawalInvoice(BaseModel):
         res["amount"] = total_amount
         res["currency"] = currency
         return res, wi_list
+
+
+class InetImage(BaseModel):
+    fileSize: int
+    url: str
+
+
+class SPhoto:
+    session_id: int
+    photo_before_1: int = 0
+    photo_before_2: int = 0
+    photo_before_3: int = 0
+    photo_before_4: int = 0
+    photo_after_1: int = 0
+    photo_after_2: int = 0
+    photo_after_3: int = 0
+    photo_after_4: int = 0
+
+    def __init__(self, data=None, session_id: int = 0, ):
+        if data is None:
+            data = {}
+        if session_id != 0:
+            self.session_id = session_id
+        else:
+            self.session_id = data["session_id"]
+            self.photo_before_1 = data["photo_before_1"]
+            self.photo_before_2 = data["photo_before_2"]
+            self.photo_before_3 = data["photo_before_3"]
+            self.photo_before_4 = data["photo_before_1"]
+            self.photo_after_1 = data["photo_after_1"]
+            self.photo_after_2 = data["photo_after_2"]
+            self.photo_after_3 = data["photo_after_3"]
+            self.photo_after_4 = data["photo_after_4"]
+
+    def dict(self) -> dict:
+        photo_index_before = [self.photo_before_1, self.photo_before_2, self.photo_before_3, self.photo_before_4]
+        photo_index_after = [self.photo_after_1, self.photo_after_2, self.photo_after_3, self.photo_after_4]
+
+        photo_before = self.create_list_img(index_list=photo_index_before)
+        photo_after = self.create_list_img(index_list=photo_index_after)
+        res: dict = {
+            "session_id": self.session_id,
+            "photo_before": photo_before,
+            "photo_after": photo_after,
+        }
+        return {
+            "ok": True,
+            "session_img": res
+        }
+
+    def create_list_img(self, index_list: list[int]) -> list:
+        list_images = []
+        for i in index_list:
+            if i == 0:
+                continue
+            res = requests.get(f'{file_url}/file', params={"file_id": i})
+            if res.status_code == 200:
+                body: dict = res.json()
+                list_images.append(body.pop("ok"))
+        return list_images

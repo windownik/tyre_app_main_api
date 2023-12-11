@@ -160,6 +160,13 @@ async def create_withdrawal(db: Depends, wi_id: int, pay_id: int, contractor_id:
     return data
 
 
+async def create_photo_for_ss(db: Depends, session_id: int, ):
+    """We create a new payment"""
+    data = await db.fetch(f"INSERT INTO photo (session_id) VALUES ($1) "
+                          f"ON CONFLICT DO NOTHING RETURNING *;", session_id)
+    return data
+
+
 async def get_user_id(db: Depends, token_type: str, token: str, device_id: str):
     """Get user_id by token and device id"""
     now = datetime.datetime.now()
@@ -382,8 +389,6 @@ async def get_ss_work_list_by_set(db: Depends, ss_work_id: list, ):
             sql_id = f"{sql_id} sw_id={i} OR"
 
     sql_id = sql_id[0: -3]
-    print(sql_id)
-    print(sql_id)
     data = await db.fetch(f"SELECT * FROM session_works WHERE{sql_id};")
     return data
 
