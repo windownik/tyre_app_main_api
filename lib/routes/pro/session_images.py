@@ -10,7 +10,7 @@ from lib.routes.pro.auth import check_worker
 from lib.sql_create_tables import data_b, app
 
 
-@app.post(path='/session_img', tags=['Pro Service session'], responses=get_login_res)
+@app.post(path='/session_img', tags=['SS Images'], responses=get_login_res)
 async def save_new_img_id_to_ss(access_token: str, session_id: int, img_id: int = 0, before_work: bool = False,
                                 after_work: bool = False, db=Depends(data_b.connection)):
     """Get all service sessions in contractor or made by worker. This route only for contractor's owners"""
@@ -45,7 +45,7 @@ async def save_new_img_id_to_ss(access_token: str, session_id: int, img_id: int 
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.get(path='/session_img', tags=['Pro Service session'], responses=get_login_res)
+@app.get(path='/session_img', tags=['SS Images'], responses=get_login_res)
 async def get_all_imgs_to_ss(access_token: str, session_id: int, db=Depends(data_b.connection)):
     """Get all images in service session"""
     worker = await check_worker(db=db, access_token=access_token)
@@ -59,6 +59,7 @@ async def get_all_imgs_to_ss(access_token: str, session_id: int, db=Depends(data
         photo: SPhoto = SPhoto(data=ss_data[0])
         res = photo.dict()
 
+    print(res)
     return JSONResponse(content=res,
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})

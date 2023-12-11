@@ -335,7 +335,7 @@ class SPhoto:
 
         photo_before = self.create_list_img(index_list=photo_index_before)
         photo_after = self.create_list_img(index_list=photo_index_after)
-        res: dict = {
+        res = {
             "session_id": self.session_id,
             "photo_before": photo_before,
             "photo_after": photo_after,
