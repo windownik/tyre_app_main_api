@@ -47,7 +47,7 @@ async def save_new_img_id_to_ss(access_token: str, session_id: int, img_id: int 
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-@app.get(path='/session_img', tags=['SS Images'], responses=get_login_res)
+@app.get(path='/session_img', tags=['SS Images'], responses=get_ss_img_res)
 async def get_all_imgs_to_ss(access_token: str, session_id: int, db=Depends(data_b.connection)):
     """Get all images in service session"""
     worker = await check_worker(db=db, access_token=access_token)

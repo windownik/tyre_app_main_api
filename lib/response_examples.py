@@ -404,3 +404,68 @@ create_payment_res = {
         }
     },
 }
+
+get_ss_img_res = {
+    200: {
+        "description": "Success",
+        "content": {
+            "application/json": {
+                "examples": {
+                    "odd": {
+                        "summary": "Success",
+                        "value": {
+                            "ok": True,
+                            "session_img": {
+                                "session_id": 35,
+                                "photo_before": [
+                                    {
+                                        "file_id": 2,
+                                        "file_name": "1.jpeg",
+                                        "file_type": "image",
+                                        "creator_id": 1,
+                                        "images": [
+                                            {
+                                                "file_size": 1105764,
+                                                "url": "http://167.235.253.89:10090/download?file_id=2"
+                                            },
+                                            {
+                                                "file_size": 33306,
+                                                "url": "http://167.235.253.89:10090/download?file_id=3"
+                                            },
+                                            {
+                                                "file_size": 4411,
+                                                "url": "http://167.235.253.89:10090/download?file_id=4"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "photo_after": [
+                                    {
+                                        "file_id": 3,
+                                        "file_name": "2.jpeg",
+                                        "file_type": "image",
+                                        "creator_id": 1,
+                                        "images": [
+                                            {
+                                                "file_size": 1105764,
+                                                "url": "http://167.235.253.89:10090/download?file_id=5"
+                                            },
+                                            {
+                                                "file_size": 33306,
+                                                "url": "http://167.235.253.89:10090/download?file_id=6"
+                                            },
+                                            {
+                                                "file_size": 4411,
+                                                "url": "http://167.235.253.89:10090/download?file_id=7"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                }
+            }
+        }
+    },
+}
