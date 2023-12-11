@@ -16,7 +16,9 @@ async def save_new_img_id_to_ss(access_token: str, session_id: int, img_id: int 
     """Get all service sessions in contractor or made by worker. This route only for contractor's owners"""
     worker = await check_worker(db=db, access_token=access_token)
     if type(worker) != Worker:
-        return worker
+        return JSONResponse(content=worker[1],
+                            status_code=worker[0],
+                            headers={'content-type': 'application/json; charset=utf-8'})
     ss_data = await conn.read_data(db=db, table="service_session", id_data=session_id, id_name="session_id")
     if not ss_data:
         return JSONResponse(content={"ok": False, "description": "Bad session_id"},
@@ -50,7 +52,9 @@ async def get_all_imgs_to_ss(access_token: str, session_id: int, db=Depends(data
     """Get all images in service session"""
     worker = await check_worker(db=db, access_token=access_token)
     if type(worker) != Worker:
-        return worker
+        return JSONResponse(content=worker[1],
+                            status_code=worker[0],
+                            headers={'content-type': 'application/json; charset=utf-8'})
     ss_data = await conn.read_data(db=db, table="photo", id_data=session_id, id_name="session_id")
     if not ss_data:
         photo: SPhoto = SPhoto(session_id=session_id)
@@ -58,8 +62,6 @@ async def get_all_imgs_to_ss(access_token: str, session_id: int, db=Depends(data
     else:
         photo: SPhoto = SPhoto(data=ss_data[0])
         res = photo.dict()
-
-    print(res)
     return JSONResponse(content=res,
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})

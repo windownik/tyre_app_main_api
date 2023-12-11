@@ -65,7 +65,9 @@ async def login_user(access_token: str, lat: float, lng: float, get_push: bool =
     """Get user in service by access token"""
     worker = await check_worker(db=db, access_token=access_token)
     if type(worker) != Worker:
-        return worker
+        return JSONResponse(content=worker[1],
+                            status_code=worker[0],
+                            headers={'content-type': 'application/json; charset=utf-8'})
 
     await conn.update_start_stop_search(db=db, lat=lat, long=lng, get_push=get_push, user_id=worker.user_id)
     return JSONResponse(content={"ok": True,
@@ -88,15 +90,14 @@ async def check_worker(db: Depends, access_token: str):
     """check access token and return worker account"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     if res.status_code == 200:
+
         user_id = res.json()['user_id']
     else:
-        return res
-
+        return [res.status_code, res.json()]
     user_data = await conn.get_workers_by_set(db=db, set_id={user_id})
     if not user_data:
-        return JSONResponse(content={"ok": False,
-                                     'description': "Error with login account",
-                                     },
-                            status_code=500)
+        return [500, {"ok": False,
+                     'description': "Error with login account"}]
+
     worker: Worker = Worker.parse_obj(user_data[0])
     return worker

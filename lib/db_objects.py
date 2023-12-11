@@ -323,7 +323,7 @@ class SPhoto:
             self.photo_before_1 = data["photo_before_1"]
             self.photo_before_2 = data["photo_before_2"]
             self.photo_before_3 = data["photo_before_3"]
-            self.photo_before_4 = data["photo_before_1"]
+            self.photo_before_4 = data["photo_before_4"]
             self.photo_after_1 = data["photo_after_1"]
             self.photo_after_2 = data["photo_after_2"]
             self.photo_after_3 = data["photo_after_3"]
@@ -353,5 +353,6 @@ class SPhoto:
             res = requests.get(f'{file_url}/file', params={"file_id": i})
             if res.status_code == 200:
                 body: dict = res.json()
-                list_images.append(body.pop("ok"))
+                body.pop("ok")
+                list_images.append(body)
         return list_images
