@@ -11,7 +11,7 @@ from lib.sql_create_tables import data_b, app
 
 
 @app.post(path='/session_img', tags=['SS Images'], responses=get_login_res)
-async def save_new_img_id_to_ss(access_token: str, session_id: int, img_id: int = 0, before_work: bool = False,
+async def save_new_img_id_to_ss(access_token: str, session_id: int, img_id: int, before_work: bool = False,
                                 after_work: bool = False, db=Depends(data_b.connection)):
     """Get all service sessions in contractor or made by worker. This route only for contractor's owners"""
     worker = await check_worker(db=db, access_token=access_token)
@@ -79,6 +79,6 @@ async def save_img_to_ss(ss_img_data: tuple, img_id: int, before: bool, db: Depe
             await conn.update_inform(table="photo", name=f"{sql_text}{index}", data=img_id, id_name="session_id",
                                      id_data=session_id, db=db)
             return True
-
+        index += 1
     return False
 
