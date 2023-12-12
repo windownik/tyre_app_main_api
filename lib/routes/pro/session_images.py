@@ -81,4 +81,3 @@ async def save_img_to_ss(ss_img_data: tuple, img_id: int, before: bool, db: Depe
             return True
         index += 1
     return False
-

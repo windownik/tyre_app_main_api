@@ -133,6 +133,11 @@ async def worker_work_in_service_session(access_token: str, session_id: int,
                             status_code=_status.HTTP_400_BAD_REQUEST)
 
     if start_work and not finish_work and not in_service_work and not delivery:
+        worker_id = res.json()['user_id']
+        other_ss = await conn.read_workers_ss(db=db, worker_id=worker_id)
+        if other_ss:
+            return JSONResponse(content={"ok": False, "description": "Worker not free for new session"},
+                                status_code=_status.HTTP_409_CONFLICT)
         status = "in work"
     elif not start_work and finish_work and not in_service_work and not delivery:
         status = "success"
