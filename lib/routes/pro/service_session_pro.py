@@ -131,15 +131,26 @@ async def worker_work_in_service_session(access_token: str, session_id: int,
     if not ss_data:
         return JSONResponse(content={"ok": False, "description": "Bad session_id"},
                             status_code=_status.HTTP_400_BAD_REQUEST)
+    worker_id = res.json()['user_id']
+    contr = await conn.read_data(db=db, table="workers", name="contractor_id", id_name="user_id", id_data=worker_id)
 
     if start_work and not finish_work and not in_service_work and not delivery:
         status = "in work"
     elif not start_work and finish_work and not in_service_work and not delivery:
+
+        await conn.update_inform(db=db, name="worker_id", data=worker_id, table="payments", id_name="session_id",
+                                 id_data=session_id)
+        await conn.update_inform(db=db, name="contractor_id", data=contr[0][0], table="payments",
+                                 id_name="contractor_id", id_data=session_id)
         status = "success"
     elif not start_work and not finish_work and in_service_work and not delivery:
+        await conn.update_inform(db=db, name="worker_id", data=worker_id, table="payments", id_name="session_id",
+                                 id_data=session_id)
+        await conn.update_inform(db=db, name="contractor_id", data=contr[0][0], table="payments",
+                                 id_name="contractor_id", id_data=session_id)
         status = "in_service"
     elif not start_work and not finish_work and not in_service_work and delivery:
-        worker_id = res.json()['user_id']
+
         other_ss = await conn.read_workers_ss(db=db, worker_id=worker_id)
         if other_ss:
             return JSONResponse(content={"ok": False, "description": "Worker not free for new session"},
