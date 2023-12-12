@@ -151,6 +151,7 @@ async def worker_work_in_service_session(access_token: str, session_id: int,
         if other_ss:
             return JSONResponse(content={"ok": False, "description": "Worker not free for new session"},
                                 status_code=_status.HTTP_409_CONFLICT)
+        await update_payments(db=db, worker_id=worker_id, session_id=session_id)
         status = "delivery"
 
     elif not start_work and not finish_work and not in_service_work and not delivery and cancel:
@@ -180,4 +181,9 @@ async def update_payments(db: Depends, worker_id: int, session_id: int):
     await conn.update_inform(db=db, name="worker_id", data=worker_id, table="payments", id_name="session_id",
                              id_data=session_id)
     await conn.update_inform(db=db, name="contractor_id", data=contr[0][0], table="payments",
-                             id_name="contractor_id", id_data=session_id)
+                             id_name="session_id", id_data=session_id)
+    await conn.update_inform(db=db, name="worker_id", data=worker_id, table="service_session", id_name="session_id",
+                             id_data=session_id)
+    await conn.update_inform(db=db, name="contractor_id", data=contr[0][0], table="service_session",
+                             id_name="session_id", id_data=session_id)
+
