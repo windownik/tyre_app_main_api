@@ -116,6 +116,7 @@ async def get_all_service_session_in_archive(access_token: str, page: int = 1, c
 
 @app.put(path='/pro_session_status', tags=['Pro Service session'], responses=get_login_res)
 async def worker_work_in_service_session(access_token: str, session_id: int,
+                                         cancel: bool = False,
                                          delivery: bool = False,
                                          start_work: bool = False,
                                          finish_work: bool = False,
@@ -127,35 +128,38 @@ async def worker_work_in_service_session(access_token: str, session_id: int,
     if status_code != 200:
         return JSONResponse(content=res.json(),
                             status_code=status_code)
+    worker_id = res.json()['user_id']
     ss_data = await conn.read_data(db=db, table="service_session", id_data=session_id, id_name="session_id")
     if not ss_data:
         return JSONResponse(content={"ok": False, "description": "Bad session_id"},
                             status_code=_status.HTTP_400_BAD_REQUEST)
-    worker_id = res.json()['user_id']
-    contr = await conn.read_data(db=db, table="workers", name="contractor_id", id_name="user_id", id_data=worker_id)
 
-    if start_work and not finish_work and not in_service_work and not delivery:
+    if start_work and not finish_work and not in_service_work and not delivery and not cancel:
+        await update_payments(db=db, worker_id=worker_id, session_id=session_id)
         status = "in work"
-    elif not start_work and finish_work and not in_service_work and not delivery:
 
-        await conn.update_inform(db=db, name="worker_id", data=worker_id, table="payments", id_name="session_id",
-                                 id_data=session_id)
-        await conn.update_inform(db=db, name="contractor_id", data=contr[0][0], table="payments",
-                                 id_name="contractor_id", id_data=session_id)
+    elif not start_work and finish_work and not in_service_work and not delivery and not cancel:
+        await update_payments(db=db, worker_id=worker_id, session_id=session_id)
         status = "success"
-    elif not start_work and not finish_work and in_service_work and not delivery:
-        await conn.update_inform(db=db, name="worker_id", data=worker_id, table="payments", id_name="session_id",
-                                 id_data=session_id)
-        await conn.update_inform(db=db, name="contractor_id", data=contr[0][0], table="payments",
-                                 id_name="contractor_id", id_data=session_id)
-        status = "in_service"
-    elif not start_work and not finish_work and not in_service_work and delivery:
 
+    elif not start_work and not finish_work and in_service_work and not delivery and not cancel:
+        await update_payments(db=db, worker_id=worker_id, session_id=session_id)
+        status = "in_service"
+
+    elif not start_work and not finish_work and not in_service_work and delivery and not cancel:
         other_ss = await conn.read_workers_ss(db=db, worker_id=worker_id)
         if other_ss:
             return JSONResponse(content={"ok": False, "description": "Worker not free for new session"},
                                 status_code=_status.HTTP_409_CONFLICT)
         status = "delivery"
+
+    elif not start_work and not finish_work and not in_service_work and not delivery and cancel:
+        client_id = await conn.read_data(db=db, table="service_session", name="client_id", id_name="session_id",
+                                         id_data=session_id)
+        if worker_id != client_id[0][0]:
+            return JSONResponse(content={"ok": False, "description": "No access rights"},
+                                status_code=_status.HTTP_409_CONFLICT)
+        status = "cancel"
     else:
         return JSONResponse(content={"ok": False, "description": "Bad start_work and finish_work and in_service_work "
                                                                  "flags"},
@@ -169,3 +173,11 @@ async def worker_work_in_service_session(access_token: str, session_id: int,
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
 
+
+async def update_payments(db: Depends, worker_id: int, session_id: int):
+    contr = await conn.read_data(db=db, table="workers", name="contractor_id", id_name="user_id", id_data=worker_id)
+
+    await conn.update_inform(db=db, name="worker_id", data=worker_id, table="payments", id_name="session_id",
+                             id_data=session_id)
+    await conn.update_inform(db=db, name="contractor_id", data=contr[0][0], table="payments",
+                             id_name="contractor_id", id_data=session_id)
