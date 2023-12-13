@@ -135,3 +135,31 @@ async def delete_service_session(access_token: str, session_id: int, db=Depends(
                                  'description': "Service_session was successful delete"
                                  },
                         status_code=_status.HTTP_200_OK)
+
+
+@app.get(path='/client_service_session', tags=['Service session'], responses=get_login_res)
+async def get_service_session(access_token: str, session_id: int, db=Depends(data_b.connection)):
+    """Get service_session by service_session_id"""
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    status_code = res.status_code
+    if status_code == 200:
+        user_id = res.json()['user_id']
+    else:
+        return JSONResponse(content=res.json(),
+                            status_code=status_code)
+
+    service_data = await conn.read_data(db=db, table='service_session', id_name='client_id', id_data=user_id)
+    if not service_data:
+        return JSONResponse(content={"ok": False,
+                                     'description': "The service session with this session_id is not registered",
+                                     },
+                            status_code=_status.HTTP_400_BAD_REQUEST)
+    service_list = []
+    for one in service_data:
+        service_session: ServiceSession = ServiceSession.parse_obj(one)
+        service_list.append(await service_session.to_json(db=db, session_work_list=[]))
+    return JSONResponse(content={"ok": True,
+                                 'service_session_list': service_list
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
