@@ -9,7 +9,7 @@ from fastapi import Depends
 from starlette.responses import JSONResponse
 
 from lib import sql_connect as conn
-from lib.db_objects import Payment, User
+from lib.db_objects import Payment, User, Worker
 from lib.response_examples import *
 from lib.routes.admins.admin_routes import check_con_owner_or_admin
 from lib.sql_create_tables import data_b, app
@@ -108,11 +108,34 @@ async def get_payments_list_ready_for_withdrawal(access_token: str, contractor_i
     payments_data = await conn.read_payments_for_withdrawal(db=db, contractor_id=contractor_id)
 
     pay_list = []
+    set_users = set()
+    set_workers = set()
     for one in payments_data:
         payment: Payment = Payment.parse_obj(one)
+        set_users.add(payment.user_id)
+        set_workers.add(payment.worker_id)
         pay_list.append(payment.dict())
+
+    list_user = []
+    if len(set_users) != 0:
+        crop_user_list = await conn.get_user_by_set(db=db, set_id=set_users)
+
+        for one in crop_user_list:
+            user: User = User.parse_obj(one)
+            list_user.append(user.dict())
+
+    list_workers = []
+    if len(set_workers) != 0:
+        crop_user_list = await conn.get_workers_by_set(db=db, set_id=set_workers)
+
+        for one in crop_user_list:
+            worker: Worker = Worker.parse_obj(one)
+            list_workers.append(worker.dict())
+
     return JSONResponse(content={"ok": True,
                                  "payment_list": pay_list,
+                                 "users": list_user,
+                                 "workers": list_workers,
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
