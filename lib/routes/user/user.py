@@ -4,7 +4,7 @@ import requests
 import starlette.status as _status
 from fastapi import Depends
 from starlette.responses import JSONResponse
-from lib.db_objects import User
+from lib.db_objects import User, Worker
 
 from lib import sql_connect as conn
 from lib.response_examples import *
@@ -130,3 +130,25 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
                                  'description': "User account is deleted",
                                  },
                         status_code=_status.HTTP_200_OK)
+
+
+@app.get(path='/get_worker', tags=['Worker'], responses=get_login_res)
+async def login_user(access_token: str, worker_id: int, db=Depends(data_b.connection)):
+    """Get worker in service by worker_id"""
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    if res.status_code != 200:
+        return JSONResponse(content=res.json(),
+                            status_code=res.status_code)
+    user_data = await conn.get_workers_by_set(db=db, set_id={worker_id})
+    if not user_data:
+        return JSONResponse(content={"ok": False,
+                                     'description': "Error with login account",
+                                     },
+                            status_code=500)
+    worker: Worker = Worker.parse_obj(user_data[0])
+
+    return JSONResponse(content={"ok": True,
+                                 'worker': worker.dict(),
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
