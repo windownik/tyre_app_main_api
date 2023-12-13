@@ -130,20 +130,27 @@ async def worker_work_in_service_session(access_token: str, session_id: int,
                             status_code=status_code)
     worker_id = res.json()['user_id']
     ss_data = await conn.read_data(db=db, table="service_session", id_data=session_id, id_name="session_id")
+    title = "Tire repair session"
+    push_user_id = ss_data[0]['client_id']
+    app_type = "simple"
+
     if not ss_data:
         return JSONResponse(content={"ok": False, "description": "Bad session_id"},
                             status_code=_status.HTTP_400_BAD_REQUEST)
 
     if start_work and not finish_work and not in_service_work and not delivery and not cancel:
         await update_payments(db=db, worker_id=worker_id, session_id=session_id)
+        text = "Our technician has started repairing your tire."
         status = "in work"
 
     elif not start_work and finish_work and not in_service_work and not delivery and not cancel:
         await update_payments(db=db, worker_id=worker_id, session_id=session_id)
+        text = "Our specialist has successfully repaired your tire. Thank you for your cooperation."
         status = "success"
 
     elif not start_work and not finish_work and in_service_work and not delivery and not cancel:
         await update_payments(db=db, worker_id=worker_id, session_id=session_id)
+        text = "Your tire repair will be completed at a service center."
         status = "in_service"
 
     elif not start_work and not finish_work and not in_service_work and delivery and not cancel:
@@ -152,6 +159,8 @@ async def worker_work_in_service_session(access_token: str, session_id: int,
             return JSONResponse(content={"ok": False, "description": "Worker not free for new session"},
                                 status_code=_status.HTTP_409_CONFLICT)
         await update_payments(db=db, worker_id=worker_id, session_id=session_id)
+        text = "Our worker is coming to you to repair your tire."
+
         status = "delivery"
 
     elif not start_work and not finish_work and not in_service_work and not delivery and cancel:
@@ -160,12 +169,17 @@ async def worker_work_in_service_session(access_token: str, session_id: int,
         if worker_id != client_id[0][0]:
             return JSONResponse(content={"ok": False, "description": "No access rights"},
                                 status_code=_status.HTTP_409_CONFLICT)
+        text = "The order was canceled by the customer"
+        push_user_id = ss_data[0]['worker_id']
+        app_type = "pro"
         status = "cancel"
     else:
         return JSONResponse(content={"ok": False, "description": "Bad start_work and finish_work and in_service_work "
                                                                  "flags"},
                             status_code=_status.HTTP_400_BAD_REQUEST)
 
+    await conn.create_push_for_user(db=db, user_id=push_user_id, session_id=session_id, title=title, text=text,
+                                    app_type=app_type)
     await conn.update_inform(db=db, table="service_session", id_name="session_id", id_data=session_id, name='status',
                              data=status)
     return JSONResponse(content={"ok": True,

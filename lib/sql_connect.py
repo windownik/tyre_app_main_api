@@ -167,6 +167,17 @@ async def create_photo_for_ss(db: Depends, session_id: int, ):
     return data
 
 
+async def create_push_for_user(db: Depends, user_id: int, session_id: int, title: str, text: str,
+                               app_type: str = "simple"):
+    """We create a new payment"""
+    data = await db.fetch(f"INSERT INTO sending "
+                          f"(user_id, title, short_text, main_text, img_url, push_type, push_msg_id, app_type) "
+                          f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8) "
+                          f"ON CONFLICT DO NOTHING RETURNING *;", user_id, title, text,
+                          "0", "0", "text", session_id, app_type)
+    return data
+
+
 async def get_user_id(db: Depends, token_type: str, token: str, device_id: str):
     """Get user_id by token and device id"""
     now = datetime.datetime.now()
@@ -458,9 +469,9 @@ async def read_all_offset(db: Depends, table: str, order: str, limit: int, offse
     return data
 
 
-async def read_all_count(db: Depends, table: str,):
+async def read_all_count(db: Depends, table: str, ):
     """Получаем актуальные данные"""
-    data = await db.fetch(f"SELECT COUNT(*) FROM {table};",)
+    data = await db.fetch(f"SELECT COUNT(*) FROM {table};", )
     return data
 
 
