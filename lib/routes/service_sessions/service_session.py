@@ -138,7 +138,7 @@ async def delete_service_session(access_token: str, session_id: int, db=Depends(
 
 
 @app.get(path='/client_service_session', tags=['Service session'], responses=get_login_res)
-async def get_service_session(access_token: str, session_id: int, db=Depends(data_b.connection)):
+async def get_service_session(access_token: str, db=Depends(data_b.connection)):
     """Get service_session by service_session_id"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
