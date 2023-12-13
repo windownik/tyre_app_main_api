@@ -29,7 +29,7 @@ async def check_users_push_count(access_token: str, db=Depends(data_b.connection
     if type(res) != int:
         return res
 
-    users_id = await conn.read_users_for_push(db=db,)
+    users_id = await conn.read_users_for_push(db=db, )
     workers_id = await conn.read_workers_for_push(db=db, )
 
     return JSONResponse(content={'ok': True,
@@ -68,13 +68,13 @@ async def start_sending_push_msg(access_token: str, title: str, short_text: str,
     workers_id = []
     users_id = []
     if user_type == 'clients':
-        users_id = await conn.read_users_for_push(db=db, name="user_id",)
+        users_id = await conn.read_users_for_push(db=db, name="user_id", )
 
     elif user_type == 'workers':
-        workers_id = await conn.read_workers_for_push(db=db, name="user_id",)
+        workers_id = await conn.read_workers_for_push(db=db, name="user_id", )
     else:
         users_id = await conn.read_users_for_push(db=db, name="user_id", )
-        workers_id = await conn.read_workers_for_push(db=db, name="user_id",)
+        workers_id = await conn.read_workers_for_push(db=db, name="user_id", )
 
     await conn.msg_to_push_logs(db=db, creator_id=user_id, title=title, short_text=short_text, main_text=main_text,
                                 img_url=url, content_type=content_type, users_ids=user_type)
