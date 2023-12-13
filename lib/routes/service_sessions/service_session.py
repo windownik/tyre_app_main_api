@@ -148,7 +148,8 @@ async def get_service_session(access_token: str, db=Depends(data_b.connection)):
         return JSONResponse(content=res.json(),
                             status_code=status_code)
 
-    service_data = await conn.read_data(db=db, table='service_session', id_name='client_id', id_data=user_id)
+    service_data = await conn.read_data(db=db, table='service_session', id_name='client_id', id_data=user_id,
+                                        order=" ORDER BY session_id DESC")
     if not service_data:
         return JSONResponse(content={"ok": False,
                                      'description': "The service session with this session_id is not registered",
