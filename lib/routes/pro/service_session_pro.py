@@ -170,7 +170,7 @@ async def worker_work_in_service_session(access_token: str, session_id: int, wor
     elif not start_work and not finish_work and not in_service_work and not delivery and not cancel and new_bill:
         await update_payments(db=db, worker_id=worker_id, session_id=session_id)
         text = "You need to pay an additional invoice in your service session."
-        status = "new bill"
+        status = "waiting payment"
 
     elif not start_work and not finish_work and not in_service_work and not delivery and cancel and not new_bill:
         client_id = await conn.read_data(db=db, table="service_session", name="client_id", id_name="session_id",

@@ -84,7 +84,6 @@ async def create_service_session(access_token: str, vehicle_id: int, session_typ
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
-
 @app.get(path='/service_session', tags=['Service session'], responses=get_login_res)
 async def get_service_session(access_token: str, session_id: int, db=Depends(data_b.connection)):
     """Get service_session by service_session_id"""
