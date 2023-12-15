@@ -120,6 +120,7 @@ async def worker_work_in_service_session(access_token: str, session_id: int, wor
                                          distant: float = 0,
                                          cancel: bool = False,
                                          delivery: bool = False,
+                                         new_bill: bool = False,
                                          start_work: bool = False,
                                          finish_work: bool = False,
                                          in_service_work: bool = False,
@@ -140,22 +141,22 @@ async def worker_work_in_service_session(access_token: str, session_id: int, wor
         return JSONResponse(content={"ok": False, "description": "Bad session_id"},
                             status_code=_status.HTTP_400_BAD_REQUEST)
 
-    if start_work and not finish_work and not in_service_work and not delivery and not cancel:
+    if start_work and not finish_work and not in_service_work and not delivery and not cancel and not new_bill:
         await update_payments(db=db, worker_id=worker_id, session_id=session_id)
         text = "Our technician has started repairing your tire."
         status = "in work"
 
-    elif not start_work and finish_work and not in_service_work and not delivery and not cancel:
+    elif not start_work and finish_work and not in_service_work and not delivery and not cancel and not new_bill:
         await update_payments(db=db, worker_id=worker_id, session_id=session_id)
         text = "Our specialist has successfully repaired your tire. Thank you for your cooperation."
         status = "success"
 
-    elif not start_work and not finish_work and in_service_work and not delivery and not cancel:
+    elif not start_work and not finish_work and in_service_work and not delivery and not cancel and not new_bill:
         await update_payments(db=db, worker_id=worker_id, session_id=session_id)
         text = "Your tire repair will be completed at a service center."
         status = "in_service"
 
-    elif not start_work and not finish_work and not in_service_work and delivery and not cancel:
+    elif not start_work and not finish_work and not in_service_work and delivery and not cancel and not new_bill:
         other_ss = await conn.read_workers_ss(db=db, worker_id=worker_id)
         if other_ss:
             return JSONResponse(content={"ok": False, "description": "Worker not free for new session"},
@@ -164,10 +165,14 @@ async def worker_work_in_service_session(access_token: str, session_id: int, wor
         await conn.update_start_worker_pos_ss(db=db, distant=distant, long=worker_long, lat=worker_lat,
                                               session_id=session_id)
         text = "Our worker is coming to you to repair your tire."
-
         status = "delivery"
 
-    elif not start_work and not finish_work and not in_service_work and not delivery and cancel:
+    elif not start_work and not finish_work and not in_service_work and not delivery and not cancel and new_bill:
+        await update_payments(db=db, worker_id=worker_id, session_id=session_id)
+        text = "You need to pay an additional invoice in your service session."
+        status = "new bill"
+
+    elif not start_work and not finish_work and not in_service_work and not delivery and cancel and not new_bill:
         client_id = await conn.read_data(db=db, table="service_session", name="client_id", id_name="session_id",
                                          id_data=session_id)
         if worker_id != client_id[0][0]:
@@ -178,8 +183,7 @@ async def worker_work_in_service_session(access_token: str, session_id: int, wor
         app_type = "pro"
         status = "cancel"
     else:
-        return JSONResponse(content={"ok": False, "description": "Bad start_work and finish_work and in_service_work "
-                                                                 "flags"},
+        return JSONResponse(content={"ok": False, "description": "Bad flags in service session"},
                             status_code=_status.HTTP_400_BAD_REQUEST)
 
     await conn.create_push_for_user(db=db, user_id=push_user_id, session_id=session_id, title=title, text=text,
