@@ -115,8 +115,9 @@ async def get_all_service_session_in_archive(access_token: str, page: int = 1, c
 
 
 @app.put(path='/pro_session_status', tags=['Pro Service session'], responses=get_login_res)
-async def worker_work_in_service_session(access_token: str, session_id: int, worker_lat: float, worker_long: float,
-                                         distant: float,
+async def worker_work_in_service_session(access_token: str, session_id: int, worker_lat: float = 0,
+                                         worker_long: float = 0,
+                                         distant: float = 0,
                                          cancel: bool = False,
                                          delivery: bool = False,
                                          start_work: bool = False,
@@ -203,4 +204,3 @@ async def update_payments(db: Depends, worker_id: int, session_id: int):
                              id_data=session_id)
     await conn.update_inform(db=db, name="contractor_id", data=contr[0][0], table="service_session",
                              id_name="session_id", id_data=session_id)
-
