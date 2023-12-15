@@ -175,7 +175,8 @@ async def get_workers_payments_list(access_token: str, worker_id: int, db=Depend
 
 
 @app.get(path='/payment_status', tags=['Payment'], responses=get_user_res)
-async def get_payments_list(access_token: str, payment_id: int = 0, db=Depends(data_b.connection)):
+async def get_payments_list(access_token: str, payment_id: int = 0, finish_session: bool = False,
+                            db=Depends(data_b.connection)):
     """Get payment status"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
@@ -191,12 +192,24 @@ async def get_payments_list(access_token: str, payment_id: int = 0, db=Depends(d
         create_date = int(time.mktime(create_date.timetuple()))
         await conn.update_inform(db=db, table="payments", name="pay_date", data=create_date, id_name="pay_id",
                                  id_data=payment_id)
-        await conn.update_inform(db=db, table="service_session", name="status", data="search", id_name="session_id",
-                                 id_data=pay_data[0]["session_id"])
-    return JSONResponse(content={"ok": True,
+        await conn.update_inform(db=db, table="service_session", name="status", id_name="session_id",
+                                 data="success" if finish_session else "search", id_data=pay_data[0]["session_id"])
+        if finish_session:
+            worker_id = pay_data[0]["worker_id"]
+            session_id = pay_data[0]["session_id"]
+            title = "Tire repair session"
+            text = "Service session has been successfully paid and automatically completed."
+            await conn.create_push_for_user(db=db, user_id=worker_id, session_id=session_id, title=title, text=text,
+                                            app_type="pro")
+        return JSONResponse(content={"ok": True,
+                                     "status": res.status,
+                                     },
+                            status_code=_status.HTTP_200_OK,
+                            headers={'content-type': 'application/json; charset=utf-8'})
+    return JSONResponse(content={"ok": False,
                                  "status": res.status,
                                  },
-                        status_code=_status.HTTP_200_OK,
+                        status_code=_status.HTTP_400_BAD_REQUEST,
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
