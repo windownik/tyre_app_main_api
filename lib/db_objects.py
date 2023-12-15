@@ -11,8 +11,6 @@ ip_file_port = os.environ.get("PORT_FILE_SERVER")
 file_url = f"http://{ip_file_server}:{ip_file_port}"
 
 
-
-
 class User(BaseModel):
     user_id: int
     name: str
@@ -199,6 +197,9 @@ class ServiceSession(BaseModel):
     session_date: int
     lat: float
     long: float
+    worker_lat: float
+    worker_long: float
+    distant: float
     address: str
     bolt_key: bool
     create_date: int

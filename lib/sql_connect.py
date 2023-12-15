@@ -256,11 +256,15 @@ async def update_inform(db: Depends, name: str, data, table: str, id_name: str, 
                    data, id_data)
 
 
-async def update_start_stop_search(db: Depends, lat: float, long: float, get_push: bool, user_id: int):
+async def update_start_worker_pos_ss(db: Depends, lat: float, long: float, distant: float, session_id: int):
+    await db.fetch(f"UPDATE service_session SET worker_lat=$1, worker_long=$2, distant=$3 WHERE session_id=$4;",
+                   lat, long, distant, session_id)
+
+
+async def update_ss_search(db: Depends, lat: float, long: float, get_push: bool, user_id: int):
     date = datetime.datetime.now()
     await db.fetch(f"UPDATE workers SET lat=$1, long=$2, get_push=$3, last_active=$4 WHERE user_id=$5;",
                    lat, long, get_push, int(time.mktime(date.timetuple())), user_id)
-
 
 # Обновляем информацию
 async def update_user(db: Depends, name: str, surname: str, email: str, get_push: bool, get_email: bool, user_id: int):

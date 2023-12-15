@@ -119,6 +119,9 @@ async def create_service_session_table(db):
  bolt_key BOOL DEFAULT false,
  lat DOUBLE PRECISION DEFAULT 0,
  long DOUBLE PRECISION DEFAULT 0,
+ worker_lat DOUBLE PRECISION DEFAULT 0,
+ worker_long DOUBLE PRECISION DEFAULT 0,
+ distant DOUBLE PRECISION DEFAULT 0,
  address TEXT DEFAULT '0',
  create_date BIGINT DEFAULT 0
  )''')

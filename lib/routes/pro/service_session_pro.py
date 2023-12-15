@@ -115,7 +115,8 @@ async def get_all_service_session_in_archive(access_token: str, page: int = 1, c
 
 
 @app.put(path='/pro_session_status', tags=['Pro Service session'], responses=get_login_res)
-async def worker_work_in_service_session(access_token: str, session_id: int,
+async def worker_work_in_service_session(access_token: str, session_id: int, worker_lat: float, worker_long: float,
+                                         distant: float,
                                          cancel: bool = False,
                                          delivery: bool = False,
                                          start_work: bool = False,
@@ -159,6 +160,8 @@ async def worker_work_in_service_session(access_token: str, session_id: int,
             return JSONResponse(content={"ok": False, "description": "Worker not free for new session"},
                                 status_code=_status.HTTP_409_CONFLICT)
         await update_payments(db=db, worker_id=worker_id, session_id=session_id)
+        await conn.update_start_worker_pos_ss(db=db, distant=distant, long=worker_long, lat=worker_lat,
+                                              session_id=session_id)
         text = "Our worker is coming to you to repair your tire."
 
         status = "delivery"
