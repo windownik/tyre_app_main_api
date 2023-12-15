@@ -193,6 +193,38 @@ async def worker_work_in_service_session(access_token: str, session_id: int, wor
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
+@app.post(path='/ss_custom_work', tags=['Pro'], responses=get_login_res)
+async def create_service_session_custom_work(access_token: str, session_id: int, work_name: str, price: int,
+                                             currency: str = "GBP", db=Depends(data_b.connection)):
+    """Worker create custom ss work in session"""
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    if res.status_code != 200:
+        return JSONResponse(content=res.json(),
+                            status_code=res.status_code)
+    worker_id = res.json()['user_id']
+    service_data = await conn.read_data(db=db, table='service_session', id_name='session_id', id_data=session_id)
+    if not service_data:
+        return JSONResponse(content={"ok": False,
+                                     'description': "The service session with this session_id is not registered",
+                                     },
+                            status_code=_status.HTTP_400_BAD_REQUEST)
+    service_session: ServiceSession = ServiceSession.parse_obj(service_data[0])
+    if service_session.worker_id != worker_id:
+        return JSONResponse(content={"ok": False,
+                                     'description': "No access rights"},
+                            status_code=_status.HTTP_400_BAD_REQUEST)
+
+    await conn.create_ss_work(db=db, session_id=session_id, currency=currency, name_en=work_name, price=price,
+                              work_type_id=0, wheel_rr=False, wheel_rl=False,
+                              wheel_fl=False, wheel_fr=False)
+
+    return JSONResponse(content={"ok": True,
+                                 'service_session': await service_session.to_json(db=db, session_work_list=[])
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
 async def update_payments(db: Depends, worker_id: int, session_id: int):
     contr = await conn.read_data(db=db, table="workers", name="contractor_id", id_name="user_id", id_data=worker_id)
 
