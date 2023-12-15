@@ -8,7 +8,7 @@ from lib import sql_connect as conn
 ip_file_server = os.environ.get("IP_FILE_SERVER")
 ip_file_port = os.environ.get("PORT_FILE_SERVER")
 
-file_url = f"http://{ip_file_server}:{ip_file_port}"
+file_url = f"https://{ip_file_server}:{ip_file_port}"
 
 
 
