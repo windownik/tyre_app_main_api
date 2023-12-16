@@ -36,6 +36,8 @@ def write_for_one_user(pdf: FPDF, name: str) -> FPDF:
 
 
 def write_session_data(pdf: FPDF, data: dict) -> FPDF:
+    range = data['distant'] / 1609.34
+
     pdf.set_font("Montserrat", "", 12)
     pdf.cell(150, 8, f"Session ID # {data['session_id']}", ln=True)
     pdf.set_font("lite", "", 10)
@@ -47,7 +49,7 @@ def write_session_data(pdf: FPDF, data: dict) -> FPDF:
                      f"R{data['rear_rim_diameter']}",
              ln=True)
     pdf.cell(150, 6, f"Client:  {data['name']} {data['surname']}, tel. {data['phone']}", ln=True)
-    pdf.cell(150, 6, f"Start distant:  {data['distant']}", ln=True)
+    pdf.cell(150, 6, f"Distance between client and customer:  {round(range, 3)} miles", ln=True)
     pdf.cell(150, 6, f"Client:  {data['name']} {data['surname']}, tel. {data['phone']}", ln=True)
     # pdf.cell(100, 10, ln=True)
     return pdf
