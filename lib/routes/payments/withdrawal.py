@@ -190,9 +190,9 @@ async def get_all_withdrawal_invoice(access_token: str, contractor_id: int = 0,
 @app.get(path='/withdrawal_pdf', tags=['Payment'], responses=create_payment_res)
 async def get_all_withdrawal_invoice(access_token: str, wi_id: int, contractor_id: int, db=Depends(data_b.connection)):
     """Get withdrawal invoices of one contractor"""
-    # user_id = await check_con_owner_or_admin(access_token=access_token, co_id=contractor_id, db=db)
-    # if type(user_id) != int:
-    #     return user_id
+    user_id = await check_con_owner_or_admin(access_token=access_token, co_id=contractor_id, db=db)
+    if type(user_id) != int:
+        return user_id
     co_data = await conn.read_data(db=db, table='contractor', id_data=contractor_id, id_name="contractor_id")
     data = await conn.read_withdrawal_invoice_for_pdf(db=db, wi_id=wi_id)
     create_file_pdf(data=data, invoice_id=wi_id, co_name=co_data[0]['co_name'])
