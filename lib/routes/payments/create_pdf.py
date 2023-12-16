@@ -7,6 +7,7 @@ def create_file_pdf(data: tuple):
     pdf = FPDF("P", "mm", "A4")
     pdf.add_page()
     pdf.add_font("Montserrat", '', "Montserrat-Medium.ttf")
+    pdf.add_font("lite", '', "Montserrat-Light.ttf")
     pdf.set_font("Montserrat", "", 22)
     pdf.cell(100, 30, "Withdrawal invoice", ln=True)
     worker_id = 0
@@ -33,7 +34,7 @@ def write_for_one_user(pdf: FPDF, name: str) -> FPDF:
 
 
 def write_session_data(pdf: FPDF, data: dict) -> FPDF:
-    pdf.set_font("Montserrat", "", 14)
+    pdf.set_font("lite", "", 14)
     pdf.cell(150, 8, f"Session ID # {data['session_id']}", ln=True)
     pdf.cell(150, 8, f"Vehicle reg number:  {data['reg_num']}", ln=True)
     pdf.cell(150, 8, f"Vehicle:  {data['make']} {data['model']}", ln=True)
@@ -42,7 +43,7 @@ def write_session_data(pdf: FPDF, data: dict) -> FPDF:
                      f"R{data['front_rim_diameter']},  Rear: {data['rear_section_width']}/ {data['rear_aspect_ratio']} "
                      f"R{data['rear_rim_diameter']}",
              ln=True)
-    pdf.cell(150, 10, f"Client:  {data['name']} {data['surname']}, tel. {data['phone']}", ln=True)
+    pdf.cell(150, 8, f"Client:  {data['name']} {data['surname']}, tel. {data['phone']}", ln=True)
     pdf.cell(100, 10, ln=True)
     return pdf
 
@@ -60,7 +61,7 @@ def write_headers(pdf: FPDF) -> FPDF:
 
 def write_body(pdf: FPDF, data: dict) -> FPDF:
     dtime = datetime.datetime.utcfromtimestamp(data["pay_date"])
-    pdf.set_font("Montserrat", "", 12)
+    pdf.set_font("lite", "", 12)
     pdf.cell(10, 8, str(data["pay_id"]), border=1, align=Align.C)
     pdf.cell(100, 8, "Work description", border=1, align=Align.C)
     pdf.cell(30, 8, data["currency"], border=1, align=Align.C)
