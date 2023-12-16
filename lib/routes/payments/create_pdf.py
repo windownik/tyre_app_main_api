@@ -40,7 +40,7 @@ def write_session_data(pdf: FPDF, data: dict) -> FPDF:
                       f"R{data['rear_rim_diameter']}",
              ln=True)
     pdf.cell(150, 10, f"Client: {data['name']} {data['surname']}, tel. {data['phone']}", ln=True)
-    pdf.cell(100, 10, )
+    pdf.cell(100, 10, ln=True)
     return pdf
 
 
@@ -50,7 +50,7 @@ def write_headers(pdf: FPDF) -> FPDF:
     pdf.cell(100, 10, "Work description", border=1, align=Align.C)
     pdf.cell(30, 10, "Currency", border=1, align=Align.C)
     pdf.cell(30, 10, "Amount", border=1, align=Align.C)
-    pdf.cell(30, 10, "Pay date", border=1, align=Align.C)
+    pdf.cell(30, 10, "Pay date", border=1, align=Align.C, ln=True)
     return pdf
 
 
@@ -60,7 +60,7 @@ def write_body(pdf: FPDF, data: dict) -> FPDF:
     pdf.cell(100, 10, "Work description", border=1, align=Align.C)
     pdf.cell(30, 10, data["currency"], border=1, align=Align.C)
     pdf.cell(30, 10, data["amount"], border=1, align=Align.C)
-    pdf.cell(30, 10, data["pay_date"], border=1, align=Align.C)
+    pdf.cell(30, 10, data["pay_date"], border=1, align=Align.C, ln=True)
     return pdf
 
 
