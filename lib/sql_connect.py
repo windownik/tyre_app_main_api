@@ -348,7 +348,7 @@ async def read_withdrawal_invoice_payments(db: Depends, wi_id: int):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT payments.* FROM payments "
                           f"JOIN withdrawal ON withdrawal.pay_id = payments.pay_id "
-                          f"WHERE withdrawal.wi_id = $1;", wi_id)
+                          f"WHERE withdrawal.wi_id = $1 ORDER BY payments.pay_id AND payments.worker_id ;", wi_id)
     return data
 
 
