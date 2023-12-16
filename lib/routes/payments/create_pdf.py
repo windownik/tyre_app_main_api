@@ -3,15 +3,16 @@ import datetime
 from fpdf import FPDF, Align
 
 
-def create_file_pdf(data: tuple, invoice_id: int, co_name: str):
+def create_file_pdf(data: tuple, invoice_id: int, co_name: str, address: str):
     pdf = FPDF("P", "mm", "A4")
     pdf.add_page()
     pdf.add_font("Montserrat", '', "Montserrat-Medium.ttf")
     pdf.add_font("lite", '', "Montserrat-Light.ttf")
     pdf.set_font("Montserrat", "", 22)
-    pdf.cell(100, 20, f"Withdrawal invoice #{invoice_id}", ln=True)
-    pdf.set_font("Montserrat", "", 12)
-    pdf.cell(100, 15, f"Contractor name: {co_name}", ln=True)
+    pdf.cell(100, 10, f"Withdrawal invoice #{invoice_id}", ln=True)
+    pdf.set_font("lite", "", 12)
+    pdf.cell(100, 8, f"Contractor's name: {co_name}", ln=True)
+    pdf.cell(195, 8, f"Address: {address}", ln=True)
     worker_id = 0
     session_id = 0
     for payment in data:
