@@ -1,3 +1,5 @@
+import datetime
+
 from fpdf import FPDF, Align
 
 
@@ -55,12 +57,13 @@ def write_headers(pdf: FPDF) -> FPDF:
 
 
 def write_body(pdf: FPDF, data: dict) -> FPDF:
+
     pdf.set_font("Montserrat", "", 12)
-    pdf.cell(15, 10, data["pay_id"], border=1, align=Align.C)
+    pdf.cell(15, 10, str(data["pay_id"]), border=1, align=Align.C)
     pdf.cell(100, 10, "Work description", border=1, align=Align.C)
     pdf.cell(30, 10, data["currency"], border=1, align=Align.C)
-    pdf.cell(30, 10, data["amount"], border=1, align=Align.C)
-    pdf.cell(30, 10, data["pay_date"], border=1, align=Align.C, ln=True)
+    pdf.cell(30, 10, str(data["amount"]/100), border=1, align=Align.C)
+    pdf.cell(30, 10, str(data["pay_date"]), border=1, align=Align.C, ln=True)
     return pdf
 
 
