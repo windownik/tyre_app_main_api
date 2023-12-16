@@ -21,7 +21,9 @@ def create_file_pdf(data: tuple):
             pdf = write_session_data(pdf=pdf, data=payment, )
         pdf = write_headers(pdf)
         pdf = write_body(pdf=pdf, data=payment)
+        pdf.cell(100, 8, border=1, ln=True)
         pdf.cell(1000, 2, border=1, ln=True)
+        pdf.cell(100, 12, border=1, ln=True)
 
     pdf.output("invoice.pdf")
 
@@ -50,7 +52,8 @@ def write_session_data(pdf: FPDF, data: dict) -> FPDF:
 
 def write_headers(pdf: FPDF) -> FPDF:
     pdf.set_font("Montserrat", "", 12)
-    pdf.cell(150, 8, "Works in service session", border=1, align=Align.C, ln=True)
+    pdf.cell(150, 8, "Works in service session", align=Align.L, ln=True)
+    pdf.set_font("lite", "", 10)
     pdf.cell(10, 8, "ID", border=1, align=Align.C)
     pdf.cell(100, 8, "Work description", border=1, align=Align.C)
     pdf.cell(20, 8, "Currency", border=1, align=Align.C)
@@ -61,10 +64,10 @@ def write_headers(pdf: FPDF) -> FPDF:
 
 def write_body(pdf: FPDF, data: dict) -> FPDF:
     dtime = datetime.datetime.utcfromtimestamp(data["pay_date"])
-    pdf.set_font("lite", "", 12)
+    pdf.set_font("lite", "", 10)
     pdf.cell(10, 8, str(data["pay_id"]), border=1, align=Align.C)
     pdf.cell(100, 8, "Work description", border=1, align=Align.C)
-    pdf.cell(30, 8, data["currency"], border=1, align=Align.C)
-    pdf.cell(30, 8, str(data["amount"] / 100), border=1, align=Align.C)
+    pdf.cell(20, 8, data["currency"], border=1, align=Align.C)
+    pdf.cell(20, 8, str(data["amount"] / 100), border=1, align=Align.C)
     pdf.cell(30, 8, str(dtime), border=1, align=Align.C, ln=True)
     return pdf
