@@ -36,7 +36,7 @@ def write_for_one_user(pdf: FPDF, name: str) -> FPDF:
 
 
 def write_session_data(pdf: FPDF, data: dict) -> FPDF:
-    pdf.set_font("lite", "", 14)
+    pdf.set_font("lite", "", 10)
     pdf.cell(150, 8, f"Session ID # {data['session_id']}", ln=True)
     pdf.cell(150, 8, f"Vehicle reg number:  {data['reg_num']}", ln=True)
     pdf.cell(150, 8, f"Vehicle:  {data['make']} {data['model']}", ln=True)
