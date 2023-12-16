@@ -22,7 +22,7 @@ def create_file_pdf(data: tuple):
         pdf = write_headers(pdf)
         pdf = write_body(pdf=pdf, data=payment)
         pdf.cell(100, 8, ln=True)
-        pdf.cell(1000, 0.5, border=1, ln=True)
+        pdf.cell(195, 0.5, border=1, ln=True)
         pdf.cell(100, 5, ln=True)
 
     pdf.output("invoice.pdf")
@@ -31,7 +31,7 @@ def create_file_pdf(data: tuple):
 def write_for_one_user(pdf: FPDF, name: str) -> FPDF:
     pdf.set_font("Montserrat", "", 18)
     pdf.cell(120, 20, f"Driver's name:  {name}", ln=True)
-    pdf.cell(1000, 0.5, border=1, )
+    pdf.cell(195, 0.5, border=1, ln=True)
     return pdf
 
 
@@ -49,7 +49,7 @@ def write_session_data(pdf: FPDF, data: dict) -> FPDF:
     pdf.cell(150, 6, f"Client:  {data['name']} {data['surname']}, tel. {data['phone']}", ln=True)
     pdf.cell(150, 6, f"Start distant:  {data['distant']}", ln=True)
     pdf.cell(150, 6, f"Client:  {data['name']} {data['surname']}, tel. {data['phone']}", ln=True)
-    pdf.cell(100, 10, ln=True)
+    # pdf.cell(100, 10, ln=True)
     return pdf
 
 
