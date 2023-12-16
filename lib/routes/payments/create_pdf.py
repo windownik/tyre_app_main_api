@@ -67,6 +67,3 @@ def write_body(pdf: FPDF, data: dict) -> FPDF:
     pdf.cell(30, 8, str(data["amount"] / 100), border=1, align=Align.C)
     pdf.cell(30, 8, str(dtime), border=1, align=Align.C, ln=True)
     return pdf
-
-
-print(ti)
