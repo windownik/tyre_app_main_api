@@ -1,7 +1,7 @@
 FROM python:3.12
 
 
-ENV TZ=Europe/Moscow
+ENV TZ=Europe/London
 RUN apt-get update && apt-get install -yy tzdata
 RUN cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
