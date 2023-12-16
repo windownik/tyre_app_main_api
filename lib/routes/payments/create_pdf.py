@@ -21,9 +21,9 @@ def create_file_pdf(data: tuple):
             pdf = write_session_data(pdf=pdf, data=payment, )
         pdf = write_headers(pdf)
         pdf = write_body(pdf=pdf, data=payment)
-        pdf.cell(100, 8, border=1, ln=True)
+        pdf.cell(100, 8, ln=True)
         pdf.cell(1000, 2, border=1, ln=True)
-        pdf.cell(100, 12, border=1, ln=True)
+        pdf.cell(100, 12, ln=True)
 
     pdf.output("invoice.pdf")
 
@@ -36,16 +36,19 @@ def write_for_one_user(pdf: FPDF, name: str) -> FPDF:
 
 
 def write_session_data(pdf: FPDF, data: dict) -> FPDF:
-    pdf.set_font("lite", "", 10)
+    pdf.set_font("Montserrat", "", 12)
     pdf.cell(150, 8, f"Session ID # {data['session_id']}", ln=True)
-    pdf.cell(150, 8, f"Vehicle reg number:  {data['reg_num']}", ln=True)
-    pdf.cell(150, 8, f"Vehicle:  {data['make']} {data['model']}", ln=True)
-    pdf.cell(150, 8, f"Vehicle year:  {data['year']}", ln=True)
-    pdf.cell(150, 8, f"Tyre size, Front:  {data['front_section_width']}/ {data['front_aspect_ratio']} "
+    pdf.set_font("lite", "", 10)
+    pdf.cell(150, 6, f"Vehicle reg number:  {data['reg_num']}", ln=True)
+    pdf.cell(150, 6, f"Vehicle:  {data['make']} {data['model']}", ln=True)
+    pdf.cell(150, 6, f"Vehicle year:  {data['year']}", ln=True)
+    pdf.cell(150, 6, f"Tyre size, Front:  {data['front_section_width']}/ {data['front_aspect_ratio']} "
                      f"R{data['front_rim_diameter']},  Rear: {data['rear_section_width']}/ {data['rear_aspect_ratio']} "
                      f"R{data['rear_rim_diameter']}",
              ln=True)
-    pdf.cell(150, 8, f"Client:  {data['name']} {data['surname']}, tel. {data['phone']}", ln=True)
+    pdf.cell(150, 6, f"Client:  {data['name']} {data['surname']}, tel. {data['phone']}", ln=True)
+    pdf.cell(150, 6, f"Start distant:  {data['distant']}", ln=True)
+    pdf.cell(150, 6, f"Client:  {data['name']} {data['surname']}, tel. {data['phone']}", ln=True)
     pdf.cell(100, 10, ln=True)
     return pdf
 
