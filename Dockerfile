@@ -22,6 +22,7 @@ RUN pip3 install moviepy
 RUN pip3 uninstall -y pydantic
 RUN pip3 install pydantic==1.10.11
 RUN pip3 install stripe
+RUN pip3 install fpdf2
 
 
 WORKDIR /main/

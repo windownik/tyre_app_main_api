@@ -352,6 +352,24 @@ async def read_withdrawal_invoice_payments(db: Depends, wi_id: int):
     return data
 
 
+async def read_withdrawal_invoice_for_pdf(db: Depends, wi_id: int):
+    """Получаем актуальные события"""
+    data = await db.fetch(f"""
+    SELECT payments.pay_id, service_session.session_id, service_session.distant, payments.session_work_id, users.name, 
+    users.surname, users.phone, vehicle.reg_num, vehicle.make, vehicle.model, vehicle.year, vehicle.front_rim_diameter, 
+    vehicle.front_aspect_ratio, vehicle.front_section_width, vehicle.rear_rim_diameter, vehicle.rear_aspect_ratio, 
+    vehicle.rear_section_width, payments.worker_id, workers.worker_name, payments.currency, payments.amount, 
+    payments.pay_date 
+FROM payments JOIN withdrawal ON withdrawal.pay_id = payments.pay_id 
+join users on payments.user_id = users.user_id 
+join workers on payments.worker_id = workers.user_id 
+join service_session on payments.session_id = service_session.session_id
+join vehicle on service_session.vehicle_id = vehicle.vehicle_id
+WHERE withdrawal.wi_id = $1 ORDER BY payments.worker_id ASC, service_session.session_id ASC;
+""", wi_id)
+    return data
+
+
 async def read_worker_withdrawal(db: Depends, worker_id: int):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT withdrawal.* FROM withdrawal "
