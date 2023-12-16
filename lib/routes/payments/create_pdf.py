@@ -10,7 +10,7 @@ def create_file_pdf(data: tuple, invoice_id: int, co_name: str):
     pdf.add_font("lite", '', "Montserrat-Light.ttf")
     pdf.set_font("Montserrat", "", 22)
     pdf.cell(100, 20, f"Withdrawal invoice #{invoice_id}", ln=True)
-    pdf.set_font("Montserrat", "", 20)
+    pdf.set_font("Montserrat", "", 12)
     pdf.cell(100, 15, f"Contractor name: {co_name}", ln=True)
     worker_id = 0
     session_id = 0
@@ -31,7 +31,7 @@ def create_file_pdf(data: tuple, invoice_id: int, co_name: str):
 
 
 def write_for_one_user(pdf: FPDF, name: str) -> FPDF:
-    pdf.set_font("Montserrat", "", 18)
+    pdf.set_font("Montserrat", "", 16)
     pdf.cell(120, 20, f"Driver's name:  {name}", ln=True)
     pdf.cell(195, 0.5, border=1, ln=True)
     return pdf
