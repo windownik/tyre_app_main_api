@@ -55,7 +55,7 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
         list_active_ss.append(await active_ss.to_json(db=db, session_work_list=[]))
 
     return JSONResponse(content={"ok": True,
-                                 'worker': list_worker,
+                                 'workers': list_worker,
                                  "active_ss": list_active_ss,
                                  },
                         status_code=_status.HTTP_200_OK,
