@@ -17,7 +17,7 @@ def create_file_pdf(data: tuple):
             session_id = payment["session_id"]
             pdf = write_session_data(pdf=pdf, data=payment, )
         pdf = write_headers(pdf)
-        pdf = write_body(pdf=pdf, data=data)
+        pdf = write_body(pdf=pdf, data=payment)
 
     pdf.output("invoice.pdf")
 
