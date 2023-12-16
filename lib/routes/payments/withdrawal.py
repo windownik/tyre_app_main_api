@@ -3,7 +3,7 @@ import os
 import requests
 import starlette.status as _status
 from fastapi import Depends
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, FileResponse
 
 from lib import sql_connect as conn
 from lib.db_objects import Contractor, WithdrawalInvoice, Withdrawal, Payment, User, Worker
@@ -197,7 +197,4 @@ async def get_all_withdrawal_invoice(access_token: str, wi_id: int, contractor_i
     data = await conn.read_withdrawal_invoice_for_pdf(db=db, wi_id=wi_id)
     create_file_pdf(data=data, invoice_id=wi_id, co_name=co_data[0]['co_name'], address=co_data[0]['address'])
 
-    return JSONResponse(content={"ok": True,
-                                 },
-                        status_code=_status.HTTP_200_OK,
-                        headers={'content-type': 'application/json; charset=utf-8'})
+    return FileResponse(path="invoice.pdf", media_type='multipart/form-data', filename="invoice.pdf")
