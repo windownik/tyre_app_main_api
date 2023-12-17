@@ -196,7 +196,8 @@ async def get_all_withdrawal_invoice(access_token: str, wi_id: int, contractor_i
     co_data = await conn.read_data(db=db, table='contractor', id_data=contractor_id, id_name="contractor_id")
     data = await conn.read_withdrawal_invoice_for_pdf(db=db, wi_id=wi_id)
     ss_w_dict = await get_sessions(db, data)
-    create_file_pdf(data=data, invoice_id=wi_id, co_name=co_data[0]['co_name'], address=co_data[0]['address'])
+    create_file_pdf(data=data, invoice_id=wi_id, co_name=co_data[0]['co_name'], address=co_data[0]['address'],
+                    ss_w_dict=ss_w_dict)
 
     return FileResponse(path="invoice.pdf", media_type='application/pdf', filename=f"invoice_{wi_id}.pdf")
 
