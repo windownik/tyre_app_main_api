@@ -3,8 +3,15 @@ import datetime
 from fpdf import FPDF, Align
 
 
+class PDF(FPDF):
+    def footer(self):
+        self.set_y(-15)
+        self.set_font("lite", "", 10)
+        self.cell(0, 10, f"Page: {self.page_no()}", align=Align.R)
+
+
 def create_file_pdf(data: tuple, invoice_id: int, co_name: str, address: str):
-    pdf = FPDF("P", "mm", "A4")
+    pdf = PDF("P", "mm", "A4")
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
     pdf.image("tyre_app_pro.png", 10, 8, 30)
