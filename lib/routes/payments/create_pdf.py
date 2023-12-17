@@ -37,15 +37,15 @@ def create_file_pdf(data: tuple, invoice_id: int, co_name: str, address: str, ss
             session_id = payment["session_id"]
             if amount != 0:
                 pdf.cell(150, 5, f"Total Amount:  {payment['currency']} {amount}", ln=True)
+                pdf.cell(100, 8, ln=True)
+                pdf.cell(195, 0.5, border=1, ln=True)
+                pdf.cell(100, 5, ln=True)
             pdf = write_session_data(pdf=pdf, data=payment, )
             pdf = write_headers(pdf)
-            pdf.cell(100, 8, ln=True)
-            pdf.cell(195, 0.5, border=1, ln=True)
-            pdf.cell(100, 5, ln=True)
+
             amount = 0
         amount += payment['amount'] / 100
         pdf = write_body(pdf=pdf, data=payment, ss_w_dict=ss_w_dict)
-
 
     pdf.output("invoice.pdf")
 
