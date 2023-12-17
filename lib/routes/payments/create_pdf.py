@@ -83,10 +83,11 @@ def write_headers(pdf: FPDF) -> FPDF:
 
 
 def write_body(pdf: FPDF, data: dict, ss_w_dict: dict) -> FPDF:
-
     list_int = str(data["session_work_id"]).split(",")
     dtime = datetime.datetime.utcfromtimestamp(data["pay_date"])
     pdf.set_font("lite", "", 10)
+    pdf.cell(45, 5, data["session_work_id"], border=1, align=Align.C,)
+    pdf.cell(45, 5, str(data["amount"] / 100), border=1, align=Align.C, ln=True)
     for one in list_int:
         ss_w: SessionWork = ss_w_dict[one]
 
