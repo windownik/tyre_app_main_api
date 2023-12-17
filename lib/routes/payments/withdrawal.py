@@ -197,4 +197,5 @@ async def get_all_withdrawal_invoice(access_token: str, wi_id: int, contractor_i
     data = await conn.read_withdrawal_invoice_for_pdf(db=db, wi_id=wi_id)
     create_file_pdf(data=data, invoice_id=wi_id, co_name=co_data[0]['co_name'], address=co_data[0]['address'])
 
-    return FileResponse(path="invoice.pdf", media_type='multipart/form-data', filename="invoice.pdf")
+    return FileResponse(path="invoice.pdf", media_type='multipart/form-data', filename="invoice.pdf",
+                        headers={'content-disposition': 'attachment'})
