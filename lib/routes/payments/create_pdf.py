@@ -34,7 +34,7 @@ def create_file_pdf(data: tuple, invoice_id: int, co_name: str, address: str, ss
         if session_id != payment["session_id"]:
             session_id = payment["session_id"]
             pdf = write_session_data(pdf=pdf, data=payment, )
-        pdf = write_headers(pdf)
+            pdf = write_headers(pdf)
         pdf = write_body(pdf=pdf, data=payment, ss_w_dict=ss_w_dict)
         pdf.cell(100, 8, ln=True)
         pdf.cell(195, 0.5, border=1, ln=True)
