@@ -70,7 +70,7 @@ def write_session_data(pdf: FPDF, data: dict) -> FPDF:
     pdf.cell(150, 5, f"Vehicle reg number:  {data['reg_num']}", ln=True)
     pdf.cell(150, 5, f"Vehicle:  {data['make']} {data['model']}", ln=True)
     pdf.cell(150, 5, f"Vehicle year:  {data['year']}", ln=True)
-    pdf.cell(150, 5, f"Tyre size, Front:  {data['front_section_width']}/ {data['front_aspect_ratio']} "
+    pdf.cell(150, 5, f"Tyre size: Front:  {data['front_section_width']}/ {data['front_aspect_ratio']} "
                      f"R{data['front_rim_diameter']},  Rear: {data['rear_section_width']}/ {data['rear_aspect_ratio']} "
                      f"R{data['rear_rim_diameter']}",
              ln=True)
