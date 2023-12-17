@@ -66,6 +66,7 @@ def write_session_data(pdf: FPDF, data: dict) -> FPDF:
     pdf.cell(150, 5, f"Client:  {data['name']} {data['surname']}, tel. {data['phone']}", ln=True)
     pdf.cell(150, 5, f"Distance between client and customer:  {round(range, 3)} miles", ln=True)
     pdf.cell(150, 5, f"Client:  {data['name']} {data['surname']}, tel. {data['phone']}", ln=True)
+    pdf.cell(150, 5, f"Total Amount:  {data['currency']} {data['amount']}", ln=True)
     # pdf.cell(100, 10, ln=True)
     return pdf
 
