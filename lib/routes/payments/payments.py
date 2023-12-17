@@ -176,7 +176,7 @@ async def get_workers_payments_list(access_token: str, worker_id: int, db=Depend
 
 @app.get(path='/payment_status', tags=['Payment'], responses=get_user_res)
 async def get_payments_list(access_token: str, payment_id: int = 0, finish_session: bool = False,
-                            db=Depends(data_b.connection)):
+                            not_change: bool = False, db=Depends(data_b.connection)):
     """Get payment status"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     status_code = res.status_code
@@ -194,8 +194,9 @@ async def get_payments_list(access_token: str, payment_id: int = 0, finish_sessi
         create_date = int(time.mktime(create_date.timetuple()))
         await conn.update_inform(db=db, table="payments", name="pay_date", data=create_date, id_name="pay_id",
                                  id_data=payment_id)
-        await conn.update_inform(db=db, table="service_session", name="status", id_name="session_id",
-                                 data="success" if finish_session else "search", id_data=pay_data[0]["session_id"])
+        if not not_change:
+            await conn.update_inform(db=db, table="service_session", name="status", id_name="session_id",
+                                     data="success" if finish_session else "search", id_data=pay_data[0]["session_id"])
         if finish_session:
             worker_id = ss_data[0]["worker_id"]
             session_id = pay_data[0]["session_id"]
