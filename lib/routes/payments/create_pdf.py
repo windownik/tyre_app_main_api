@@ -5,7 +5,9 @@ from fpdf import FPDF, Align
 
 def create_file_pdf(data: tuple, invoice_id: int, co_name: str, address: str):
     pdf = FPDF("P", "mm", "A4")
+    pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
+    pdf.image("tyre_app_pro.png", 10, 8, 30)
     pdf.add_font("Montserrat", '', "Montserrat-Medium.ttf")
     pdf.add_font("lite", '', "Montserrat-Light.ttf")
     pdf.set_font("Montserrat", "", 22)
