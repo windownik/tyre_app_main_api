@@ -6,7 +6,7 @@ from fastapi import Depends
 from starlette.responses import JSONResponse, FileResponse
 
 from lib import sql_connect as conn
-from lib.db_objects import Contractor, WithdrawalInvoice, Withdrawal, Payment, User, Worker
+from lib.db_objects import Contractor, WithdrawalInvoice, Withdrawal, Payment, User, Worker, SessionWork
 from lib.response_examples import *
 from lib.routes.admins.admin_routes import check_con_owner_or_admin
 from lib.routes.payments.create_pdf import create_file_pdf
@@ -195,10 +195,23 @@ async def get_all_withdrawal_invoice(access_token: str, wi_id: int, contractor_i
         return user_id
     co_data = await conn.read_data(db=db, table='contractor', id_data=contractor_id, id_name="contractor_id")
     data = await conn.read_withdrawal_invoice_for_pdf(db=db, wi_id=wi_id)
+    ss_w_dict = await get_sessions(db, data)
     create_file_pdf(data=data, invoice_id=wi_id, co_name=co_data[0]['co_name'], address=co_data[0]['address'])
 
     return FileResponse(path="invoice.pdf", media_type='application/pdf', filename=f"invoice_{wi_id}.pdf")
 
 
-async def get_sessions(db=Depends):
-    pass
+async def get_sessions(db: Depends, data: tuple) -> dict:
+    ss_w_id_list = []
+    for one in data:
+        ss_w = one["session_work_id"]
+        list_ss_w = str(ss_w).split(",")
+        for _one in list_ss_w:
+            ss_w_id_list.append(_one)
+
+    ss_work_data = await conn.get_ss_work_list_by_set(db=db, ss_work_id=ss_w_id_list)
+    ss_w_dict = {}
+    for one in ss_work_data:
+        session_work: SessionWork = SessionWork.parse_obj(one)
+        ss_w_dict[str(session_work.sw_id)] = session_work
+    return ss_w_dict

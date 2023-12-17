@@ -2,6 +2,8 @@ import datetime
 
 from fpdf import FPDF, Align
 
+from lib.db_objects import SessionWork
+
 
 class PDF(FPDF):
     def footer(self):
@@ -10,7 +12,7 @@ class PDF(FPDF):
         self.cell(0, 10, f"Page: {self.page_no()}", align=Align.R)
 
 
-def create_file_pdf(data: tuple, invoice_id: int, co_name: str, address: str):
+def create_file_pdf(data: tuple, invoice_id: int, co_name: str, address: str, ss_w_dict: dict):
     pdf = PDF("P", "mm", "A4")
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
@@ -18,6 +20,7 @@ def create_file_pdf(data: tuple, invoice_id: int, co_name: str, address: str):
     pdf.add_font("Montserrat", '', "Montserrat-Medium.ttf")
     pdf.add_font("lite", '', "Montserrat-Light.ttf")
     pdf.set_font("Montserrat", "", 22)
+    pdf.cell(100, 15, f"", ln=True)
     pdf.cell(100, 10, f"Withdrawal invoice #{invoice_id}", ln=True)
     pdf.set_font("lite", "", 12)
     pdf.cell(100, 8, f"Contractor's name: {co_name}", ln=True)
@@ -32,7 +35,7 @@ def create_file_pdf(data: tuple, invoice_id: int, co_name: str, address: str):
             session_id = payment["session_id"]
             pdf = write_session_data(pdf=pdf, data=payment, )
         pdf = write_headers(pdf)
-        pdf = write_body(pdf=pdf, data=payment)
+        pdf = write_body(pdf=pdf, data=payment, ss_w_dict=ss_w_dict)
         pdf.cell(100, 8, ln=True)
         pdf.cell(195, 0.5, border=1, ln=True)
         pdf.cell(100, 5, ln=True)
@@ -79,12 +82,18 @@ def write_headers(pdf: FPDF) -> FPDF:
     return pdf
 
 
-def write_body(pdf: FPDF, data: dict) -> FPDF:
+def write_body(pdf: FPDF, data: dict, ss_w_dict: dict) -> FPDF:
+
+    list_int = str(data["session_work_id"]).split(",")
     dtime = datetime.datetime.utcfromtimestamp(data["pay_date"])
     pdf.set_font("lite", "", 10)
-    pdf.cell(10, 6, str(data["pay_id"]), border=1, align=Align.C)
-    pdf.cell(100, 6, "Work description", border=1, align=Align.C)
-    pdf.cell(20, 6, data["currency"], border=1, align=Align.C)
-    pdf.cell(20, 6, str(data["amount"] / 100), border=1, align=Align.C)
-    pdf.cell(45, 6, str(dtime), border=1, align=Align.C, ln=True)
+    for one in list_int:
+        ss_w: SessionWork = ss_w_dict[one]
+
+        pdf.cell(10, 5, str(ss_w.sw_id), border=1, align=Align.C)
+        pdf.cell(100, 5, ss_w.name_en, border=1, align=Align.L)
+
+        pdf.cell(20, 5, ss_w.currency, border=1, align=Align.C)
+        pdf.cell(20, 5, str(ss_w.price / 100), border=1, align=Align.C)
+        pdf.cell(45, 5, str(dtime), border=1, align=Align.C, ln=True)
     return pdf
