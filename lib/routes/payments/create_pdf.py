@@ -27,7 +27,11 @@ def create_file_pdf(data: tuple, invoice_id: int, co_name: str, address: str, ss
     pdf.cell(195, 8, f"Address: {address}", ln=True)
     worker_id = 0
     session_id = 0
+    amount = 0
     for payment in data:
+        if amount != 0 and session_id != payment["session_id"]:
+            pdf.cell(150, 5, f"Total Amount:  {payment['currency']} {amount}", ln=True)
+        amount += payment['amount'] / 100
         if worker_id != payment["worker_id"]:
             worker_id = payment["worker_id"]
             pdf = write_for_one_user(pdf=pdf, name=payment["worker_name"], )
@@ -35,10 +39,12 @@ def create_file_pdf(data: tuple, invoice_id: int, co_name: str, address: str, ss
             session_id = payment["session_id"]
             pdf = write_session_data(pdf=pdf, data=payment, )
             pdf = write_headers(pdf)
+
+            pdf.cell(100, 8, ln=True)
+            pdf.cell(195, 0.5, border=1, ln=True)
+            pdf.cell(100, 5, ln=True)
+            amount = 0
         pdf = write_body(pdf=pdf, data=payment, ss_w_dict=ss_w_dict)
-        pdf.cell(100, 8, ln=True)
-        pdf.cell(195, 0.5, border=1, ln=True)
-        pdf.cell(100, 5, ln=True)
 
     pdf.output("invoice.pdf")
 
@@ -66,7 +72,7 @@ def write_session_data(pdf: FPDF, data: dict) -> FPDF:
     pdf.cell(150, 5, f"Client:  {data['name']} {data['surname']}, tel. {data['phone']}", ln=True)
     pdf.cell(150, 5, f"Distance between client and customer:  {round(range, 3)} miles", ln=True)
     pdf.cell(150, 5, f"Client:  {data['name']} {data['surname']}, tel. {data['phone']}", ln=True)
-    pdf.cell(150, 5, f"Total Amount:  {data['currency']} {data['amount']}", ln=True)
+
     # pdf.cell(100, 10, ln=True)
     return pdf
 
