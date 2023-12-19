@@ -184,7 +184,7 @@ async def get_payments_list(access_token: str, payment_id: int = 0, finish_sessi
         return JSONResponse(content=res.json(),
                             status_code=status_code)
     pay_data = await conn.read_data(db=db, id_name="pay_id", id_data=payment_id, table='payments')
-    ss_data = await conn.read_data(db=db, table="service_session", name="worker_id", id_data=pay_data[0]["session_id"],
+    ss_data = await conn.read_data(db=db, table="service_session", id_data=pay_data[0]["session_id"],
                                    id_name="session_id")
     res = stripe.PaymentIntent.retrieve(pay_data[0]["stripe_id"])
     if res.status == "succeeded":
