@@ -46,10 +46,11 @@ async def create_vehicle(access_token: str, reg_num: str, make: str, model: str,
 
     vehicle_data = await conn.read_data(db=db, table='vehicle', id_name='reg_num', id_data=reg_num)
     if vehicle_data:
-        return JSONResponse(content={"ok": False,
-                                     'description': "The vehicle with this reg_num is registered",
-                                     },
-                            status_code=_status.HTTP_400_BAD_REQUEST)
+        if vehicle_data[0]['status'] != "deleted":
+            return JSONResponse(content={"ok": False,
+                                         'description': "The vehicle with this reg_num is registered",
+                                         },
+                                status_code=_status.HTTP_400_BAD_REQUEST)
 
     vehicle_data = await conn.create_vehicle(db=db, bolt_key=bolt_key, reg_num=reg_num, year=year, model=model,
                                              front_aspect_ratio=front_aspect_ratio, make=make, owner_id=user_id,
