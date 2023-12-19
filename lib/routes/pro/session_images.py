@@ -52,7 +52,7 @@ async def get_all_imgs_to_ss(access_token: str, session_id: int, db=Depends(data
     """Get all images in service session"""
     res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
     if res.status_code == 200:
-        user_id = res.json()['user_id']
+        pass
     else:
         return res
 

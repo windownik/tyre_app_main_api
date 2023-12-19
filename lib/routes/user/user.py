@@ -78,6 +78,33 @@ async def update_user(access_token: str, name: str, surname: str, email: str, ge
                         headers={'content-type': 'application/json; charset=utf-8'})
 
 
+@app.put(path='/user_geo', tags=['User'], responses=get_user_res)
+async def update_user(access_token: str, lat: float, lng: float, db=Depends(data_b.connection)):
+    """Update user geo position"""
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    status_code = res.status_code
+    if status_code == 200:
+        user_id = res.json()['user_id']
+    else:
+        return JSONResponse(content=res.json(),
+                            status_code=status_code)
+
+    user_data = await conn.read_data(db=db, table='users', id_name='user_id', id_data=user_id)
+    if not user_data:
+        return JSONResponse(content={"ok": False,
+                                     'description': "Error with login account",
+                                     },
+                            status_code=500)
+    await conn.update_user_geo(db=db, user_id=user_id, lat=lat, lng=lng)
+    user_data = await conn.read_data(db=db, table='users', id_name='user_id', id_data=user_id)
+    user: User = User.parse_obj(user_data[0])
+    return JSONResponse(content={"ok": True,
+                                 'user': user.dict(),
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
 @app.put(path='/user_status', tags=['User'], responses=get_user_res)
 async def update_user(access_token: str, db=Depends(data_b.connection)):
     """Update user information"""

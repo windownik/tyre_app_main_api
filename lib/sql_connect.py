@@ -287,6 +287,12 @@ async def update_user(db: Depends, name: str, surname: str, email: str, get_push
 
 
 # Обновляем информацию
+async def update_user_geo(db: Depends, lat: float, lng: float, user_id: int):
+    await db.fetch(f"UPDATE users SET lat=$1, long=$2 WHERE user_id=$3;",
+                   lat, lng, user_id)
+
+
+# Обновляем информацию
 async def update_user_active(db: Depends, user_id: int):
     now = datetime.datetime.now()
     await db.fetch(f"UPDATE all_users SET last_active=$1 WHERE user_id=$2;",
