@@ -1,4 +1,4 @@
-
+import requests
 import starlette.status as _status
 from fastapi import Depends
 from starlette.responses import JSONResponse
@@ -6,7 +6,7 @@ from lib.db_objects import Worker, SPhoto
 
 from lib import sql_connect as conn
 from lib.response_examples import *
-from lib.routes.pro.auth import check_worker
+from lib.routes.pro.auth import check_worker, auth_url
 from lib.sql_create_tables import data_b, app
 
 
@@ -50,11 +50,12 @@ async def save_new_img_id_to_ss(access_token: str, session_id: int, img_id: int,
 @app.get(path='/session_img', tags=['SS Images'], responses=get_ss_img_res)
 async def get_all_imgs_to_ss(access_token: str, session_id: int, db=Depends(data_b.connection)):
     """Get all images in service session"""
-    worker = await check_worker(db=db, access_token=access_token)
-    if type(worker) != Worker:
-        return JSONResponse(content=worker[1],
-                            status_code=worker[0],
-                            headers={'content-type': 'application/json; charset=utf-8'})
+    res = requests.get(f'{auth_url}/user_id', params={"access_token": access_token})
+    if res.status_code == 200:
+        user_id = res.json()['user_id']
+    else:
+        return res
+
     ss_data = await conn.read_data(db=db, table="photo", id_data=session_id, id_name="session_id")
     if not ss_data:
         photo: SPhoto = SPhoto(session_id=session_id)
