@@ -194,16 +194,27 @@ async def get_payments_list(access_token: str, payment_id: int = 0, finish_sessi
         create_date = int(time.mktime(create_date.timetuple()))
         await conn.update_inform(db=db, table="payments", name="pay_date", data=create_date, id_name="pay_id",
                                  id_data=payment_id)
-        if not not_change:
-            await conn.update_inform(db=db, table="service_session", name="status", id_name="session_id",
-                                     data="success" if finish_session else "search", id_data=pay_data[0]["session_id"])
+        new_status = ss_data[0]["status"]
+        text = "Service session bill has been successfully paid."
+        if new_status == "waiting payment":
+            new_status = "in work"
+            text = "The invoice for the service session has been successfully paid. " \
+                   "You can continue working or complete the order."
         if finish_session:
-            worker_id = ss_data[0]["worker_id"]
-            session_id = pay_data[0]["session_id"]
-            title = "Tire repair session"
-            text = "Service session has been successfully paid and automatically completed."
-            await conn.create_push_for_user(db=db, user_id=worker_id, session_id=session_id, title=title, text=text,
-                                            app_type="pro")
+            new_status = "success"
+            text = "The service session was successfully paid for and completed successfully."
+        if new_status == "active":
+            new_status = "search"
+
+        await conn.update_inform(db=db, table="service_session", name="status", id_name="session_id",
+                                 data=new_status, id_data=pay_data[0]["session_id"])
+
+        worker_id = ss_data[0]["worker_id"]
+        session_id = pay_data[0]["session_id"]
+        title = "Tire repair session"
+
+        await conn.create_push_for_user(db=db, user_id=worker_id, session_id=session_id, title=title, text=text,
+                                        app_type="pro")
         return JSONResponse(content={"ok": True,
                                      "status": res.status,
                                      },

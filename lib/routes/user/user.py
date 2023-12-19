@@ -67,7 +67,7 @@ async def update_user(access_token: str, name: str, surname: str, email: str, ge
                                      'description': "Error with login account",
                                      },
                             status_code=500)
-    await conn.update_user(db=db, name=name, surname=surname, email=email, user_id=user_id, get_email=get_email,
+    await conn.update_user(db=db, name=name, surname=surname, email=email.lower(), user_id=user_id, get_email=get_email,
                            get_push=get_push)
     user_data = await conn.read_data(db=db, table='users', id_name='user_id', id_data=user_id)
     user: User = User.parse_obj(user_data[0])
