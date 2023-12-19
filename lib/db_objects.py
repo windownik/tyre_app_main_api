@@ -203,6 +203,7 @@ class ServiceSession(BaseModel):
     address: str
     bolt_key: bool
     create_date: int
+    last_update: int
 
     async def to_json(self, db: Depends, session_work_list: list):
         res: dict = self.dict()

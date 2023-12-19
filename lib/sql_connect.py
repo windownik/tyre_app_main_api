@@ -44,9 +44,11 @@ async def create_service_session(db: Depends, client_id: int, vehicle_id: int, s
     """We are create a new service session"""
     create_date = datetime.datetime.now()
     data = await db.fetch(f"INSERT INTO service_session (client_id, vehicle_id, session_type, session_date, bolt_key, "
-                          f"lat, long, address, create_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) "
+                          f"lat, long, address, create_date, last_update) "
+                          f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) "
                           f"ON CONFLICT DO NOTHING RETURNING *;", client_id, vehicle_id, session_type, session_date,
-                          bolt_key, lat, long, address, int(time.mktime(create_date.timetuple())))
+                          bolt_key, lat, long, address, int(time.mktime(create_date.timetuple())),
+                          int(time.mktime(create_date.timetuple())))
     return data
 
 
@@ -261,10 +263,15 @@ async def update_contractor(db: Depends, contractor_id: int, co_name: str, co_em
                    vat_number, sort_code, post_code, beneficiary_name, contractor_id)
 
 
-# Обновляем информацию
 async def update_inform(db: Depends, name: str, data, table: str, id_name: str, id_data):
     await db.fetch(f"UPDATE {table} SET {name}=$1 WHERE {id_name}=$2;",
                    data, id_data)
+
+
+async def update_ss_last_update(db: Depends,  session_id: int):
+    now = datetime.datetime.now()
+    await db.fetch(f"UPDATE service_session SET last_update=$1 WHERE session_id=$2;",
+                   int(time.mktime(now.timetuple())), session_id)
 
 
 async def update_start_stop_search(db: Depends, lat: float, long: float, get_push: bool, user_id: int):

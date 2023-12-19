@@ -210,6 +210,7 @@ async def get_payments_list(access_token: str, payment_id: int = 0, finish_sessi
 
         await conn.update_inform(db=db, table="service_session", name="status", id_name="session_id",
                                  data=new_status, id_data=pay_data[0]["session_id"])
+        await conn.update_ss_last_update(db=db, session_id=pay_data[0]["session_id"])
 
         worker_id = ss_data[0]["worker_id"]
         session_id = pay_data[0]["session_id"]

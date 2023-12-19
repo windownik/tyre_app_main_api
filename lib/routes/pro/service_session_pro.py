@@ -190,6 +190,7 @@ async def worker_work_in_service_session(access_token: str, session_id: int, wor
                                     app_type=app_type)
     await conn.update_inform(db=db, table="service_session", id_name="session_id", id_data=session_id, name='status',
                              data=status)
+    await conn.update_ss_last_update(db=db, session_id=session_id)
     return JSONResponse(content={"ok": True,
                                  "description": "Successful updating"
                                  },
