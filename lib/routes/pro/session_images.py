@@ -42,7 +42,7 @@ async def save_new_img_id_to_ss(access_token: str, session_id: int, img_id: int,
                             status_code=_status.HTTP_403_FORBIDDEN, )
     title = "Tire repair session"
     text = "The Driver added photos to your order."
-    await conn.create_push_for_user(db=db, user_id=ss_data[0]["user_id"], session_id=session_id, title=title, text=text,
+    await conn.create_push_for_user(db=db, user_id=ss_data[0][1], session_id=session_id, title=title, text=text,
                                     app_type="simple")
     await conn.update_ss_last_update(db=db, session_id=session_id)
     return JSONResponse(content={"ok": True,
