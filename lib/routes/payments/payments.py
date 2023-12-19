@@ -200,10 +200,12 @@ async def get_payments_list(access_token: str, payment_id: int = 0, finish_sessi
             new_status = "in work"
             text = "The invoice for the service session has been successfully paid. " \
                    "You can continue working or complete the order."
-        if finish_session:
+        elif finish_session:
             new_status = "success"
             text = "The service session was successfully paid for and completed successfully."
-        if new_status == "active":
+        elif new_status == "active":
+            new_status = "search"
+        else:
             new_status = "search"
 
         await conn.update_inform(db=db, table="service_session", name="status", id_name="session_id",
