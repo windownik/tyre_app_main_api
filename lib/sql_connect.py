@@ -170,13 +170,13 @@ async def create_photo_for_ss(db: Depends, session_id: int, ):
 
 
 async def create_push_for_user(db: Depends, user_id: int, session_id: int, title: str, text: str,
-                               app_type: str = "simple"):
+                               app_type: str = "simple", main_text: str = "0"):
     """We create a new payment"""
     data = await db.fetch(f"INSERT INTO sending "
                           f"(user_id, title, short_text, main_text, img_url, push_type, push_msg_id, app_type) "
                           f"VALUES ($1, $2, $3, $4, $5, $6, $7, $8) "
                           f"ON CONFLICT DO NOTHING RETURNING *;", user_id, title, text,
-                          "0", "0", "text", session_id, app_type)
+                          main_text, "0", "text", session_id, app_type)
     return data
 
 
