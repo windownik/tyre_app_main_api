@@ -209,8 +209,8 @@ async def get_vehicle_by_set(db: Depends, set_id: set, ):
     for i in set_id:
         sql_id = f"{sql_id} vehicle_id={i} OR"
     sql_id = sql_id[0: -3]
-    data = await db.fetch(f"SELECT * FROM vehicle "
-                          f"WHERE{sql_id};")
+    print(f"SELECT * FROM vehicle WHERE{sql_id};")
+    data = await db.fetch(f"SELECT * FROM vehicle WHERE{sql_id};")
     return data
 
 
