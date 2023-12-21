@@ -56,10 +56,11 @@ async def login_user(access_token: str, db=Depends(data_b.connection)):
         list_active_ss.append(await active_ss.to_json(db=db, session_work_list=[]))
 
     list_vehicle = []
-    vehicle_data = await conn.get_vehicle_by_set(db=db, set_id=veh_set)
-    for one in vehicle_data:
-        vehicle: Vehicle = Vehicle.parse_obj(one)
-        list_vehicle.append(vehicle.dict())
+    if len(veh_set) != 0:
+        vehicle_data = await conn.get_vehicle_by_set(db=db, set_id=veh_set)
+        for one in vehicle_data:
+            vehicle: Vehicle = Vehicle.parse_obj(one)
+            list_vehicle.append(vehicle.dict())
 
     return JSONResponse(content={"ok": True,
                                  'workers': list_worker,
