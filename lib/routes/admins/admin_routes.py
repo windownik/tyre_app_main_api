@@ -21,7 +21,7 @@ ip_auth_port = os.environ.get("PORT_AUTH_SERVER")
 
 auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
 
-on_page = 20
+on_page = 1
 
 
 @app.get(path='/admin_users', tags=['Admin Users'], responses=get_login_res)
