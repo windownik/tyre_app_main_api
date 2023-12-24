@@ -9,7 +9,7 @@ from lib.db_objects import Contractor
 
 from lib import sql_connect as conn
 from lib.response_examples import *
-from lib.routes.admins.admin_routes import check_admin
+from lib.routes.admins.admin_routes import check_admin, on_page
 from lib.sql_create_tables import data_b, app
 
 ip_server = os.environ.get("IP_SERVER")
@@ -22,8 +22,6 @@ ip_auth_server = os.environ.get("IP_AUTH_SERVER")
 ip_auth_port = os.environ.get("PORT_AUTH_SERVER")
 
 auth_url = f"http://{ip_auth_server}:{ip_auth_port}"
-
-on_page = 20
 
 
 @app.post(path='/contractor', tags=['Admin contractor'], responses=get_login_res)

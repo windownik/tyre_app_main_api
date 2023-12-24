@@ -8,9 +8,8 @@ from lib.db_objects import User, ServiceSession, Worker
 from lib import sql_connect as conn
 from lib.response_examples import *
 from lib.routes.admins.admin_routes import check_admin
+from lib.routes.push.push import on_page
 from lib.sql_create_tables import data_b, app
-
-on_page = 20
 
 
 @app.get(path='/get_all_ss', tags=['Admin service sessions'], responses=get_login_res)

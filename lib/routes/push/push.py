@@ -7,7 +7,7 @@ from starlette.responses import JSONResponse
 
 from lib.db_objects import PushLogs, User
 from lib.response_examples import send_push_res
-from lib.routes.admins.admin_routes import check_admin
+from lib.routes.admins.admin_routes import check_admin, on_page
 from lib.sql_create_tables import data_b, app
 
 ip_server = os.environ.get("IP_SERVER")
@@ -15,8 +15,6 @@ ip_port = os.environ.get("PORT_SERVER")
 
 ip_port = 80 if ip_port is None else ip_port
 ip_server = "127.0.0.1" if ip_server is None else ip_server
-
-on_page = 20
 
 
 @app.get(path='/users_count_push', tags=['Admin funcs'], responses=send_push_res)
