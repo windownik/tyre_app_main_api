@@ -1,6 +1,7 @@
 import datetime
 import os
 import time
+from math import ceil
 
 import starlette.status as _status
 from fastapi import Depends
@@ -85,7 +86,8 @@ async def get_payments_list(access_token: str, page: int = 1, contractor_id: int
                                  "payment_list": list_payments,
                                  "users": list_user,
                                  "workers": list_workers,
-                                 "total_count": pay_count
+                                 "total_count": pay_count,
+                                 "pages": ceil(pay_count / on_page),
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
