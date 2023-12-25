@@ -13,7 +13,8 @@ from lib.sql_create_tables import data_b, app
 
 
 @app.get(path='/get_all_ss', tags=['Admin service sessions'], responses=get_login_res)
-async def admin_get_service_sessions(access_token: str, search: str = 0, page: int = 0, db=Depends(data_b.connection)):
+async def admin_get_service_sessions(access_token: str, search: str = 0, page: int = 0, sort: str = "DESC",
+                                     db=Depends(data_b.connection)):
     """
     Admin get service_sessions with search
     """
@@ -21,7 +22,7 @@ async def admin_get_service_sessions(access_token: str, search: str = 0, page: i
     if type(res) != int:
         return res
 
-    ss_data = await conn.read_admin_ss(db=db)
+    ss_data = await conn.read_admin_ss(db=db, sort=sort)
 
     new_ss_list = []
     for i in ss_data:

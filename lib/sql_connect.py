@@ -410,12 +410,12 @@ async def read_withdrawal_count(db: Depends, where_data, where_name: str):
     return data
 
 
-async def read_workers(db: Depends, ):
+async def read_workers(db: Depends, sort: str = "DESC"):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT workers.*, contractor.co_name "
                           f"FROM workers JOIN contractor "
                           f"ON workers.contractor_id = contractor.contractor_id "
-                          f"ORDER BY workers.user_id;", )
+                          f"ORDER BY workers.user_id {sort};", )
     return data
 
 
@@ -459,9 +459,9 @@ async def read_admin_vehicles(db: Depends):
     return data
 
 
-async def read_admin_ss(db: Depends):
+async def read_admin_ss(db: Depends, sort: str):
     """Получаем актуальные события"""
-    data = await db.fetch(f"SELECT * FROM service_session ORDER BY session_id DESC;", )
+    data = await db.fetch(f"SELECT * FROM service_session ORDER BY session_id {sort};", )
     return data
 
 
