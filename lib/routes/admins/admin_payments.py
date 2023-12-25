@@ -51,7 +51,10 @@ async def get_payments_list(access_token: str, page: int = 1, contractor_id: int
     else:
         payments_list = await conn.read_all_offset(table='payments', order="pay_id", limit=on_page,
                                                    offset=(page - 1) * on_page, db=db)
-
+    payments_count = await conn.read_all_count(table='payments', db=db)
+    pay_count = 0
+    if not payments_count == False:
+        pay_count = payments_count[0][0]
     list_payments = []
     set_users = set()
     set_workers = set()
@@ -81,7 +84,8 @@ async def get_payments_list(access_token: str, page: int = 1, contractor_id: int
     return JSONResponse(content={"ok": True,
                                  "payment_list": list_payments,
                                  "users": list_user,
-                                 "workers": list_workers
+                                 "workers": list_workers,
+                                 "total_count": pay_count
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
@@ -142,7 +146,7 @@ async def get_payments_list(access_token: str, page: int = 1, contractor_id: int
 
 
 @app.get(path='/admin_withdrawal_invoice', tags=['Admin payment'], responses=get_user_res)
-async def get_payments_list(access_token: str, page: int = 1, only_new: bool = False, db=Depends(data_b.connection)):
+async def get_payments_list(access_token: str, page: int = 0, only_new: bool = False, db=Depends(data_b.connection)):
     """Admin get all withdrawals with few filters"""
     res = await check_admin(access_token=access_token, db=db)
     if type(res) != int:
