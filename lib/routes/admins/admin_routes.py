@@ -62,7 +62,7 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
 
     return JSONResponse(content={"ok": True,
                                  'list_users': list_user,
-                                 "pages": ceil(len(new_user_list) / on_page),
+                                 "pages": ceil(len(crop_user_list) / on_page),
                                  "all_users_count": len(user_data)
                                  },
                         status_code=_status.HTTP_200_OK,

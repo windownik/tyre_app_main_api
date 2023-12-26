@@ -1,4 +1,5 @@
 import os
+from math import ceil
 
 import requests
 import starlette.status as _status
@@ -57,7 +58,7 @@ async def admin_get_workers(access_token: str, search: str = '0', page: int = 0,
 
     return JSONResponse(content={"ok": True,
                                  'list_users': list_user,
-                                 "pages": len(new_user_list) // on_page + 1,
+                                 "pages": ceil(len(list_user) / on_page),
                                  "all_users_count": len(user_data)
                                  },
                         status_code=_status.HTTP_200_OK,
