@@ -459,9 +459,27 @@ async def read_admin_vehicles(db: Depends):
     return data
 
 
-async def read_admin_ss(db: Depends, sort: str):
+async def read_admin_ss(db: Depends, sort: str, co_id: int, client_id: int, worker_id: int):
     """Получаем актуальные события"""
-    data = await db.fetch(f"SELECT * FROM service_session ORDER BY session_id {sort};", )
+    sql = " WHERE"
+    if co_id != 0 or client_id != 0 or worker_id != 0:
+        if co_id != 0:
+            sql = f"{sql} contractor_id = {co_id}"
+
+        if client_id != 0:
+            if sql == "":
+                sql = f"{sql} client_id = {client_id}"
+            else:
+                sql = f"{sql} AND client_id = {client_id}"
+
+        if worker_id != 0:
+            if sql == "":
+                sql = f"{sql} worker_id = {worker_id}"
+            else:
+                sql = f"{sql} AND worker_id = {worker_id}"
+    else:
+        sql = ""
+    data = await db.fetch(f"SELECT * FROM service_session{sql} ORDER BY session_id {sort};", )
     return data
 
 
