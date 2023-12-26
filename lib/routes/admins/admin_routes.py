@@ -125,14 +125,13 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
         elif search in i[4]:
             new_vehicle_list.append(i)
 
-    crop_user_list = new_vehicle_list[page * on_page: (page + 1) * on_page]
+    crop_vechicle_list = new_vehicle_list[page * on_page: (page + 1) * on_page]
 
     list_vehicles = []
     set_users = set()
-    for one in crop_user_list:
+    for one in crop_vechicle_list:
         vehicle: Vehicle = Vehicle.parse_obj(one)
         list_vehicles.append(vehicle.dict())
-
         set_users.add(vehicle.owner_id)
 
     list_user = []
@@ -145,7 +144,7 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
 
     return JSONResponse(content={"ok": True,
                                  'list_vehicles': list_vehicles,
-                                 "pages": len(new_vehicle_list) // on_page + 1,
+                                 "pages": ceil(len(list_vehicles) / on_page),
                                  "users": list_user,
                                  "all_vehicles_count": len(vehicle_data)
                                  },
