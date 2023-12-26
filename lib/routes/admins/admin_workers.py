@@ -39,13 +39,11 @@ async def admin_get_workers(access_token: str, search: str = '0', page: int = 0,
         if search == "0":
             new_user_list.append(i)
             continue
-        if search in i[1]:
+        if search in i[2]:
             new_user_list.append(i)
-        elif search in i[2]:
+        elif search in i[3]:
             new_user_list.append(i)
-        elif search in i[4]:
-            new_user_list.append(i)
-        elif search in str(i[3]):
+        elif search in str(i[1]):
             new_user_list.append(i)
         elif search in str(i[0]):
             new_user_list.append(i)
