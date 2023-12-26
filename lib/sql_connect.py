@@ -467,13 +467,13 @@ async def read_admin_ss(db: Depends, sort: str, co_id: int, client_id: int, work
             sql = f"{sql} contractor_id = {co_id}"
 
         if client_id != 0:
-            if sql == "":
+            if sql == " WHERE":
                 sql = f"{sql} client_id = {client_id}"
             else:
                 sql = f"{sql} AND client_id = {client_id}"
 
         if worker_id != 0:
-            if sql == "":
+            if sql == " WHERE":
                 sql = f"{sql} worker_id = {worker_id}"
             else:
                 sql = f"{sql} AND worker_id = {worker_id}"
