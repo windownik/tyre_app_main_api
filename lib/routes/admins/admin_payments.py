@@ -174,6 +174,7 @@ async def get_payments_list(access_token: str, page: int = 0, only_new: bool = F
         count_number = count[0][0]
     return JSONResponse(content={"ok": True,
                                  "total_count": count_number,
+                                 "pages": ceil(count_number / on_page),
                                  "wi_list": wi_list,
                                  },
                         status_code=_status.HTTP_200_OK,

@@ -125,11 +125,11 @@ async def admin_get_users(access_token: str, search: str = 0, page: int = 0, db=
         elif search in i[4]:
             new_vehicle_list.append(i)
 
-    crop_vechicle_list = new_vehicle_list[page * on_page: (page + 1) * on_page]
+    crop_vehicle_list = new_vehicle_list[page * on_page: (page + 1) * on_page]
 
     list_vehicles = []
     set_users = set()
-    for one in crop_vechicle_list:
+    for one in crop_vehicle_list:
         vehicle: Vehicle = Vehicle.parse_obj(one)
         list_vehicles.append(vehicle.dict())
         set_users.add(vehicle.owner_id)
