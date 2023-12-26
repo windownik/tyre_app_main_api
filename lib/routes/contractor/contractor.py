@@ -1,4 +1,5 @@
 import os
+from math import ceil
 
 import requests
 
@@ -102,7 +103,7 @@ async def admin_get_all_contractors(access_token: str, search: str = "0", page: 
         co_list.append(contractor.dict())
     return JSONResponse(content={"ok": True,
                                  'contractor_list': co_list,
-                                 "pages": len(new_co_list),
+                                 "pages": ceil(len(new_co_list) / on_page),
                                  "all_contractors_count": len(co_data)
                                  },
                         status_code=_status.HTTP_200_OK,
