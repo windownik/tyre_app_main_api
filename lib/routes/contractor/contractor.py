@@ -53,6 +53,7 @@ async def admin_create_contractor(access_token: str, login: str, worker_name: st
         "owner_id": owner_id,
         "login": login,
         "password": password,
+        "app_name": "pro"
     }
     res = requests.post(f'{auth_url}/create_account_login', params=params)
     status_code = res.status_code
