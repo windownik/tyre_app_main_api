@@ -1,3 +1,4 @@
+import datetime
 import os
 from math import ceil
 
@@ -138,6 +139,38 @@ async def admin_check_new_worker_login(access_token: str, login: str, db=Depends
                             status_code=_status.HTTP_400_BAD_REQUEST)
     return JSONResponse(content={"ok": True,
                                  'description': "Login is free for account",
+                                 },
+                        status_code=_status.HTTP_200_OK,
+                        headers={'content-type': 'application/json; charset=utf-8'})
+
+
+@app.get(path='/worker_statistic', tags=['Admin Worker'], responses=post_create_account_res)
+async def admin_check_new_worker_login(access_token: str, worker_id: int, db=Depends(data_b.connection)):
+    """Admin get worker's statistic"""
+    res = await check_admin(access_token=access_token, db=db)
+    if type(res) != int:
+        return res
+    now = datetime.datetime.now()
+    this_month = datetime.datetime(year=now.year, month=now.month, day=1)
+    total_income = 0
+    income = await conn.total_worker_income(user_id=worker_id, db=db)
+    if income:
+        total_income = income[0][0]
+
+    month_income = 0
+    income = await conn.month_worker_income(user_id=worker_id, db=db, date=this_month)
+    if income:
+        month_income = income[0][0]
+
+    withdrawal_income = 0
+    income = await conn.withdrawal_for_income(user_id=worker_id, db=db,)
+    if income:
+        withdrawal_income = income[0][0]
+
+    return JSONResponse(content={"ok": True,
+                                 'total_income': total_income,
+                                 'month_income': month_income,
+                                 'withdrawal_income': withdrawal_income,
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
