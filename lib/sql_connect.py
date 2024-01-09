@@ -348,7 +348,7 @@ async def withdrawal_for_income(db: Depends, user_id: int,):
 
 async def worker_close_sessions(db: Depends, user_id: int, date: int = 0):
     """Получаем актуальные события"""
-    data = await db.fetch(f"SELECT COUNT(*) FROM service_sessions "
+    data = await db.fetch(f"SELECT COUNT(*) FROM service_session "
                           f"WHERE worker_id = $1 "
                           f"AND status = 'success' "
                           f"AND create_date >= $2;", user_id, date)
