@@ -326,13 +326,13 @@ async def read_users_for_push(db: Depends, name: str = '*'):
 
 async def total_worker_income(db: Depends, user_id: int,):
     """Получаем актуальные события"""
-    data = await db.fetch(f"SELECT SUM(amount) FROM payments WHERE user_id = $1 AND pay_date != 0;", user_id)
+    data = await db.fetch(f"SELECT SUM(amount) FROM payments WHERE worker_id = $1 AND pay_date != 0;", user_id)
     return data
 
 
 async def month_worker_income(db: Depends, user_id: int, date: datetime.datetime):
     """Получаем актуальные события"""
-    data = await db.fetch(f"SELECT SUM(amount) FROM payments WHERE user_id = $1 AND pay_date > $2;", user_id,
+    data = await db.fetch(f"SELECT SUM(amount) FROM payments WHERE worker_id = $1 AND pay_date > $2;", user_id,
                           int(time.mktime(date.timetuple())))
     return data
 
@@ -340,7 +340,7 @@ async def month_worker_income(db: Depends, user_id: int, date: datetime.datetime
 async def withdrawal_for_income(db: Depends, user_id: int,):
     """Получаем актуальные события"""
     data = await db.fetch(f"SELECT SUM(amount) FROM payments "
-                          f"WHERE user_id = $1 "
+                          f"WHERE worker_id = $1 "
                           f"AND pay_date != 0 "
                           f"AND withdrawal_id = 0;", user_id,)
     return data

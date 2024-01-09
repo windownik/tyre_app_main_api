@@ -1,5 +1,6 @@
 import datetime
 import os
+import time
 from math import ceil
 
 import requests
@@ -231,3 +232,9 @@ async def update_workers_status(access_token: str, active: bool, worker_id: int,
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
+
+
+# now = datetime.datetime.now()
+# this_month = datetime.datetime(year=now.year, month=now.month, day=1)
+#
+# print(now, this_month, int(time.mktime(this_month.timetuple())))
