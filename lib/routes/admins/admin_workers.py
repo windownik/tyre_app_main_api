@@ -168,9 +168,9 @@ async def admin_check_new_worker_login(access_token: str, worker_id: int, db=Dep
         withdrawal_income = income[0][0]
 
     return JSONResponse(content={"ok": True,
-                                 'total_income': total_income,
-                                 'month_income': month_income,
-                                 'withdrawal_income': withdrawal_income,
+                                 'total_income': int(total_income),
+                                 'month_income': int(month_income),
+                                 'withdrawal_income': int(withdrawal_income),
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
