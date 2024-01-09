@@ -1,6 +1,5 @@
 import datetime
 import os
-import time
 from math import ceil
 
 import requests
@@ -154,24 +153,28 @@ async def admin_check_new_worker_login(access_token: str, worker_id: int, db=Dep
 
     now = datetime.datetime.now()
     this_month = datetime.datetime(year=now.year, month=now.month, day=1)
-    total_income = "0"
+
     income = await conn.total_worker_income(user_id=worker_id, db=db)
-    if income:
-        total_income = str(income[0][0])
+    if not income:
+        total_income = 0
+    else:
+        total_income = int(income[0][0])
 
-    month_income = "0"
     income = await conn.month_worker_income(user_id=worker_id, db=db, date=this_month)
-    if income:
-        month_income = str(income[0][0])
+    if not income:
+        month_income = 0
+    else:
+        month_income = int(income[0][0])
 
-    withdrawal_income = "0"
     income = await conn.withdrawal_for_income(user_id=worker_id, db=db,)
     if income:
-        withdrawal_income = str(income[0][0])
+        withdrawal_income = 0
+    else:
+        withdrawal_income = int(income[0][0])
 
     return JSONResponse(content={"ok": True,
                                  'total_income': total_income,
-                                 'month_income': int(time.mktime(this_month.timetuple())),
+                                 'month_income': month_income,
                                  'withdrawal_income': withdrawal_income,
                                  },
                         status_code=_status.HTTP_200_OK,
