@@ -189,12 +189,16 @@ async def admin_check_new_worker_login(access_token: str, worker_id: int, db=Dep
     if income:
         month_sessions = int(income[0][0])
 
+    income = await conn.read_data(db=db, table="service_session", id_name="worker_id", id_data=worker_id)
+    all_sessions = len(income)
+
     return JSONResponse(content={"ok": True,
                                  'total_income': total_income,
                                  'month_income': month_income,
                                  'withdrawal_income': withdrawal_income,
                                  'total_sessions': total_sessions,
-                                 "month_sessions": month_sessions
+                                 "month_sessions": month_sessions,
+                                 "all_sessions": all_sessions
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
