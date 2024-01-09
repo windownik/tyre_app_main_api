@@ -156,22 +156,22 @@ async def admin_check_new_worker_login(access_token: str, worker_id: int, db=Dep
     total_income = 0
     income = await conn.total_worker_income(user_id=worker_id, db=db)
     if income:
-        total_income = income[0][0]
+        total_income = int(income[0][0])
 
     month_income = 0
     income = await conn.month_worker_income(user_id=worker_id, db=db, date=this_month)
     if income:
-        month_income = income[0][0]
+        month_income = int(income[0][0])
 
     withdrawal_income = 0
     income = await conn.withdrawal_for_income(user_id=worker_id, db=db,)
     if income:
-        withdrawal_income = income[0][0]
+        withdrawal_income = int(income[0][0])
 
     return JSONResponse(content={"ok": True,
-                                 'total_income': int(total_income),
-                                 'month_income': int(month_income),
-                                 'withdrawal_income': int(withdrawal_income),
+                                 'total_income': total_income,
+                                 'month_income': month_income,
+                                 'withdrawal_income': withdrawal_income,
                                  },
                         status_code=_status.HTTP_200_OK,
                         headers={'content-type': 'application/json; charset=utf-8'})
