@@ -1,5 +1,6 @@
 import datetime
 import os
+import time
 from math import ceil
 
 import requests
@@ -170,7 +171,7 @@ async def admin_check_new_worker_login(access_token: str, worker_id: int, db=Dep
 
     return JSONResponse(content={"ok": True,
                                  'total_income': total_income,
-                                 'month_income': month_income,
+                                 'month_income': int(time.mktime(this_month.timetuple())),
                                  'withdrawal_income': withdrawal_income,
                                  },
                         status_code=_status.HTTP_200_OK,
