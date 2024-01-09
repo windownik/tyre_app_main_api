@@ -157,20 +157,26 @@ async def admin_check_new_worker_login(access_token: str, worker_id: int, db=Dep
     total_income = 0
     income = await conn.total_worker_income(user_id=worker_id, db=db)
     if income:
-        if income is not None:
+        try:
             total_income = int(income[0][0])
+        except:
+            pass
 
     month_income = 0
     income = await conn.month_worker_income(user_id=worker_id, db=db, date=this_month)
     if income:
-        if income is not None:
+        try:
             month_income = int(income[0][0])
+        except:
+            pass
 
     withdrawal_income = 0
     income = await conn.withdrawal_for_income(user_id=worker_id, db=db,)
     if income:
-        if income is not None:
+        try:
             withdrawal_income = int(income[0][0])
+        except:
+            pass
 
     return JSONResponse(content={"ok": True,
                                  'total_income': total_income,
