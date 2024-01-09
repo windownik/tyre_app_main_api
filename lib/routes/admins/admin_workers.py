@@ -150,6 +150,7 @@ async def admin_check_new_worker_login(access_token: str, worker_id: int, db=Dep
     res = await check_admin(access_token=access_token, db=db)
     if type(res) != int:
         return res
+
     now = datetime.datetime.now()
     this_month = datetime.datetime(year=now.year, month=now.month, day=1)
     total_income = 0
